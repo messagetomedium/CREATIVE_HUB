@@ -1,0 +1,55 @@
+import { useEffect, useRef } from 'react';
+import type { GameContent } from './game/content';
+import type { GameBridge } from './game/bridge';
+import type { FactoryScene } from './game/FactoryScene';
+declare global {
+  interface Window {
+    __CF_DEBUG__?: { snapshot: () => ReturnType<FactoryScene['snapshot']> };
+  }
+}
+export function GameView({
+  content,
+  bridge,
+  overview,
+  destination,
+}: {
+  content: GameContent;
+  bridge: GameBridge;
+  overview: boolean;
+  destination?: string;
+}) {
+  const container = useRef<HTMLDivElement>(null);
+  const scene = useRef<FactoryScene | null>(null);
+  const options = useRef({ overview, destination });
+  options.current = { overview, destination };
+  useEffect(() => {
+    let disposed = false;
+    let instance: ReturnType<typeof import('./game/createGame').createGame> | undefined;
+    void import('./game/createGame')
+      .then(({ createGame }) => {
+        if (disposed || !container.current) return;
+        instance = createGame(container.current, content, bridge);
+        scene.current = instance.scene;
+        instance.scene.setOverview(options.current.overview);
+        instance.scene.selectWorkshop(options.current.destination);
+        if (import.meta.env.DEV)
+          window.__CF_DEBUG__ = { snapshot: () => instance!.scene.snapshot() };
+      })
+      .catch((error) => {
+        if (!disposed) bridge.emit('error', String(error));
+      });
+    return () => {
+      disposed = true;
+      scene.current = null;
+      if (import.meta.env.DEV) delete window.__CF_DEBUG__;
+      instance?.game.destroy(true);
+    };
+  }, [content, bridge]);
+  useEffect(() => {
+    scene.current?.setOverview(overview);
+  }, [overview]);
+  useEffect(() => {
+    scene.current?.selectWorkshop(destination);
+  }, [destination]);
+  return <div ref={container} className="game-canvas" data-testid="game-canvas" />;
+}

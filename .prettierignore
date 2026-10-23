@@ -1,0 +1,11 @@
+node_modules
+.cache
+dist
+apps/web/public/content
+package-lock.json
+content/maps/factory.tmj
+docs/workadventure-analysis.md
+docs/architecture.md
+docs/implementation-plan.md
+playwright-report
+test-results

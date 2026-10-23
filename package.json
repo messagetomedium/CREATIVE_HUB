@@ -1,0 +1,35 @@
+{
+  "name": "creative-factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "npm@11.9.0",
+  "scripts": {
+    "dev": "npm run content:build && npm run dev --workspace @creative-factory/web",
+    "content:build": "tsx packages/content-tools/src/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build": "npm run content:build && npm run typecheck && npm run build --workspaces --if-present",
+    "preview": "npm run preview --workspace @creative-factory/web",
+    "dev:spike": "npm run dev --workspace @creative-factory/game-server",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "content:author": "tsx packages/content-tools/src/author-map.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.10.1",
+    "prettier": "3.8.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  }
+}

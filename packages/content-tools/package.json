@@ -1,0 +1,10 @@
+{
+  "name": "@creative-factory/content-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@creative-factory/contracts": "*",
+    "@creative-factory/world-core": "*"
+  }
+}

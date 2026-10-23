@@ -1,0 +1,10 @@
+{
+  "name": "@creative-factory/world-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@creative-factory/contracts": "*"
+  }
+}

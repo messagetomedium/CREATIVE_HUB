@@ -1,0 +1,683 @@
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  color: #253b31;
+  background: #f6f5ef;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #839d60;
+  outline-offset: 4px;
+}
+button {
+  border: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.site-header {
+  height: 76px;
+  padding: 0 36px;
+  border-bottom: 1px solid #dddfd4;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: #f9f8f2;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -1.1px;
+}
+.brand-mark {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #e1edb1;
+  background: #263e33;
+}
+.brand-light {
+  font-weight: 400;
+}
+.brand-dot {
+  font-size: 10px;
+  vertical-align: super;
+  display: inline-block;
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+.header-note {
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  color: #7f887a;
+  margin-left: 17px;
+}
+.local-badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #57674f;
+  background: #e9eddf;
+  border: 1px solid #dde3d0;
+  padding: 9px 12px;
+  border-radius: 30px;
+}
+.local-badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #738953;
+}
+main {
+  max-width: 1920px;
+  padding: 28px 36px 0;
+  margin: auto;
+}
+.page-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 27px;
+}
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  font-weight: 600;
+  color: #86907e;
+}
+.page-intro h1 {
+  font-size: 32px;
+  letter-spacing: -1.2px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 10px 0 9px;
+}
+.page-intro h1 > span {
+  color: #a5b475;
+}
+.page-intro p {
+  color: #85907f;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+}
+.edition {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  text-align: right;
+  color: #87917f;
+  font-size: 8px;
+  letter-spacing: 1.8px;
+}
+.edition > span:first-child {
+  color: #3b5140;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+.factory-layout {
+  display: grid;
+  grid-template-columns: 254px 1fr;
+  gap: 20px;
+}
+.sidebar {
+  padding: 20px 17px 18px;
+  background: #eeefe6;
+  border: 1px solid #e0e3d6;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.sidebar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px 3px;
+}
+.count {
+  font-size: 9px;
+  background: #e0e5d4;
+  color: #758366;
+  padding: 4px 7px;
+  border-radius: 4px;
+}
+.hall-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  font-size: 11px;
+}
+.hall-link.active {
+  background: #e0e6d3;
+}
+.hall-icon {
+  font-size: 23px;
+  color: #798a64;
+}
+.hall-link small {
+  display: block;
+  font-size: 9px;
+  color: #849077;
+  margin-top: 5px;
+}
+.link-arrow {
+  color: #819076;
+  font-size: 14px;
+  margin-left: auto;
+}
+.workshop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.workshop-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  width: 100%;
+  padding: 12px 9px;
+  border: 1px solid transparent;
+  border-left: 3px solid var(--accent);
+  background: #f8f8f1;
+  border-radius: 0 8px 8px 0;
+  text-align: left;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.workshop-link:hover {
+  background: #fffef7;
+}
+.workshop-link.selected {
+  border-color: var(--accent);
+  background: #fdfdf5;
+}
+.workshop-code {
+  font-size: 9px;
+  color: #9b9e8f;
+  align-self: flex-start;
+  margin-top: 3px;
+}
+.workshop-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+.workshop-name small {
+  display: block;
+  font-size: 8px;
+  line-height: 1.6;
+  font-weight: 400;
+  margin-top: 6px;
+  color: #929686;
+  white-space: nowrap;
+}
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 4px;
+}
+.map-card {
+  background: #e6eadc;
+  border: 1px solid #dce2ce;
+  padding: 12px;
+  border-radius: 8px;
+}
+.map-card .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  display: flex;
+  justify-content: space-between;
+}
+.mini-map {
+  width: 100%;
+  display: block;
+  margin: 11px 0 8px;
+  overflow: visible;
+}
+.map-room {
+  cursor: pointer;
+}
+.map-room:hover rect {
+  fill-opacity: 0.9;
+}
+.map-caption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #869078;
+}
+.map-caption > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.map-caption i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2e5439;
+}
+.sidebar-note {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #939a87;
+  margin: 15px 3px 0;
+}
+.game-panel {
+  height: calc(100dvh - 277px);
+  min-height: 520px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #cdd5bf;
+  border-radius: 14px;
+  background: #e0e4da;
+  box-shadow: 0 3px 8px #283c3210;
+}
+.game-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+.game-canvas canvas {
+  display: block;
+  outline: none;
+}
+.game-canvas:has(canvas:focus-visible) {
+  outline: 3px solid #839d60;
+  outline-offset: -3px;
+}
+.zone-card {
+  pointer-events: none;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fcfcf0f0;
+  border: 1px solid #fffef2;
+  box-shadow: 0 4px 12px #3343330a;
+  border-radius: 9px;
+  padding: 13px 17px;
+  backdrop-filter: blur(12px);
+}
+.zone-card .eyebrow {
+  font-size: 7px;
+  letter-spacing: 1.5px;
+}
+.zone-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.zone-dot {
+  width: 9px;
+  height: 9px;
+  border: 2px solid #ffffff99;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #dce2cd70;
+}
+.overview-button {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  background: #fcfcf0ef;
+  border: 1px solid #fffef2;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px #3343330a;
+}
+.overview-button span {
+  font-size: 20px;
+  line-height: 1;
+}
+.overview-button:hover {
+  background: #fffef7;
+}
+.scene-caption {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fbfcf0ed;
+  backdrop-filter: blur(8px);
+  border: 1px solid #fffef2;
+  border-radius: 30px;
+  padding: 8px 14px 8px 8px;
+  font-size: 10px;
+  color: #7b8772;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.you-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #496344;
+  background: #e3e9d6;
+  border-radius: 30px;
+  padding: 6px 10px;
+  font-size: 9px;
+}
+.you-chip > span {
+  width: 6px;
+  height: 6px;
+  background: #496344;
+  border-radius: 50%;
+}
+.loading-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 13px;
+  background: #e5eadf;
+  color: #6e8065;
+  text-align: center;
+  padding: 28px;
+}
+.loading-state strong {
+  font-size: 20px;
+  color: #334c39;
+  font-weight: 500;
+}
+.loading-state > span:last-child {
+  font-size: 12px;
+}
+.loading-mark {
+  color: #3d5a3f;
+  animation: breathe 1.4s infinite;
+}
+.error-state p {
+  max-width: 480px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.error-state button {
+  background: #344d3b;
+  color: #edf1e3;
+  border-radius: 6px;
+  padding: 10px 15px;
+}
+.controls-footer {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  min-height: 62px;
+  font-size: 10px;
+  color: #8c9482;
+}
+.key-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.key-group {
+  display: flex;
+  gap: 3px;
+}
+kbd {
+  font:
+    9px ui-monospace,
+    monospace;
+  min-width: 21px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dce0d2;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: #f9f9f3;
+  color: #6c7b62;
+}
+.or {
+  color: #b0b6a5;
+  font-size: 9px;
+}
+.footer-note {
+  margin: auto;
+  font-size: 9px;
+  letter-spacing: 0.3px;
+}
+.prototype-tag {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.prototype-tag i {
+  width: 5px;
+  height: 5px;
+  background: #9cae7b;
+  border-radius: 50%;
+}
+@keyframes breathe {
+  50% {
+    opacity: 0.4;
+    transform: translateY(-3px);
+  }
+}
+@media (min-width: 1600px) {
+  .factory-layout {
+    grid-template-columns: 280px 1fr;
+  }
+  .sidebar {
+    padding: 23px;
+  }
+  .workshop-link {
+    min-height: 76px;
+  }
+  .workshop-name {
+    font-size: 13px;
+  }
+  .workshop-name small {
+    font-size: 9px;
+  }
+  .game-panel {
+    min-height: 620px;
+  }
+}
+@media (max-width: 1050px) {
+  .header-note,
+  .edition,
+  .footer-note {
+    display: none;
+  }
+  .factory-layout {
+    grid-template-columns: 216px 1fr;
+    gap: 14px;
+  }
+  .sidebar {
+    padding: 15px 11px;
+  }
+  .workshop-name {
+    font-size: 10px;
+  }
+  .workshop-name small {
+    font-size: 7px;
+  }
+  .workshop-link {
+    gap: 7px;
+  }
+  .page-intro h1 {
+    font-size: 28px;
+  }
+  .scene-caption {
+    max-width: 90%;
+    white-space: normal;
+    font-size: 9px;
+  }
+  .game-panel {
+    min-height: 540px;
+  }
+  .zone-card {
+    left: 12px;
+    top: 12px;
+    padding: 10px;
+  }
+  .overview-button {
+    right: 12px;
+    top: 12px;
+    padding: 9px;
+    font-size: 0;
+  }
+  .overview-button span {
+    font-size: 20px;
+  }
+  main {
+    padding: 24px 20px 0;
+  }
+  .site-header {
+    padding: 0 20px;
+  }
+  .prototype-tag {
+    margin-left: auto;
+  }
+}
+@media (max-width: 700px) {
+  .site-header {
+    height: 65px;
+    padding: 0 16px;
+  }
+  .brand {
+    font-size: 20px;
+  }
+  .brand-mark {
+    width: 33px;
+    height: 33px;
+  }
+  .local-badge {
+    font-size: 9px;
+    padding: 7px 9px;
+  }
+  .page-intro h1 {
+    font-size: 24px;
+    letter-spacing: -0.8px;
+  }
+  .page-intro p {
+    font-size: 10px;
+    max-width: 310px;
+  }
+  .page-intro .eyebrow {
+    font-size: 8px;
+  }
+  main {
+    padding: 20px 12px 0;
+  }
+  .factory-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sidebar {
+    padding: 10px;
+    background: transparent;
+    border: 0;
+    gap: 0;
+  }
+  .sidebar-title,
+  .hall-link,
+  .sidebar-bottom {
+    display: none;
+  }
+  .workshop-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .workshop-link {
+    min-height: 45px;
+    padding: 9px;
+  }
+  .workshop-name small {
+    display: none;
+  }
+  .workshop-code {
+    font-size: 8px;
+  }
+  .game-panel {
+    height: 65dvh;
+    min-height: 440px;
+  }
+  .controls-footer {
+    flex-wrap: wrap;
+    padding: 15px 0;
+    gap: 12px;
+  }
+  .key-hint {
+    gap: 6px;
+    font-size: 9px;
+  }
+  .prototype-tag {
+    font-size: 7px;
+  }
+  .scene-caption {
+    bottom: 12px;
+    width: max-content;
+  }
+  .zone-card strong {
+    font-size: 12px;
+  }
+  .game-canvas {
+    touch-action: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-mark {
+    animation: none;
+  }
+  .workshop-link {
+    transition: none;
+  }
+}

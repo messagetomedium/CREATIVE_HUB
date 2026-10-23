@@ -1,0 +1,46 @@
+[
+  {
+    "id": "design",
+    "code": "01",
+    "name": "Дизайн и форма",
+    "discipline": "Графика · Предметный дизайн",
+    "description": "Место для идей, эскизов и новых визуальных языков.",
+    "accent": "#a69acb",
+    "floorTile": 2,
+    "room": { "x": 2, "y": 2, "width": 24, "height": 20 },
+    "door": { "side": "south", "offset": 10, "width": 4 }
+  },
+  {
+    "id": "media",
+    "code": "02",
+    "name": "Медиа и звук",
+    "discipline": "Музыка · Кино · Цифровые медиа",
+    "description": "Студия историй, звуковых экспериментов и новых медиа.",
+    "accent": "#dc9d77",
+    "floorTile": 3,
+    "room": { "x": 38, "y": 2, "width": 24, "height": 20 },
+    "door": { "side": "south", "offset": 10, "width": 4 }
+  },
+  {
+    "id": "textile",
+    "code": "03",
+    "name": "Мода и текстиль",
+    "discipline": "Материалы · Одежда · Ремесло",
+    "description": "Мастерская фактур, материалов и осознанной моды.",
+    "accent": "#8faf91",
+    "floorTile": 4,
+    "room": { "x": 2, "y": 28, "width": 24, "height": 18 },
+    "door": { "side": "north", "offset": 10, "width": 4 }
+  },
+  {
+    "id": "architecture",
+    "code": "04",
+    "name": "Архитектура",
+    "discipline": "Среда · Пространство · Город",
+    "description": "Цех пространственных идей и будущих городских сценариев.",
+    "accent": "#8caabd",
+    "floorTile": 5,
+    "room": { "x": 38, "y": 28, "width": 24, "height": 18 },
+    "door": { "side": "north", "offset": 10, "width": 4 }
+  }
+]
