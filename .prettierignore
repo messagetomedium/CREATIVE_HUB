@@ -9,3 +9,7 @@ docs/architecture.md
 docs/implementation-plan.md
 playwright-report
 test-results
+
+# Managed static release for branch-based GitHub Pages
+/site/
+/index.html

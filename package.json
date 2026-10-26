@@ -22,7 +22,8 @@
     "dev:spike": "npm run dev --workspace @creative-factory/game-server",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "content:author": "tsx packages/content-tools/src/author-map.ts"
+    "content:author": "tsx packages/content-tools/src/author-map.ts",
+    "export:pages": "node scripts/export-pages.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

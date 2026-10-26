@@ -1,0 +1,37 @@
+[
+  {
+    "path": "content/maps/factory.tmj",
+    "sha256": "290fd8ac280f3e5a81466881b66c595b8217dd6c54458dcbf115b18b3deeb8cd",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/maps/workshops.json",
+    "sha256": "add94f00c12e5d9d6de6fef1a0b8cab7989ad88b4166127073649f9320b5b8be",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/maps/placeholder-tiles.svg",
+    "sha256": "57fcb03efde975eef7befbf5c9d441cc31f35e250585d63132dfa6e603aaf308",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/avatars/catalog.json",
+    "sha256": "3fa06867e32833b1c52f69cf3387dad893ad0cc016c1f6cd13266daaaf33b352",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/game/placeholderArt.ts",
+    "sha256": "7ab24d4b197fac68a07661a2cb7d9a5d23bd406d3897228a5d2bc74d51e2409c",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/App.tsx",
+    "sha256": "0bab628f401edb5e5594341c053548e9a1674b1932195f1e7d1807ab1de53dca",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/public/favicon.svg",
+    "sha256": "fd923c0ba3d4d11bcfd26919d30875fb5f1b96a639602f0e2397129561e77556",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  }
+]
