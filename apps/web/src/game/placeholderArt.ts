@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { createAvatarSheet } from '../avatar/art';
 import type { AvatarCatalog, AvatarConfig, WorldProp } from '@creative-factory/contracts';
 
 function canvas(width: number, height: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
@@ -30,44 +31,7 @@ export function makeAvatar(
   config: AvatarConfig,
 ): void {
   const { frameWidth: w, frameHeight: h } = catalog.sprite;
-  const [surface, ctx] = canvas(w * 6, h * 4);
-  const palette = config.palette;
-  for (let direction = 0; direction < 4; direction++)
-    for (let frame = 0; frame < 6; frame++) {
-      ctx.save();
-      ctx.translate(frame * w + w / 2, direction * h + h / 2);
-      ctx.scale(w / 48, h / 48);
-      ctx.rotate((direction * Math.PI) / 2);
-      const stride = frame < 2 ? 0 : Math.sin(((frame - 2) * Math.PI) / 2) * 3;
-      const breathe = frame === 1 ? 0.7 : 0;
-      box(ctx, -10, 4 + stride, 7, 10, '#253e37', 3);
-      box(ctx, 3, 4 - stride, 7, 10, '#253e37', 3);
-      box(ctx, -10, 9 + stride, 7, 5, palette.shoes, 2);
-      box(ctx, 3, 9 - stride, 7, 5, palette.shoes, 2);
-      box(ctx, -16, -2 - stride, 6, 13, palette.outfit, 3);
-      box(ctx, 10, -2 + stride, 6, 13, palette.outfit, 3);
-      box(ctx, -15, -5 - stride, 5, 5, palette.skin, 2);
-      box(ctx, 10, -5 + stride, 5, 5, palette.skin, 2);
-      box(ctx, -11, -8 + breathe, 22, 20, '#a74e36', 7);
-      box(ctx, -10, -8 + breathe, 20, 16, palette.outfit, 6);
-      box(ctx, -5, 5 + breathe, 10, 4, '#df9875', 2);
-      ctx.fillStyle = palette.skin;
-      ctx.beginPath();
-      ctx.ellipse(0, -5 + breathe, 9, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = palette.hair;
-      ctx.beginPath();
-      ctx.ellipse(0, -3 + breathe, 10, 9, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Face points north; each row rotates the same overhead silhouette.
-      box(ctx, -6, -14 + breathe, 12, 4, palette.skin, 2);
-      ctx.strokeStyle = '#dfdbc4';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(0, -4 + breathe, 10.5, 0.15, Math.PI - 0.15);
-      ctx.stroke();
-      ctx.restore();
-    }
+  const surface = createAvatarSheet(catalog, config);
   const texture = scene.textures.addCanvas('avatar', surface);
   if (!texture) throw new Error('Не удалось создать атлас персонажа');
   for (let row = 0; row < 4; row++)

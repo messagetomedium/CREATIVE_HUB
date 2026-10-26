@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { PlayerState, Workshop } from '@creative-factory/contracts';
+import type { AvatarConfig, PlayerState, Workshop } from '@creative-factory/contracts';
 import { FIXED_STEP_MS, initialPlayer, stepPlayer, zoneAt } from '@creative-factory/world-core';
 import type { GameContent } from './content';
 import { GameBridge } from './bridge';
@@ -23,6 +23,7 @@ export class FactoryScene extends Phaser.Scene {
   constructor(
     private content: GameContent,
     private bridge: GameBridge,
+    private avatar: AvatarConfig = content.avatars.defaultAvatar,
   ) {
     super('factory');
     this.state = initialPlayer(content.world);
@@ -85,8 +86,7 @@ export class FactoryScene extends Phaser.Scene {
           .setOrigin(0, 0)
           .setDepth(1000 + prop.bounds.y + prop.bounds.height);
       }
-      if (avatars.sprite.source.kind === 'procedural')
-        makeAvatar(this, avatars, avatars.defaultAvatar);
+      if (avatars.sprite.source.kind === 'procedural') makeAvatar(this, avatars, this.avatar);
       for (const [direction, animation] of Object.entries(avatars.sprite.animations)) {
         for (const mode of ['idle', 'walk'] as const)
           this.anims.create({
@@ -300,6 +300,7 @@ export class FactoryScene extends Phaser.Scene {
     const camera = this.cameras?.main;
     return {
       player: { ...this.state },
+      avatar: this.avatar,
       zone: this.currentZone,
       tick: this.tick,
       animation: this.player?.anims.currentAnim?.key,

@@ -1,6 +1,16 @@
 # Creative Factory: независимая архитектура
 
-Дата: 23 октября 2026 года. Статус: проектное решение для будущей реализации. Приложение, схемы БД и инфраструктура этим документом не созданы. Основания и ограничения исследования описаны в [workadventure-analysis.md](workadventure-analysis.md), порядок реализации — в [implementation-plan.md](implementation-plan.md).
+Дата проектного решения: 23 октября 2026 года. Архитектура остаётся основой разработки. На 26 октября реализованы локальный прототип и код пользовательских экранов/этапа 2; фактический статус и ограничения — в [prototype-status.md](prototype-status.md). Основания исследования — в [workadventure-analysis.md](workadventure-analysis.md), порядок реализации — в [implementation-plan.md](implementation-plan.md).
+
+## Уточнения реализации этапа 2 — 26 октября
+
+Существующие границы модулей сохранены. Auth использует Email OTP (`signInWithOtp` → `verifyOtp`, без постоянного пароля), SDK хранит/обновляет сессию. React-экраны `/`, `/login`, `/profile`, `/avatar`, `/factory` открываются через hash routing, совместимый с GitHub Pages без server rewrite. Локальная прогулка сохранена; Colyseus к браузеру пока не подключён.
+
+В `profiles` display name представлен обязательными `first_name`/`last_name`; UI собирает подпись из них, уникальность имён не требуется. `user_id` — FK на Auth UUID. Остальные поля: `professional_role`, `specialization`, `organization`, `competencies`, `bio`, `portfolio_links`, revision/timestamps. Email хранится только в Auth. `profile_private` пока содержит locale и доступен только владельцу. В `avatar_configs` parts/palette/catalogVersion/presetId находятся в проверяемом JSONB `config`, revision вынесена в отдельную колонку и присоединяется к AvatarConfig в адаптере.
+
+RPC `save_profile`/`save_avatar` работают как SECURITY INVOKER под пользовательским JWT/RLS, берут owner из `auth.uid()` и используют expected revision. Триггеры атомарно увеличивают revision; старый save получает конфликт. Обычным клиентам не выданы UPDATE user_id/revision/timestamps и DELETE. Профессиональная роль не участвует в авторизации. Ограничения полей, HTTPS и IDs проверяются в TypeScript и SQL. Каталог v1 ограничен собственными временными вариантами; его расширение требует согласованной новой миграции.
+
+Предпросмотр и Phaser используют один оригинальный Canvas-рендерер частей. Сохранённый AvatarConfig поступает в FactoryScene при создании game instance. Формы находятся на отдельных экранах, поэтому Phaser и его input listeners уничтожаются при уходе; logout в любой вкладке возвращает на главную. Физика world-core, камера и геометрия карты не изменены. `supabase-setup.md` содержит ручное подключение проекта/SMTP; до него hosted интеграция и доставка не считаются проверенными.
 
 ## Продуктовые границы
 

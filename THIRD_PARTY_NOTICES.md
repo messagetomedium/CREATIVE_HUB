@@ -22,5 +22,7 @@
 | @types/node            | 24.10.1 | MIT        | [npm](https://www.npmjs.com/package/@types/node/v/24.10.1)           |
 | @types/react           | 19.3.0  | MIT        | [npm](https://www.npmjs.com/package/@types/react/v/19.3.0)           |
 | @types/react-dom       | 19.2.3  | MIT        | [npm](https://www.npmjs.com/package/@types/react-dom/v/19.2.3)       |
+| @supabase/supabase-js  | 2.118.0 | MIT        | [npm](https://www.npmjs.com/package/@supabase/supabase-js/v/2.118.0) |
+| @electric-sql/pglite   | 0.5.11  | Apache-2.0 | [npm](https://www.npmjs.com/package/@electric-sql/pglite/v/0.5.11)   |
 
-Supabase SDK сейчас не устанавливается: его лицензия и условия выбранной версии будут проверены на этапе 2. WorkAdventure и его пакеты отсутствуют в dependencies. Собственная графика описана в [content/ASSETS.md](content/ASSETS.md).
+Supabase runtime-пакеты `auth-js`, `functions-js`, `postgrest-js`, `realtime-js`, `storage-js` закреплены в lockfile на 2.118.0, MIT; `iceberg-js` — 0.8.1, MIT. Их полные LICENSE включаются в `/content/third-party-licenses.txt` браузерной сборки. PGlite применяется только в тестах миграций и не входит в web bundle; его LICENSE/notices включены в npm-поставку. Условия hosted Supabase/почтового провайдера применяются отдельно после создания проекта. WorkAdventure и его пакеты отсутствуют в dependencies. Собственная графика описана в [content/ASSETS.md](content/ASSETS.md).

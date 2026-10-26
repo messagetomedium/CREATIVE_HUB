@@ -16,17 +16,32 @@
   },
   {
     "path": "content/avatars/catalog.json",
-    "sha256": "3fa06867e32833b1c52f69cf3387dad893ad0cc016c1f6cd13266daaaf33b352",
+    "sha256": "8c8ed9f508ce9ede94f7cfec1b30c20a3cdcef930cdf80031b77722577bf6120",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/game/placeholderArt.ts",
-    "sha256": "7ab24d4b197fac68a07661a2cb7d9a5d23bd406d3897228a5d2bc74d51e2409c",
+    "sha256": "560f6397ae8f0ec913450dcade452921c2d4bc301d3cc462e9d5a3c1dddc05ca",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/avatar/art.ts",
+    "sha256": "f63ae365c8fda0d04ae6ee0a87ab28487003baf9babcb21a7a990bce14c6def0",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/pages/HomePage.tsx",
+    "sha256": "787c92d12cb9c6dfd2f4b22d21ac327c210d1f96c4ef7385854b5f60fcab6fd8",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/components.tsx",
+    "sha256": "f148c5941d6f7336a12cf1bb7bd8f9b92a334a7bf7078c3c93056eb5a0a76674",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/App.tsx",
-    "sha256": "0bab628f401edb5e5594341c053548e9a1674b1932195f1e7d1807ab1de53dca",
+    "sha256": "dd7fd45a756e16f697a4e115b3ae09d8c2339be60138ce4d72c7ad398bd7a763",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {

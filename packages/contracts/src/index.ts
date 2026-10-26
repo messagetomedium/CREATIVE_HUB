@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export * from './account';
 
 export const DirectionSchema = z.enum(['north', 'east', 'south', 'west']);
 export type Direction = z.infer<typeof DirectionSchema>;
@@ -97,6 +98,25 @@ export const AvatarConfigSchema = z.object({
   palette: z.object({ skin: hexColor, hair: hexColor, outfit: hexColor, shoes: hexColor }),
 });
 export type AvatarConfig = z.infer<typeof AvatarConfigSchema>;
+// Shared with the original procedural provider and the database's catalog-v1 constraint.
+export const AVATAR_PART_IDS = {
+  body: ['base-01', 'base-02'],
+  hair: ['short-01', 'bob-01', 'curls-01'],
+  outfit: ['workwear-01', 'jacket-01', 'dress-01'],
+  accessory: ['headphones-01'],
+} as const;
+export const SavedAvatarSchema = AvatarConfigSchema.extend({
+  presetId: z.literal('maker'),
+  parts: z
+    .object({
+      body: z.enum(AVATAR_PART_IDS.body),
+      hair: z.enum(AVATAR_PART_IDS.hair),
+      outfit: z.enum(AVATAR_PART_IDS.outfit),
+      accessory: z.enum(AVATAR_PART_IDS.accessory).nullable(),
+    })
+    .strict(),
+  palette: AvatarConfigSchema.shape.palette.strict(),
+}).strict();
 export const AvatarCatalogSchema = z.object({
   version: z.literal(1),
   defaultAvatar: AvatarConfigSchema,
@@ -125,7 +145,7 @@ export const ManifestSchema = z.object({
 });
 export type ContentManifest = z.infer<typeof ManifestSchema>;
 
-// Future adapters consume these contracts; the local prototype has no Auth/network side effects.
+// Reserved for the future Colyseus adapter; Auth lives outside the movement/session contract.
 export interface WorldSession {
   mode: 'local' | 'online';
   sendInput(input: MovementInput): void;

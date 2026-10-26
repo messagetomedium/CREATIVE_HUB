@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { AvatarConfig } from '@creative-factory/contracts';
 import type { GameContent } from './game/content';
 import type { GameBridge } from './game/bridge';
 import type { FactoryScene } from './game/FactoryScene';
@@ -12,11 +13,13 @@ export function GameView({
   bridge,
   overview,
   destination,
+  avatar,
 }: {
   content: GameContent;
   bridge: GameBridge;
   overview: boolean;
   destination?: string;
+  avatar?: AvatarConfig;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const scene = useRef<FactoryScene | null>(null);
@@ -28,7 +31,7 @@ export function GameView({
     void import('./game/createGame')
       .then(({ createGame }) => {
         if (disposed || !container.current) return;
-        instance = createGame(container.current, content, bridge);
+        instance = createGame(container.current, content, bridge, avatar);
         scene.current = instance.scene;
         instance.scene.setOverview(options.current.overview);
         instance.scene.selectWorkshop(options.current.destination);
@@ -44,7 +47,7 @@ export function GameView({
       if (import.meta.env.DEV) delete window.__CF_DEBUG__;
       instance?.game.destroy(true);
     };
-  }, [content, bridge]);
+  }, [content, bridge, avatar]);
   useEffect(() => {
     scene.current?.setOverview(overview);
   }, [overview]);

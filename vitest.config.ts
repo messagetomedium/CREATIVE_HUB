@@ -5,6 +5,7 @@ export default defineConfig({
       'packages/**/*.test.ts',
       'apps/game-server/**/*.test.ts',
       'apps/web/src/**/*.test.ts',
+      'supabase/tests/**/*.test.ts',
     ],
     testTimeout: 15000,
   },

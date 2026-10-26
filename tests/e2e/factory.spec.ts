@@ -9,7 +9,7 @@ test.afterEach(() => {
   expect(pageErrors).toEqual([]);
 });
 async function open(page: Page) {
-  await page.goto('/');
+  await page.goto('/#/factory');
   await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
   await page.waitForFunction(() => (window.__CF_DEBUG__?.snapshot().tick ?? 0) > 3);
 }
@@ -141,7 +141,7 @@ test('a failed content integrity check shows an actionable error instead of a br
   await page.route('**/content/world-*.json', (route) =>
     route.fulfill({ contentType: 'application/json', body: '{}' }),
   );
-  await page.goto('/');
+  await page.goto('/#/factory');
   await expect(page.getByRole('alert')).toContainText('Версия контента изменилась');
   await expect(page.locator('canvas')).toHaveCount(0);
 });
@@ -151,7 +151,7 @@ test('failed tileset loading tears down the game canvas and its debug reference'
   await page.route('**/content/tiles-*.svg', (route) =>
     route.fulfill({ status: 404, body: 'not found' }),
   );
-  await page.goto('/');
+  await page.goto('/#/factory');
   await expect(page.getByRole('alert')).toContainText('Не удалось', { timeout: 20000 });
   await expect(page.locator('canvas')).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => window.__CF_DEBUG__)).toBeUndefined();

@@ -40,6 +40,9 @@ const originals = [
   'content/maps/placeholder-tiles.svg',
   'content/avatars/catalog.json',
   'apps/web/src/game/placeholderArt.ts',
+  'apps/web/src/avatar/art.ts',
+  'apps/web/src/pages/HomePage.tsx',
+  'apps/web/src/components.tsx',
   'apps/web/src/App.tsx',
   'apps/web/public/favicon.svg',
 ];
@@ -61,6 +64,13 @@ const browserLicenses = [
   ['phaser', 'LICENSE.md'],
   ['eventemitter3', 'LICENSE'],
   ['zod', 'LICENSE'],
+  ['@supabase/supabase-js', 'LICENSE'],
+  ['@supabase/auth-js', 'LICENSE'],
+  ['@supabase/functions-js', 'LICENSE'],
+  ['@supabase/postgrest-js', 'LICENSE'],
+  ['@supabase/realtime-js', 'LICENSE'],
+  ['@supabase/storage-js', 'LICENSE'],
+  ['iceberg-js', 'LICENSE'],
 ] as const;
 const notices = await Promise.all(
   browserLicenses.map(async ([name, filename]) => {
