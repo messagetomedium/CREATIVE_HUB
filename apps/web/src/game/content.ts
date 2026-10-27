@@ -2,6 +2,8 @@ import {
   AvatarCatalogSchema,
   ManifestSchema,
   WorldSchema,
+  SceneArtSchema,
+  type SceneArt,
   type AvatarCatalog,
   type ContentManifest,
   type World,
@@ -11,6 +13,7 @@ export interface GameContent {
   world: World;
   avatars: AvatarCatalog;
   manifest: ContentManifest;
+  sceneArt: SceneArt;
 }
 async function verifiedJson(url: string, expected: string, signal: AbortSignal): Promise<unknown> {
   // Keep the content same-origin AND inside the configured project base path.
@@ -31,18 +34,21 @@ export async function loadContent(signal: AbortSignal): Promise<GameContent> {
   });
   if (!response.ok) throw new Error('Карта не найдена. Выполните npm run content:build.');
   const manifest = ManifestSchema.parse(await response.json());
-  const [world, avatars] = await Promise.all([
+  const [world, avatars, sceneArt] = await Promise.all([
     verifiedJson(manifest.worldUrl, manifest.worldHash, signal),
     verifiedJson(manifest.avatarsUrl, manifest.avatarsHash, signal),
+    verifiedJson(manifest.sceneArtUrl, manifest.sceneArtHash, signal),
   ]);
   return {
     world: WorldSchema.parse(world),
     avatars: AvatarCatalogSchema.parse(avatars),
+    sceneArt: SceneArtSchema.parse(sceneArt),
     manifest: {
       ...manifest,
       worldUrl: contentPath(manifest.worldUrl, import.meta.env.BASE_URL),
       avatarsUrl: contentPath(manifest.avatarsUrl, import.meta.env.BASE_URL),
       tilesUrl: contentPath(manifest.tilesUrl, import.meta.env.BASE_URL),
+      sceneArtUrl: contentPath(manifest.sceneArtUrl, import.meta.env.BASE_URL),
     },
   };
 }

@@ -1,10 +1,13 @@
 import Phaser from 'phaser';
 import type { AvatarConfig, PlayerState, Workshop } from '@creative-factory/contracts';
+import { feetDepth, SHADOW_DEPTH, wallFrame } from '@creative-factory/contracts';
 import { FIXED_STEP_MS, initialPlayer, stepPlayer, zoneAt } from '@creative-factory/world-core';
 import type { GameContent } from './content';
 import { GameBridge } from './bridge';
 import { KeyboardInput } from './KeyboardInput';
-import { makeAvatar, makeProp } from './placeholderArt';
+import { makeAvatar } from './placeholderArt';
+import { installSceneArt, propAppearance } from './sceneArt';
+import { contentPath } from './contentPath';
 
 export class FactoryScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Sprite;
@@ -20,10 +23,12 @@ export class FactoryScene extends Phaser.Scene {
   private overview = false;
   private destination?: string;
   private tick = 0;
+  private propSprites: { id: string; sprite: Phaser.GameObjects.Image }[] = [];
   constructor(
     private content: GameContent,
     private bridge: GameBridge,
     private avatar: AvatarConfig = content.avatars.defaultAvatar,
+    private avatarSheet: HTMLCanvasElement,
   ) {
     super('factory');
     this.state = initialPlayer(content.world);
@@ -31,12 +36,15 @@ export class FactoryScene extends Phaser.Scene {
   }
   preload(): void {
     this.load.image('factory-tiles', this.content.manifest.tilesUrl);
-    const sprite = this.content.avatars.sprite;
-    if (sprite.source.kind === 'spritesheet')
-      this.load.spritesheet('avatar', sprite.source.url, {
-        frameWidth: sprite.frameWidth,
-        frameHeight: sprite.frameHeight,
-      });
+    for (const [key, spec] of [
+      ['props', this.content.sceneArt.props],
+      ['walls', this.content.sceneArt.walls],
+    ] as const)
+      if (spec.source.kind === 'spritesheet')
+        this.load.spritesheet(key, contentPath(spec.source.url, import.meta.env.BASE_URL), {
+          frameWidth: spec.frameWidth,
+          frameHeight: spec.frameHeight,
+        });
     this.load.on('loaderror', () =>
       this.bridge.emit('error', 'Не удалось загрузить графику карты. Обновите страницу.'),
     );
@@ -44,7 +52,7 @@ export class FactoryScene extends Phaser.Scene {
   create(): void {
     try {
       if (!this.textures.exists('factory-tiles')) throw new Error('Tileset карты не загрузился');
-      const { world, avatars } = this.content;
+      const { world, avatars, sceneArt } = this.content;
       const rows = Array.from({ length: world.height }, (_, i) =>
         world.ground.slice(i * world.width, (i + 1) * world.width),
       );
@@ -63,12 +71,20 @@ export class FactoryScene extends Phaser.Scene {
       );
       if (!tiles) throw new Error('Не удалось создать слои карты');
       map.createLayer(0, tiles, 0, 0)?.setDepth(0);
-      const walls = map.createBlankLayer('solids', tiles, 0, 0);
-      const wallRows = Array.from({ length: world.height }, (_, y) =>
-        world.solids.slice(y * world.width, (y + 1) * world.width).map((solid) => (solid ? 7 : -1)),
-      );
-      walls?.putTilesAt(wallRows, 0, 0);
-      walls?.setDepth(4000);
+      installSceneArt(this, sceneArt);
+      // The original solids grid remains the collider. Only its visual representation changes.
+      for (let y = 0; y < world.height; y++)
+        for (let x = 0; x < world.width; x++) {
+          if (!world.solids[y * world.width + x]) continue;
+          const frame = wallFrame(
+            x > 0 && world.solids[y * world.width + x - 1]!,
+            x + 1 < world.width && world.solids[y * world.width + x + 1]!,
+          );
+          this.add
+            .image(x * 32 + 16, (y + 1) * 32, 'walls', frame)
+            .setOrigin(sceneArt.walls.anchor.x / 32, sceneArt.walls.anchor.y / 64)
+            .setDepth(feetDepth((y + 1) * 32));
+        }
       this.drawWayfinding();
       for (const prop of world.props) {
         this.add
@@ -80,13 +96,23 @@ export class FactoryScene extends Phaser.Scene {
             0x253e37,
             0.1,
           )
-          .setDepth(500);
-        this.add
-          .image(prop.bounds.x, prop.bounds.y, makeProp(this, prop))
-          .setOrigin(0, 0)
-          .setDepth(1000 + prop.bounds.y + prop.bounds.height);
+          .setDepth(SHADOW_DEPTH);
+        const appearance = propAppearance(sceneArt, prop);
+        const sprite = this.add
+          .image(
+            prop.bounds.x + prop.bounds.width / 2,
+            prop.bounds.y + prop.bounds.height,
+            'props',
+            appearance.frame,
+          )
+          .setOrigin(
+            sceneArt.props.anchor.x / sceneArt.props.frameWidth,
+            sceneArt.props.anchor.y / sceneArt.props.frameHeight,
+          )
+          .setDepth(feetDepth(prop.bounds.y + prop.bounds.height));
+        this.propSprites.push({ id: prop.id, sprite });
       }
-      if (avatars.sprite.source.kind === 'procedural') makeAvatar(this, avatars, this.avatar);
+      makeAvatar(this, avatars, this.avatarSheet);
       for (const [direction, animation] of Object.entries(avatars.sprite.animations)) {
         for (const mode of ['idle', 'walk'] as const)
           this.anims.create({
@@ -97,15 +123,19 @@ export class FactoryScene extends Phaser.Scene {
           });
       }
       this.shadow = this.add
-        .ellipse(this.state.x + 2, this.state.y + 4, 31, 24, 0x253e37, 0.15)
+        .ellipse(this.state.x, this.state.y, 26, 12, 0x253e37, 0.15)
         .setDepth(501);
       this.ring = this.add
-        .ellipse(this.state.x, this.state.y, 43, 43)
+        .ellipse(this.state.x, this.state.y, 36, 18)
         .setStrokeStyle(2, 0x54705a, 0.7)
         .setDepth(502);
       this.player = this.add
         .sprite(this.state.x, this.state.y, 'avatar', 0)
-        .setDepth(1000 + this.state.y);
+        .setOrigin(
+          avatars.sprite.anchor.x / avatars.sprite.frameWidth,
+          avatars.sprite.anchor.y / avatars.sprite.frameHeight,
+        )
+        .setDepth(feetDepth(this.state.y));
       this.keyboard = new KeyboardInput(this.game.canvas);
       this.cameras.main
         .setBackgroundColor('#e0e4da')
@@ -285,8 +315,8 @@ export class FactoryScene extends Phaser.Scene {
     const alpha = this.accumulator / FIXED_STEP_MS;
     const x = Phaser.Math.Linear(this.previous.x, this.state.x, alpha),
       y = Phaser.Math.Linear(this.previous.y, this.state.y, alpha);
-    this.player.setPosition(x, y).setDepth(1000 + y);
-    this.shadow.setPosition(x + 2, y + 4);
+    this.player.setPosition(x, y).setDepth(feetDepth(y));
+    this.shadow.setPosition(x, y);
     this.ring.setPosition(x, y);
     this.player.play(`${this.state.direction}-${this.state.moving ? 'walk' : 'idle'}`, true);
     this.updateZone();
@@ -305,6 +335,24 @@ export class FactoryScene extends Phaser.Scene {
       tick: this.tick,
       animation: this.player?.anims.currentAnim?.key,
       frame: this.player?.frame.name,
+      rendering: {
+        projection: this.content.sceneArt.projection,
+        origin: this.player ? { x: this.player.originX, y: this.player.originY } : undefined,
+        playerDepth: this.player?.depth,
+        playerRenderY: this.player?.y,
+        props: this.propSprites.map(({ id, sprite }) => ({
+          id,
+          depth: sprite.depth,
+          x: sprite.x,
+          y: sprite.y,
+        })),
+        textures: this.textures
+          ? ['avatar', 'props', 'walls'].map((key) => {
+              const image = this.textures.get(key).getSourceImage() as HTMLCanvasElement;
+              return { key, width: image.width, height: image.height };
+            })
+          : [],
+      },
       camera: camera
         ? {
             x: camera.worldView.x,

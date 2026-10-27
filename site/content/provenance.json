@@ -16,17 +16,27 @@
   },
   {
     "path": "content/avatars/catalog.json",
-    "sha256": "8c8ed9f508ce9ede94f7cfec1b30c20a3cdcef930cdf80031b77722577bf6120",
+    "sha256": "a6fa394598fc95f1cdf45ef9af85a08c8a09ff649f16a7a4c740969c0ecbe8da",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/scene-art.json",
+    "sha256": "1a03529a5b152037dd658ae4e9c712568b4fdd297f191a6d9745575ae8070ef8",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/game/sceneArt.ts",
+    "sha256": "9b648fbd0e5c3e9b731cd5e5458da4d832b8250eaeab40f50b100cc193b9bd32",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/game/placeholderArt.ts",
-    "sha256": "560f6397ae8f0ec913450dcade452921c2d4bc301d3cc462e9d5a3c1dddc05ca",
+    "sha256": "c3bbfb8b043a14f1216d702e88524a4b93565ac9f07f99029ec68c86a2daf0cf",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/avatar/art.ts",
-    "sha256": "f63ae365c8fda0d04ae6ee0a87ab28487003baf9babcb21a7a990bce14c6def0",
+    "sha256": "35bac0b0cc609d6482593b19417c2005b8e33b3184a6fafa572a8d52479bc456",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {

@@ -23,6 +23,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "content:author": "tsx packages/content-tools/src/author-map.ts",
+    "art:reference": "node scripts/export-art-reference.mjs",
     "export:pages": "node scripts/export-pages.mjs"
   },
   "devDependencies": {

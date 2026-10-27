@@ -1,0 +1,89 @@
+{
+  "kind": "layered-sheets",
+  "layers": [
+    {
+      "part": "body",
+      "partId": "base-01",
+      "url": "/content/avatar-body-base-01-v1.png",
+      "tint": "skin"
+    },
+    {
+      "part": "body",
+      "partId": "base-02",
+      "url": "/content/avatar-body-base-02-v1.png",
+      "tint": "skin"
+    },
+    {
+      "part": "shoes",
+      "partId": "base-shoes",
+      "url": "/content/avatar-shoes-v1.png",
+      "tint": "shoes"
+    },
+    {
+      "part": "outfit",
+      "partId": "workwear-01",
+      "bodyId": "base-01",
+      "url": "/content/avatar-outfit-workwear-01-base-01-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "outfit",
+      "partId": "jacket-01",
+      "bodyId": "base-01",
+      "url": "/content/avatar-outfit-jacket-01-base-01-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "outfit",
+      "partId": "dress-01",
+      "bodyId": "base-01",
+      "url": "/content/avatar-outfit-dress-01-base-01-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "outfit",
+      "partId": "workwear-01",
+      "bodyId": "base-02",
+      "url": "/content/avatar-outfit-workwear-01-base-02-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "outfit",
+      "partId": "jacket-01",
+      "bodyId": "base-02",
+      "url": "/content/avatar-outfit-jacket-01-base-02-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "outfit",
+      "partId": "dress-01",
+      "bodyId": "base-02",
+      "url": "/content/avatar-outfit-dress-01-base-02-v1.png",
+      "tint": "outfit"
+    },
+    {
+      "part": "hair",
+      "partId": "short-01",
+      "url": "/content/avatar-hair-short-01-v1.png",
+      "tint": "hair"
+    },
+    {
+      "part": "hair",
+      "partId": "bob-01",
+      "url": "/content/avatar-hair-bob-01-v1.png",
+      "tint": "hair"
+    },
+    {
+      "part": "hair",
+      "partId": "curls-01",
+      "url": "/content/avatar-hair-curls-01-v1.png",
+      "tint": "hair"
+    },
+    {
+      "part": "accessory",
+      "partId": "headphones-01",
+      "url": "/content/avatar-headphones-01-v1.png",
+      "tint": null
+    }
+  ]
+}

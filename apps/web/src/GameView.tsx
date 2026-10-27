@@ -27,11 +27,16 @@ export function GameView({
   options.current = { overview, destination };
   useEffect(() => {
     let disposed = false;
-    let instance: ReturnType<typeof import('./game/createGame').createGame> | undefined;
+    const controller = new AbortController();
+    let instance: Awaited<ReturnType<typeof import('./game/createGame').createGame>> | undefined;
     void import('./game/createGame')
-      .then(({ createGame }) => {
+      .then(async ({ createGame }) => {
         if (disposed || !container.current) return;
-        instance = createGame(container.current, content, bridge, avatar);
+        instance = await createGame(container.current, content, bridge, avatar, controller.signal);
+        if (disposed) {
+          instance.game.destroy(true);
+          return;
+        }
         scene.current = instance.scene;
         instance.scene.setOverview(options.current.overview);
         instance.scene.selectWorkshop(options.current.destination);
@@ -43,6 +48,7 @@ export function GameView({
       });
     return () => {
       disposed = true;
+      controller.abort();
       scene.current = null;
       if (import.meta.env.DEV) delete window.__CF_DEBUG__;
       instance?.game.destroy(true);

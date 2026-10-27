@@ -2,7 +2,9 @@
   "version": 1,
   "worldUrl": "/content/world-e00f84fab7d57679.json",
   "worldHash": "e00f84fab7d57679b0fcb35052475b241b1626c9540a95e1a7714c43dbf63c0c",
-  "avatarsUrl": "/content/avatars-abe1ccccafb1bb66.json",
-  "avatarsHash": "abe1ccccafb1bb66c04c0e4e5a4fc2a8cc9eb91409076a59f30981291023228f",
-  "tilesUrl": "/content/tiles-57fcb03efde975ee.svg"
+  "avatarsUrl": "/content/avatars-4bfd928c7061bc32.json",
+  "avatarsHash": "4bfd928c7061bc322042da640e0f3e931f4196291ed0ea15c745b09de6a2594e",
+  "tilesUrl": "/content/tiles-57fcb03efde975ee.svg",
+  "sceneArtUrl": "/content/scene-art-342dc06558ac1baa.json",
+  "sceneArtHash": "342dc06558ac1baac57d7b3762dd9c9d161ace39a1037139e45b2739ce34234e"
 }

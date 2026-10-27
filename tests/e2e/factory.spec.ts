@@ -35,7 +35,7 @@ async function moveTo(
   }
   await expect.poll(async () => (await snapshot(page)).player.moving).toBe(false);
 }
-test('renders one live canvas in StrictMode with animated overhead avatar', async ({ page }) => {
+test('renders one live canvas in StrictMode with animated 3/4 avatar', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await open(page);
@@ -46,6 +46,65 @@ test('renders one live canvas in StrictMode with animated overhead avatar', asyn
   expect(first.camera!.x).toBeGreaterThan(0);
   await page.screenshot({ path: '.cache/review/factory-desktop.png', fullPage: true });
   expect(errors).toEqual([]);
+});
+test('upright feet anchor, shared textures and real occlusion in front of/behind the same bench', async ({
+  page,
+}) => {
+  await open(page);
+  const first = await snapshot(page);
+  expect(first.rendering.projection).toBe('three-quarter');
+  expect(first.rendering.origin).toEqual({ x: 0.5, y: 0.875 });
+  expect(first.rendering.textures).toEqual([
+    { key: 'avatar', width: 288, height: 256 },
+    { key: 'props', width: 640, height: 384 },
+    { key: 'walls', width: 128, height: 64 },
+  ]);
+  const sample = (x: number, y: number) =>
+    page.evaluate(
+      ({ x, y }) => {
+        const camera = window.__CF_DEBUG__!.snapshot().camera!;
+        const canvas = document.querySelector('.game-canvas canvas') as HTMLCanvasElement;
+        return [
+          ...canvas
+            .getContext('2d')!
+            .getImageData(
+              Math.round((x - camera.x) * camera.zoom),
+              Math.round((y - camera.y) * camera.zoom),
+              1,
+              1,
+            ).data,
+        ].slice(0, 3);
+      },
+      { x, y },
+    );
+  await moveTo(page, 'KeyA', 'x', 900, 'less');
+  await moveTo(page, 'KeyW', 'y', 690, 'less');
+  await page.keyboard.down('KeyW');
+  await page.waitForTimeout(400);
+  await page.keyboard.up('KeyW');
+  let state = await snapshot(page);
+  const bench = state.rendering.props.find((p) => p.id === 'hall-bench-west')!;
+  expect(state.rendering.playerDepth).toBeGreaterThan(bench.depth);
+  // The avatar's dark hair is actually drawn over the bench top here.
+  await expect.poll(async () => (await sample(897, 645)).every((v) => v < 100)).toBe(true);
+  await page.screenshot({ path: '.cache/review/three-quarter-front.png', fullPage: true });
+  await moveTo(page, 'KeyD', 'x', 980, 'greater');
+  await moveTo(page, 'KeyW', 'y', 600, 'less');
+  await moveTo(page, 'KeyA', 'x', 900, 'less');
+  await moveTo(page, 'KeyS', 'y', 628, 'greater');
+  await page.keyboard.down('KeyS');
+  await page.waitForTimeout(400);
+  await page.keyboard.up('KeyS');
+  state = await snapshot(page);
+  expect(state.player.y).toBeLessThanOrEqual(632.1);
+  expect(state.rendering.playerDepth).toBeLessThan(bench.depth);
+  // The bench now hides the bottom of the avatar, rather than merely having a depth number.
+  await expect
+    .poll(async () =>
+      (await sample(897, 628)).every((v, i) => Math.abs(v - [173, 187, 145][i]!) < 15),
+    )
+    .toBe(true);
+  await page.screenshot({ path: '.cache/review/three-quarter-behind.png', fullPage: true });
 });
 test('WASD and arrow keys control all directions; blur clears held input', async ({ page }) => {
   await open(page);

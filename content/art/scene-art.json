@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "projection": "three-quarter",
+  "floors": {
+    "source": {
+      "kind": "procedural"
+    }
+  },
+  "props": {
+    "source": {
+      "kind": "procedural"
+    },
+    "frameWidth": 160,
+    "frameHeight": 128,
+    "columns": 4,
+    "rows": 3,
+    "anchor": {
+      "x": 80,
+      "y": 112
+    },
+    "entries": [
+      {
+        "assetId": "worktable",
+        "width": 96,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 0
+      },
+      {
+        "assetId": "console",
+        "width": 96,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 1
+      },
+      {
+        "assetId": "cutting-table",
+        "width": 96,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 2
+      },
+      {
+        "assetId": "model-table",
+        "width": 96,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 3
+      },
+      {
+        "assetId": "worktable",
+        "width": 128,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 4
+      },
+      {
+        "assetId": "console",
+        "width": 128,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 5
+      },
+      {
+        "assetId": "cutting-table",
+        "width": 128,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 6
+      },
+      {
+        "assetId": "model-table",
+        "width": 128,
+        "depth": 64,
+        "elevation": 24,
+        "frame": 7
+      },
+      {
+        "assetId": "bench",
+        "width": 64,
+        "depth": 32,
+        "elevation": 16,
+        "frame": 8
+      },
+      {
+        "assetId": "plant",
+        "width": 32,
+        "depth": 32,
+        "elevation": 32,
+        "frame": 9
+      }
+    ]
+  },
+  "walls": {
+    "source": {
+      "kind": "procedural"
+    },
+    "frameWidth": 32,
+    "frameHeight": 64,
+    "columns": 4,
+    "rows": 1,
+    "anchor": {
+      "x": 16,
+      "y": 64
+    },
+    "elevation": 32
+  }
+}

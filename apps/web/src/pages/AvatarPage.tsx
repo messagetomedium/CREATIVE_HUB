@@ -67,7 +67,7 @@ export function AvatarPage() {
       </PageHeading>
       <div className="avatar-layout">
         <section className="avatar-stage" aria-label="Просмотр персонажа">
-          <div className="eyebrow">СОБСТВЕННЫЙ ОБРАЗ / ВИД СВЕРХУ</div>
+          <div className="eyebrow">СОБСТВЕННЫЙ ОБРАЗ / РАКУРС 3/4</div>
           <div className="avatar-platform">
             <AvatarPreview config={config} direction={direction} />
           </div>

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 export * from './account';
+export * from './art';
 
 export const DirectionSchema = z.enum(['north', 'east', 'south', 'west']);
 export type Direction = z.infer<typeof DirectionSchema>;
@@ -123,11 +124,29 @@ export const AvatarCatalogSchema = z.object({
   parts: z.record(z.string(), z.array(z.object({ id: z.string(), label: z.string() }))),
   sprite: z.object({
     source: z.discriminatedUnion('kind', [
-      z.object({ kind: z.literal('procedural'), id: z.literal('factory-worker-v1') }),
-      z.object({ kind: z.literal('spritesheet'), url: z.string() }),
+      z.object({ kind: z.literal('procedural'), id: z.literal('factory-worker-blockout-v2') }),
+      z.object({
+        kind: z.literal('spritesheet'),
+        url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
+      }),
+      z.object({
+        kind: z.literal('layered-sheets'),
+        layers: z
+          .array(
+            z.object({
+              part: z.enum(['body', 'shoes', 'outfit', 'hair', 'accessory']),
+              partId: z.string(),
+              bodyId: z.string().optional(),
+              url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
+              tint: z.enum(['skin', 'hair', 'outfit', 'shoes']).nullable(),
+            }),
+          )
+          .min(1),
+      }),
     ]),
-    frameWidth: z.number().int().positive(),
-    frameHeight: z.number().int().positive(),
+    frameWidth: z.literal(48),
+    frameHeight: z.literal(64),
+    anchor: z.object({ x: z.literal(24), y: z.literal(56) }),
     animations: z.record(
       DirectionSchema,
       z.object({ idle: z.array(z.number().int()).min(1), walk: z.array(z.number().int()).min(2) }),
@@ -142,6 +161,8 @@ export const ManifestSchema = z.object({
   avatarsUrl: z.string(),
   avatarsHash: z.string().length(64),
   tilesUrl: z.string(),
+  sceneArtUrl: z.string(),
+  sceneArtHash: z.string().length(64),
 });
 export type ContentManifest = z.infer<typeof ManifestSchema>;
 
