@@ -53,6 +53,14 @@ try {
     const master = assemble(config, { bodyOnly: true });
     for (let r = 0; r < 4; r++) hc.drawImage(master, 8, r * 64 + 1, 32, 28, 0, r * 32, 32, 28);
     save('ГОЛОВА_V4.png', head);
+    const eyes = make(32, 128),
+      ex = eyes.getContext('2d');
+    ex.fillStyle = '#352b35';
+    for (let r = 1; r < 4; r++) {
+      for (const x of r === 2 ? [11, 19] : r === 1 ? [21] : [9]) ex.fillRect(x, r * 32 + 15, 2, 4);
+    }
+    save('ГЛАЗА_ПРИМЕР_V4.png', eyes);
+
     const example = make(6, 48),
       ctx = example.getContext('2d');
     for (let r = 0; r < 4; r++) {
@@ -237,6 +245,9 @@ try {
           height: 128,
           columns: 4,
           rows: ['north', 'east', 'south', 'west'],
+          cellWidth: 32,
+          cellHeight: 32,
+          anchor: { x: 16, y: 19 },
         },
         original: 'ПРИЧЕСКИ_ИСХОДНИК.png',
       }),

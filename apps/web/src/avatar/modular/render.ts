@@ -4,7 +4,7 @@ import { DIRECTIONS, pose, type Point, type Limb, type Pose } from './rig';
 import { shades, mix, colorMask } from './materials';
 import type { ModularPart } from './parts';
 export interface PartImage {
-  descriptor: ModularPart;
+  descriptor: ModularPart & { selection?: { field: string; slot?: number } };
   image: HTMLCanvasElement;
 }
 export interface AssemblyOptions {
@@ -186,7 +186,15 @@ function bodyTorso(
   }
   box(ctx, 22, 26 + y, 4, 5, skin[2]!);
 }
-function face(ctx: CanvasRenderingContext2D, p: Pose, config: AvatarConfig, skin: string[]) {
+function face(
+  ctx: CanvasRenderingContext2D,
+  p: Pose,
+  config: AvatarConfig,
+  skin: string[],
+  eyes = true,
+  mouth = true,
+  skipEffects: number[] = [],
+) {
   const y = p.bob,
     c = constructorChoices(config),
     back = p.direction === 'north',
@@ -202,20 +210,21 @@ function face(ctx: CanvasRenderingContext2D, p: Pose, config: AvatarConfig, skin
   box(ctx, 19, 9 + y, 8, 1, skin[4]!);
   if (!back) {
     const eyeHeight = c.eyes === 1 ? 4 : 3;
-    if (side) box(ctx, p.direction === 'west' ? 17 : 29, 16 + y, 2, eyeHeight, skin[0]!);
-    else {
+    if (eyes && side) box(ctx, p.direction === 'west' ? 17 : 29, 16 + y, 2, eyeHeight, skin[0]!);
+    else if (eyes) {
       box(ctx, 19, 16 + y, 2, eyeHeight, skin[0]!);
       box(ctx, 27, 16 + y, 2, eyeHeight, skin[0]!);
     }
-    box(
-      ctx,
-      side ? (p.direction === 'west' ? 16 : 31) : 23,
-      23 + y,
-      2,
-      1,
-      mix(config.palette.skin, '#a05a54', 0.5),
-    );
-    for (const id of c.faceFeatures) {
+    if (mouth)
+      box(
+        ctx,
+        side ? (p.direction === 'west' ? 16 : 31) : 23,
+        23 + y,
+        2,
+        1,
+        mix(config.palette.skin, '#a05a54', 0.5),
+      );
+    for (const id of c.faceFeatures.filter((id) => !skipEffects.includes(id))) {
       const pigment = id === 1 || id === 2 ? '#503628' : id === 4 ? '#5e5d73' : '#b5625a';
       ctx.globalAlpha = id === 1 ? 0.55 : 0.25;
       ctx.fillStyle = mix(config.palette.skin, pigment, 0.5);
@@ -269,7 +278,7 @@ function hairPass(
     if (p.direction === 'north') ctx.rect(0, 0, 48, 64);
   }
   ctx.clip();
-  ctx.drawImage(hair, sx, sy, 32, 32, 8, -2 + p.bob, 32, 32);
+  ctx.drawImage(hair, sx, sy, 32, 32, p.head.x - 16, p.head.y - 19, 32, 32);
   ctx.restore();
 }
 function attachedLimb(
@@ -402,8 +411,12 @@ export function renderFrame(
     top = options.bodyOnly ? null : shades(config.palette.outfit),
     bottom = shades(options.bodyOnly ? '#292732' : c.colors.bottom),
     shoes = options.bodyOnly ? null : shades(config.palette.shoes);
+  const imported = (field: string, parent?: string) =>
+    options.parts?.some(
+      (x) => x.descriptor.selection?.field === field && (!parent || x.descriptor.parent === parent),
+    ) ?? false;
   const h = c.hair[c.gender],
-    hasHair = !options.bodyOnly;
+    hasHair = !options.bodyOnly && !imported('hair');
   const jointParts = (parent: string) =>
     options.parts
       ?.filter((x) => x.descriptor.parent === parent && x.descriptor.fit === 'limb')
@@ -413,21 +426,52 @@ export function renderFrame(
     ?.filter((x) => x.descriptor.pass === 'back' && x.descriptor.fit !== 'limb')
     .forEach((part) => attachPart(ctx, p, part));
   if (p.side) {
-    limb(ctx, p.arms[0]!, skin, top, 'arm', null, true);
+    limb(ctx, p.arms[0]!, skin, imported('top', 'armLeft') ? null : top, 'arm', null, true);
     jointParts('armLeft');
   }
-  limb(ctx, p.legs[0]!, skin, options.bodyOnly ? null : bottom, 'leg', shoes, true);
+  limb(
+    ctx,
+    p.legs[0]!,
+    skin,
+    options.bodyOnly || imported('bottom', 'legLeft') ? null : bottom,
+    'leg',
+    imported('footwear', 'footLeft') ? null : shoes,
+    true,
+  );
   jointParts('legLeft');
-  limb(ctx, p.legs[1]!, skin, options.bodyOnly ? null : bottom, 'leg', shoes);
+  limb(
+    ctx,
+    p.legs[1]!,
+    skin,
+    options.bodyOnly || imported('bottom', 'legRight') ? null : bottom,
+    'leg',
+    imported('footwear', 'footRight') ? null : shoes,
+  );
   jointParts('legRight');
-  bodyTorso(ctx, p, skin, top, bottom);
+  bodyTorso(
+    ctx,
+    p,
+    skin,
+    imported('top', 'torso') ? null : top,
+    imported('bottom', 'pelvis') ? null : bottom,
+  );
   if (!p.side) {
-    limb(ctx, p.arms[0]!, skin, top, 'arm', null);
+    limb(ctx, p.arms[0]!, skin, imported('top', 'armLeft') ? null : top, 'arm', null);
     jointParts('armLeft');
   }
-  limb(ctx, p.arms[1]!, skin, top, 'arm', null);
+  limb(ctx, p.arms[1]!, skin, imported('top', 'armRight') ? null : top, 'arm', null);
   jointParts('armRight');
-  face(ctx, p, config, skin);
+  face(
+    ctx,
+    p,
+    config,
+    skin,
+    !options.bodyOnly && !options.parts?.some((x) => x.descriptor.selection?.field === 'eyes'),
+    !options.bodyOnly && !options.parts?.some((x) => x.descriptor.selection?.field === 'mouth'),
+    options.parts
+      ?.filter((x) => x.descriptor.selection?.field === 'faceFeatures')
+      .map((x) => x.descriptor.selection?.slot ?? 0) ?? [],
+  );
   if (hasHair) {
     if (options.hair && c.gender === 'female') hairPass(ctx, p, options.hair, h, 'front');
     else fallbackHair(ctx, p, config.palette.hair, config.parts.hair);

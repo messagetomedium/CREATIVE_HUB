@@ -5,6 +5,7 @@
     "ТЕЛО_average_A24.png",
     "ТЕЛО_sturdy_A24.png",
     "ГОЛОВА_V4.png",
+    "ГЛАЗА_ПРИМЕР_V4.png",
     "РУКАВ_МАСКА_V4.png",
     "ШТАНИНА_МАСКА_V4.png",
     "ВЕРХ_КОРПУС_V4.png",
@@ -30,7 +31,10 @@
     "width": 128,
     "height": 128,
     "columns": 4,
-    "rows": ["north", "east", "south", "west"]
+    "rows": ["north", "east", "south", "west"],
+    "cellWidth": 32,
+    "cellHeight": 32,
+    "anchor": { "x": 16, "y": 19 }
   },
   "original": "ПРИЧЕСКИ_ИСХОДНИК.png"
 }
