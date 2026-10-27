@@ -2,9 +2,13 @@ name: Creative Factory checks
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: creative-factory-checks-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   prototype:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,7 +22,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --reporter=line,json
+      - run: npm run test:e2e -- --reporter=line,json,github --global-timeout=240000
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: .cache/e2e-report.json
       - name: Browser test summary

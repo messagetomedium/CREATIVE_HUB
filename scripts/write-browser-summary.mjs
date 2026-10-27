@@ -12,6 +12,13 @@ try {
   process.exit(0);
 }
 const failures = [];
+for (const error of report.errors ?? []) {
+  failures.push(
+    `### Runner error\n\n${String(error.message ?? error.value ?? 'Unknown runner error')
+      .replace(/\u001b\[[0-9;]*m/g, '')
+      .slice(0, 5000)}\n`,
+  );
+}
 function visit(suite, parents = []) {
   const path = [...parents, suite.title].filter(Boolean);
   for (const spec of suite.specs ?? [])
