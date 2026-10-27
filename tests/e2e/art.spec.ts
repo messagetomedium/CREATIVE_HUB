@@ -214,11 +214,11 @@ test('modular adult rig shares head, compiles four hair views and bounds its tex
   await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('width', '288');
 });
 
-test('real modular PNG import tints material, follows a bent limb and accepts a pose override', async ({
+test('real modular PNG import tints material, follows a whole arm and accepts a pose override', async ({
   page,
 }) => {
   await page.goto('/');
-  const buffer = await readFile('TECH_DOCS/ПЕРСОНАЖ/РУКАВ_МАСКА_V4.png');
+  const buffer = await readFile('TECH_DOCS/ПЕРСОНАЖ/ПОДЛОЖКА_РУКАВ_V3.png');
   await page.route('**/content/example-sleeve.png', (r) =>
     r.fulfill({ contentType: 'image/png', body: buffer }),
   );
@@ -236,9 +236,11 @@ test('real modular PNG import tints material, follows a bent limb and accepts a 
       parent: 'armRight',
       pass: 'front',
       material: 'top',
-      frameWidth: 6,
-      frameHeight: 12,
-      anchor: { x: 3, y: 0 },
+      frameWidth: 8,
+      frameHeight: 16,
+      anchor: { x: 4, y: 2 },
+      mirrorWest: true,
+      referenceWidth: { front: 3, side: 3 },
       offset: { x: 0, y: 0 },
       fit: 'limb',
       sync: 'limb',
@@ -259,6 +261,143 @@ test('real modular PNG import tints material, follows a bent limb and accepts a 
         .filter((v) => v > 0).length,
     };
   });
-  expect(imported).toMatchObject({ w: 6, h: 48, different: true });
+  expect(imported).toMatchObject({ w: 8, h: 48, different: true });
   expect(imported.frames).toBeGreaterThan(100);
+});
+
+test('artist four-source body kit imports through the real loader for all builds and replaces the blockout', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const templates = JSON.parse(await readFile('TECH_DOCS/ПЕРСОНАЖ/ШАБЛОНЫ.json', 'utf8'));
+  const kit = JSON.parse(await readFile('TECH_DOCS/ПЕРСОНАЖ/КОМПЛЕКТ_ТЕЛА.json', 'utf8'));
+  const requests: string[] = [];
+  for (const t of templates.filter((t: { field: string }) => t.field === 'base')) {
+    const buffer = await readFile('TECH_DOCS/ПЕРСОНАЖ/' + t.underlay);
+    await page.route('**' + t.descriptor.source, (r) => {
+      requests.push(r.request().url());
+      return r.fulfill({ contentType: 'image/png', body: buffer });
+    });
+  }
+  const result = await page.evaluate(async (kit) => {
+    const { loadParts } = await import(/* @vite-ignore */ String('/src/avatar/modular/assets.ts'));
+    const { assemble, attachPart } = await import(
+      /* @vite-ignore */ String('/src/avatar/modular/render.ts')
+    );
+    const { pose } = await import(/* @vite-ignore */ String('/src/avatar/modular/rig.ts'));
+    const { PartEntrySchema } = await import(
+      /* @vite-ignore */ String('/src/avatar/modular/parts.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const c = updateConstructor(avatarCatalog.defaultAvatar, { gender: 'female' });
+    const parts: import('../../apps/web/src/avatar/modular/render').PartImage[] = await loadParts(
+      c,
+      new AbortController().signal,
+      kit.map((d: unknown) => PartEntrySchema.parse(d)),
+    );
+    const heads = [],
+      pixels = [];
+    for (const build of ['slim', 'average', 'sturdy'] as const) {
+      const sheet = assemble(updateConstructor(c, { build }), { bodyOnly: true, parts });
+      heads.push([...sheet.getContext('2d')!.getImageData(8, 129, 32, 26).data]);
+      pixels.push(
+        [...sheet.getContext('2d')!.getImageData(0, 128, 48, 64).data]
+          .filter((_, i) => i % 4 === 3)
+          .filter(Boolean).length,
+      );
+    }
+    // A transparent imported head must replace, not reveal a second procedural head.
+    const empty = document.createElement('canvas');
+    empty.width = 32;
+    empty.height = 96;
+    const head = parts.find((p) => p.descriptor.parent === 'head')!;
+    const hidden = assemble(c, { bodyOnly: true, parts: [{ ...head, image: empty }] });
+    const hiddenAlpha = [...hidden.getContext('2d')!.getImageData(15, 136, 18, 14).data]
+      .filter((_, i) => i % 4 === 3)
+      .reduce((a, b) => a + b, 0);
+    // Arm rotates as a rigid whole; the source pivot does not drift.
+    const fixture = document.createElement('canvas');
+    fixture.width = 8;
+    fixture.height = 48;
+    const fx = fixture.getContext('2d')!;
+    fx.fillStyle = '#ff00ff';
+    for (let r = 0; r < 3; r++) fx.fillRect(4, r * 16 + 2, 1, 1);
+    const target = document.createElement('canvas');
+    target.width = 48;
+    target.height = 64;
+    const arm = parts.find((p) => p.descriptor.parent === 'armLeft')!;
+    const q = pose('average', 'east', 3);
+    attachPart(target.getContext('2d')!, q, { ...arm, image: fixture });
+    const pivot = target
+      .getContext('2d')!
+      .getImageData(q.arms[0]!.root.x, q.arms[0]!.root.y, 1, 1).data;
+    return { count: parts.length, heads, pixels, hiddenAlpha, pivot: [...pivot] };
+  }, kit);
+  expect(result.count).toBe(6);
+  expect(new Set(requests).size).toBe(4);
+  expect(result.heads[0]).toEqual(result.heads[1]);
+  expect(result.heads[1]).toEqual(result.heads[2]);
+  expect(result.pixels[0]).toBeLessThan(result.pixels[2]!);
+  expect(result.hiddenAlpha).toBe(0);
+  expect(result.pivot).toEqual([255, 0, 255, 255]);
+});
+
+test('first two hairstyles keep buns inside the frame and use a single-ear mirrored profile', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const { loadAvatarSheet } = await import(/* @vite-ignore */ String('/src/avatar/art.ts'));
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const out = [];
+    for (let h = 1; h <= 2; h++) {
+      const c = updateConstructor(avatarCatalog.defaultAvatar, {
+        gender: 'female',
+        hair: { male: 1, female: h },
+        special: null,
+      });
+      c.palette.hair = '#594035';
+      const sheet = await loadAvatarSheet(avatarCatalog, c, new AbortController().signal),
+        ctx = sheet.getContext('2d')!;
+      const tops = [];
+      for (let r = 0; r < 4; r++)
+        for (let frame = 0; frame < 2; frame++) {
+          const data = ctx.getImageData(frame * 48, r * 64, 48, 1).data;
+          tops.push([...data].filter((_, i) => i % 4 === 3).reduce((a, b) => a + b, 0));
+        }
+      // The single profile ear is behind the eye (x21), not on the nose/front edge.
+      const ear = ctx.getImageData(21, 64 + 18, 3, 5).data;
+      const { shades } = await import(
+        /* @vite-ignore */ String('/src/avatar/modular/materials.ts')
+      );
+      const palette = shades(c.palette.hair);
+      let errors = 0;
+      for (let y = 0; y < 28; y++)
+        for (let x = 0; x < 48; x++) {
+          const a = ctx.getImageData(x, 64 + y, 1, 1).data,
+            b = ctx.getImageData(47 - x, 192 + y, 1, 1).data;
+          const isHair = (v: Uint8ClampedArray) =>
+            v[3]! > 0 &&
+            palette
+              .slice(1)
+              .includes(
+                '#' + [...v.slice(0, 3)].map((a) => a.toString(16).padStart(2, '0')).join(''),
+              );
+          if (isHair(a) !== isHair(b)) errors++;
+        }
+      out.push({
+        tops,
+        earAlpha: [...ear].filter((_, i) => i % 4 === 3).reduce((a, b) => a + b, 0),
+        errors,
+      });
+    }
+    return out;
+  });
+  for (const h of result) {
+    expect(h.tops).toEqual(Array(8).fill(0));
+    expect(h.earAlpha).toBeGreaterThan(0);
+    expect(h.errors).toBe(0);
+  }
 });

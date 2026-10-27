@@ -12,7 +12,9 @@ export function pose(build: Build, direction: Direction, frame: number) {
   const shape = BODY_SHAPES[build],
     side = direction === 'east' || direction === 'west';
   const phase = [0, 0, 0, 1, 0, -1][frame] ?? 0;
-  const bob = [0, -1, 0, -1, 0, -1][frame] ?? 0;
+  const bob = [0, 0, 0, -1, 0, -1][frame] ?? 0;
+  // Only the head breathes in idle. The neck belongs to the stationary torso.
+  const headBob = frame === 1 ? -1 : 0;
   const p = (x: number, y: number): Point => ({
     x: Math.round(direction === 'west' ? 48 - x : x),
     y: Math.round(y),
@@ -21,23 +23,27 @@ export function pose(build: Build, direction: Direction, frame: number) {
   const hipWidth = side ? Math.round(shape.hips * 0.65) : shape.hips;
   const arms = [-1, 1].map((sign): Limb => {
     const swing = phase * sign;
+    const root = p(24 + (side ? sign : sign * (torsoWidth / 2 + 1)), 31 + bob - (side ? 0 : swing));
+    const end = p(
+      24 + (side ? sign - swing * 3 : sign * (torsoWidth / 2 + 1)),
+      43 + bob - (side ? 0 : swing),
+    );
     return {
-      root: p(24 + (side ? sign * 2 : sign * (torsoWidth / 2 + 1)), 31 + bob),
-      joint: p(
-        24 + (side ? -swing * 3 + sign * 2 : sign * (torsoWidth / 2 + 2)),
-        36 + bob - Math.abs(swing),
-      ),
-      end: p(24 + (side ? -swing * 5 + sign * 2 : sign * (torsoWidth / 2 + 2)), 41 + bob - swing),
+      root,
+      joint: { x: Math.round((root.x + end.x) / 2), y: Math.round((root.y + end.y) / 2) },
+      end,
       width: shape.arm,
     };
   });
+  // A whole straight leg translates vertically; no knee bend, splay or horizontal stride.
+  const spacing = build === 'sturdy' ? 5 : 4;
   const legs = [-1, 1].map((sign): Limb => {
-    const swing = phase * sign,
-      lift = Math.max(0, swing) * 2;
+    const lift = Math.max(0, phase * sign) * 2;
+    const x = 24 + (side ? sign : sign * spacing);
     return {
-      root: p(24 + (side ? sign * 2 : sign * (hipWidth / 2 - 2)), 42 + bob),
-      joint: p(24 + (side ? swing * 2 + sign * 2 : sign * (hipWidth / 2 - 2) + swing), 48 - lift),
-      end: p(24 + (side ? swing * 4 + sign * 2 : sign * (hipWidth / 2 - 2)), 54 - lift),
+      root: p(x, 42 + bob - lift),
+      joint: p(x, 48 + bob - lift),
+      end: p(x, 54 + bob - lift),
       width: shape.leg,
     };
   });
@@ -48,9 +54,10 @@ export function pose(build: Build, direction: Direction, frame: number) {
     shape,
     side,
     bob,
+    headBob,
     torsoWidth,
     hipWidth,
-    head: p(24, 17 + bob),
+    head: p(24, 17 + bob + headBob),
     neck: p(24, 28 + bob),
     torso: p(24, 35 + bob),
     pelvis: p(24, 42 + bob),

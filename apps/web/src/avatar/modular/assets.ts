@@ -16,7 +16,8 @@ export async function loadParts(
   const selected = catalog.filter((d) => {
     const s = d.selection;
     if (s.gender && s.gender !== choices.gender) return false;
-    const v = s.field === 'hair' ? choices.hair[choices.gender] : choices[s.field];
+    const v =
+      s.field === 'base' ? 1 : s.field === 'hair' ? choices.hair[choices.gender] : choices[s.field];
     return Array.isArray(v) ? v.includes(s.slot) : v === s.slot;
   });
   return Promise.all(

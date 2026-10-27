@@ -17,15 +17,19 @@ try {
   const p = await browser.newPage();
   await p.goto(base.href);
   const pack = await p.evaluate(async () => {
-    const { assemble, attachPart } = await import('/src/avatar/modular/render.ts');
+    const { assemble, renderBaseModule } = await import('/src/avatar/modular/render.ts');
     const { pose, DIRECTIONS, BODY_SHAPES } = await import('/src/avatar/modular/rig.ts');
-    const { PartEntrySchema } = await import('/src/avatar/modular/parts.ts');
+    const { SOURCE_TEMPLATES, templateDescriptor } =
+      await import('/src/avatar/modular/templates.ts');
     const { INDEX_LEVELS } = await import('/src/avatar/modular/materials.ts');
     const { loadAvatarSheet, assemblyStats } = await import('/src/avatar/art.ts');
     const { avatarCatalog } = await import('/src/avatar/catalog.ts');
     const { updateConstructor, AVATAR_PALETTES } = await import('/src/avatar/editor.ts');
     const images = {},
-      rigs = [];
+      rigs = [],
+      templates = [],
+      parts = [],
+      surfaces = new Map();
     const save = (name, c) => (images[name] = c.toDataURL('image/png').split(',')[1]);
     const make = (w, h) => {
       const c = document.createElement('canvas');
@@ -33,14 +37,155 @@ try {
       c.height = h;
       return c;
     };
-    let config = updateConstructor(avatarCatalog.defaultAvatar, {
+    const config = updateConstructor(avatarCatalog.defaultAvatar, {
       gender: 'female',
       age: 'adult',
       hair: { male: 1, female: 1 },
     });
+    const palette = INDEX_LEVELS.map((v) => `rgb(${v},${v},${v})`);
+    for (const t of SOURCE_TEMPLATES) {
+      const source = make(t.width, t.height * 3),
+        ctx = source.getContext('2d');
+      for (let row = 0; row < 3; row++) {
+        const p = pose('average', DIRECTIONS[row], 0);
+        const parent =
+          t.parent === 'head'
+            ? p.head
+            : t.parent === 'torso'
+              ? p.torso
+              : t.parent === 'pelvis'
+                ? p.pelvis
+                : t.parent.startsWith('arm')
+                  ? p.arms[0].root
+                  : t.parent.startsWith('leg')
+                    ? p.legs[0].root
+                    : t.parent.startsWith('foot')
+                      ? p.legs[0].end
+                      : p.arms[1].end;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, row * t.height, t.width, t.height);
+        ctx.clip();
+        ctx.translate(t.anchor.x - parent.x, row * t.height + t.anchor.y - parent.y);
+        const module = ['face', 'hair', 'hat', 'jewelry'].includes(t.id)
+          ? 'head'
+          : t.id === 'top' || t.id === 'bottom'
+            ? 'torso'
+            : t.id === 'item'
+              ? 'armRight'
+              : t.id === 'sleeve'
+                ? 'armLeft'
+                : t.id === 'pant' || t.id === 'shoe'
+                  ? 'legLeft'
+                  : t.parent;
+        renderBaseModule(ctx, p, module, palette);
+        ctx.restore();
+      }
+      const underlay = `ПОДЛОЖКА_${t.label}_V3.png`,
+        blank = `ПУСТОЙ_${t.label}_V3.png`,
+        guideName = `СХЕМА_${t.label}.png`;
+      save(underlay, source);
+      save(blank, make(t.width, t.height * 3));
+      surfaces.set(t.id, source);
+      const guide = make(840, 430),
+        gc = guide.getContext('2d');
+      gc.imageSmoothingEnabled = false;
+      gc.fillStyle = '#faf6ef';
+      gc.fillRect(0, 0, guide.width, guide.height);
+      gc.fillStyle = '#443b42';
+      gc.font = 'bold 19px sans-serif';
+      gc.fillText(
+        `${t.label}: клетка ${t.width}×${t.height}, PNG ${t.width}×${t.height * 3}, опора (${t.anchor.x},${t.anchor.y})`,
+        18,
+        30,
+      );
+      for (let row = 0; row < 3; row++) {
+        const scale = Math.min(7, Math.floor(220 / Math.max(t.width, t.height))),
+          x = 28 + row * 275,
+          y = 85;
+        gc.font = '18px sans-serif';
+        gc.fillStyle = '#443b42';
+        gc.fillText(['N · СПИНА', 'E · ВПРАВО', 'S · ЛИЦО'][row], x, 64);
+        for (let cy = 0; cy < t.height; cy++)
+          for (let cx = 0; cx < t.width; cx++) {
+            gc.fillStyle = (cx + cy) % 2 ? '#e5ddd2' : '#f5eee4';
+            gc.fillRect(x + cx * scale, y + cy * scale, scale, scale);
+          }
+        gc.globalAlpha = 0.65;
+        gc.drawImage(
+          source,
+          0,
+          row * t.height,
+          t.width,
+          t.height,
+          x,
+          y,
+          t.width * scale,
+          t.height * scale,
+        );
+        gc.globalAlpha = 1;
+        gc.strokeStyle = '#c24e65';
+        gc.lineWidth = 1;
+        gc.beginPath();
+        gc.moveTo(x + t.anchor.x * scale, y);
+        gc.lineTo(x + t.anchor.x * scale, y + t.height * scale);
+        gc.moveTo(x, y + t.anchor.y * scale);
+        gc.lineTo(x + t.width * scale, y + t.anchor.y * scale);
+        gc.stroke();
+        gc.fillStyle = '#c24e65';
+        gc.fillRect(x + t.anchor.x * scale - 2, y + t.anchor.y * scale - 2, 5, 5);
+      }
+      gc.fillStyle = '#443b42';
+      gc.font = '16px sans-serif';
+      gc.fillText(
+        'Рисовать на ПУСТОМ PNG. Подложку и красные направляющие не включать в готовый слой.',
+        18,
+        350,
+      );
+      gc.fillText(
+        'Один рисунок на ракурс. W зеркалится из E. Не рисовать фазы, цвета и комплекции.',
+        18,
+        382,
+      );
+      save(guideName, guide);
+      const descriptor = templateDescriptor(t);
+      templates.push({
+        ...t,
+        rows: ['north', 'east', 'south'],
+        underlay,
+        blank,
+        guide: guideName,
+        descriptor,
+      });
+      if (t.field === 'base') {
+        parts.push(descriptor);
+        if (t.id === 'arm' || t.id === 'leg')
+          parts.push({
+            ...descriptor,
+            id: descriptor.id + '-right',
+            parent: t.id === 'arm' ? 'armRight' : 'legRight',
+          });
+      }
+    }
+    // This round-trip proof uses the exact source-sized kit supplied to artists.
+    const imported = parts.map((d) => ({
+      descriptor: d,
+      image: surfaces.get(
+        d.parent === 'head'
+          ? 'head'
+          : d.parent === 'torso'
+            ? 'torso'
+            : d.parent.startsWith('arm')
+              ? 'arm'
+              : 'leg',
+      ),
+    }));
+    save('ПРОВЕРКА_ИМПОРТА_ТЕЛА_A24.png', assemble(config, { bodyOnly: true, parts: imported }));
     for (const build of ['slim', 'average', 'sturdy']) {
-      const value = updateConstructor(config, { build });
-      save(`ТЕЛО_${build}_A24.png`, assemble(value, { bodyOnly: true }));
+      save(
+        `ТЕЛО_${build}_A24.png`,
+        assemble(updateConstructor(config, { build }), { bodyOnly: true }),
+      );
       rigs.push({
         build,
         poses: DIRECTIONS.flatMap((dir) =>
@@ -48,120 +193,34 @@ try {
         ),
       });
     }
-    const head = make(32, 128),
-      hc = head.getContext('2d');
-    const master = assemble(config, { bodyOnly: true });
-    for (let r = 0; r < 4; r++) hc.drawImage(master, 8, r * 64 + 1, 32, 28, 0, r * 32, 32, 28);
-    save('ГОЛОВА_V4.png', head);
-    const eyes = make(32, 128),
-      ex = eyes.getContext('2d');
-    ex.fillStyle = '#352b35';
-    for (let r = 1; r < 4; r++) {
-      for (const x of r === 2 ? [11, 19] : r === 1 ? [21] : [9]) ex.fillRect(x, r * 32 + 15, 2, 4);
+    const overview = make(1100, 740),
+      oc = overview.getContext('2d');
+    oc.fillStyle = '#faf6ef';
+    oc.fillRect(0, 0, 1100, 740);
+    oc.imageSmoothingEnabled = false;
+    oc.font = 'bold 23px sans-serif';
+    oc.fillStyle = '#443b42';
+    oc.fillText('4 исходника тела × 3 ракурса = 12 рисунков', 24, 36);
+    for (const [i, t] of SOURCE_TEMPLATES.slice(0, 4).entries()) {
+      const img = surfaces.get(t.id),
+        x = 24 + i * 270;
+      oc.font = '17px sans-serif';
+      oc.fillText(t.label, x, 76);
+      oc.fillText(`${t.width}×${t.height * 3} PNG`, x, 103);
+      oc.drawImage(img, 0, 0, t.width, t.height * 3, x, 120, t.width * 5, t.height * 15);
     }
-    save('ГЛАЗА_ПРИМЕР_V4.png', eyes);
-
-    const example = make(6, 48),
-      ctx = example.getContext('2d');
-    for (let r = 0; r < 4; r++) {
-      ctx.fillStyle = '#202020';
-      ctx.fillRect(0, r * 12, 6, 12);
-      ctx.fillStyle = '#b8b8b8';
-      ctx.fillRect(1, r * 12 + 1, 4, 10);
-      ctx.fillStyle = '#f0f0f0';
-      ctx.fillRect(1, r * 12 + 1, 1, 10);
-    }
-    save('РУКАВ_МАСКА_V4.png', example);
-    const leg = make(6, 48);
-    leg.getContext('2d').drawImage(example, 0, 0);
-    save('ШТАНИНА_МАСКА_V4.png', leg);
-    const torso = make(18, 64),
-      tc = torso.getContext('2d');
-    for (let r = 0; r < 4; r++) {
-      tc.fillStyle = '#202020';
-      tc.fillRect(0, r * 16, 18, 16);
-      tc.fillStyle = '#b8b8b8';
-      tc.fillRect(1, r * 16 + 1, 16, 14);
-      tc.fillStyle = '#f0f0f0';
-      tc.fillRect(1, r * 16 + 1, 2, 14);
-    }
-    save('ВЕРХ_КОРПУС_V4.png', torso);
-    save('КОРПУС_БАЗА_V4.png', torso);
-    save('РУКА_БАЗА_V4.png', example);
-    save('НОГА_БАЗА_V4.png', leg);
-    for (const [name, w, h] of [
-      ['ШЕЯ', 4, 6],
-      ['ТАЗ', 15, 6],
-      ['КИСТЬ', 4, 4],
-      ['СТОПА', 6, 3],
-    ]) {
-      const c = make(w, h * 4),
-        x = c.getContext('2d');
-      for (let r = 0; r < 4; r++) {
-        x.fillStyle = '#202020';
-        x.fillRect(0, r * h, w, h);
-        x.fillStyle = '#b8b8b8';
-        x.fillRect(1, r * h + 1, Math.max(1, w - 2), Math.max(1, h - 2));
-      }
-      save(`${name}_БАЗА_V4.png`, c);
-    }
-    const skeleton = make(288, 256),
-      sk = skeleton.getContext('2d');
-    sk.globalAlpha = 0.35;
-    sk.drawImage(master, 0, 0);
-    sk.globalAlpha = 1;
-    for (let r = 0; r < 4; r++)
-      for (let f = 0; f < 6; f++) {
-        const p = pose('average', DIRECTIONS[r], f);
-        for (const [limbs, color] of [
-          [p.arms, '#c95d68'],
-          [p.legs, '#487589'],
-        ])
-          for (const l of limbs)
-            for (const pt of [l.root, l.joint, l.end]) {
-              sk.fillStyle = color;
-              sk.fillRect(f * 48 + pt.x - 1, r * 64 + pt.y - 1, 2, 2);
-            }
-      }
-    save('СУСТАВЫ_A24.png', skeleton);
-
-    const palette = make(100, 20),
-      pc = palette.getContext('2d');
-    INDEX_LEVELS.forEach((v, i) => {
-      pc.fillStyle = `rgb(${v},${v},${v})`;
-      pc.fillRect(i * 20, 0, 20, 20);
-    });
-    save('ИНДЕКСЫ_МАСКИ.png', palette);
-    const empty = make(32, 128);
-    save('ПУСТАЯ_ДЕТАЛЬ_V4.png', empty);
-    const part = PartEntrySchema.parse({
-      id: 'example-sleeve',
-      parent: 'armRight',
-      pass: 'front',
-      material: 'top',
-      frameWidth: 6,
-      frameHeight: 12,
-      anchor: { x: 3, y: 0 },
-      offset: { x: 0, y: 0 },
-      fit: 'limb',
-      mirrorWest: false,
-      sync: 'limb',
-      overrides: [{ direction: 'south', phase: 3, sourceFrame: 1, offset: { x: 0, y: 0 } }],
-      selection: { field: 'top', slot: 1 },
-      source: '/content/example-sleeve.png',
-    });
-    save(
-      'ПРИМЕР_ИМПОРТА_A24.png',
-      assemble(config, { parts: [{ descriptor: part, image: example }] }),
-    );
+    oc.font = '18px sans-serif';
+    oc.fillText('Рука включает кисть. Нога включает стопу. Шея и таз входят в корпус.', 24, 650);
+    oc.fillText('Повторные конечности, W, телосложения и 24 кадра собирает код.', 24, 690);
+    save('НАБОР_ТЕЛА_ОБЗОР.png', overview);
     const guide = make(1040, 520),
       gc = guide.getContext('2d');
+    gc.imageSmoothingEnabled = false;
     gc.fillStyle = '#fbf8f4';
     gc.fillRect(0, 0, 1040, 520);
-    gc.imageSmoothingEnabled = false;
     gc.fillStyle = '#65554f';
     gc.font = 'bold 24px sans-serif';
-    gc.fillText('Универсальный взрослый риг / голова 20×20 / опора (24,56)', 24, 38);
+    gc.fillText('Голова 20×20 · опора (24,56) · ноги ближе к центру', 24, 38);
     for (const [i, build] of ['slim', 'average', 'sturdy'].entries()) {
       const a = assemble(updateConstructor(config, { build }), { bodyOnly: true });
       gc.drawImage(a, 0, 128, 48, 64, 30 + i * 330, 70, 240, 320);
@@ -169,13 +228,22 @@ try {
       gc.fillText(build, 30 + i * 330, 430);
     }
     save('ПРОПОРЦИИ_ТЕЛА.png', guide);
-    for (let h = 1; h <= 4; h++) {
-      const c = updateConstructor(config, { hair: { male: 1, female: h } });
+    for (let h = 1; h <= 4; h++)
       save(
         `ПРИЧЕСКА_${h}_СБОРКА_A24.png`,
-        await loadAvatarSheet(avatarCatalog, c, new AbortController().signal),
+        await loadAvatarSheet(
+          avatarCatalog,
+          updateConstructor(config, { hair: { male: 1, female: h } }),
+          new AbortController().signal,
+        ),
       );
-    }
+    const indices = make(100, 20),
+      ic = indices.getContext('2d');
+    palette.forEach((v, i) => {
+      ic.fillStyle = v;
+      ic.fillRect(i * 20, 0, 20, 20);
+    });
+    save('ИНДЕКСЫ_МАСКИ.png', indices);
     const start = performance.now();
     for (let i = 0; i < 50; i++) {
       const c = updateConstructor(config, {
@@ -186,16 +254,16 @@ try {
       c.palette.outfit = AVATAR_PALETTES.outfit[Math.floor(i / 12)];
       await loadAvatarSheet(avatarCatalog, c, new AbortController().signal);
     }
-    const elapsed = performance.now() - start;
-    const before = assemblyStats(),
+    const elapsed = performance.now() - start,
       repeat = performance.now();
     for (let i = 0; i < 100; i++)
       await loadAvatarSheet(avatarCatalog, config, new AbortController().signal);
-    const hitsMs = performance.now() - repeat;
     return {
       images,
+      templates,
+      parts,
       rig: {
-        version: 'modular-adult-v1',
+        version: 'modular-adult-v2',
         frame: { width: 48, height: 64, anchor: { x: 24, y: 56 } },
         head: { width: 20, height: 20, center: { x: 24, y: 17 } },
         directions: DIRECTIONS,
@@ -205,16 +273,13 @@ try {
         rigs,
         palettes: AVATAR_PALETTES,
       },
-      part,
       metrics: {
         distinctAssemblies: 50,
         totalMs: elapsed,
         averageMs: elapsed / 50,
-        repeat100Ms: hitsMs,
+        repeat100Ms: performance.now() - repeat,
         cache: assemblyStats(),
-        before,
-        scope:
-          'Local headless Chromium CPU texture assembly. Not multiplayer, FPS or total browser RAM.',
+        scope: 'Local headless Chromium CPU texture assembly. Not FPS or total browser RAM.',
       },
     };
   });
@@ -222,42 +287,40 @@ try {
     await writeFile(path.join(output, name), Buffer.from(data, 'base64'));
   for (const [name, value] of [
     ['РИГ.json', pack.rig],
-    ['ПРИМЕР_ДЕТАЛИ.json', pack.part],
+    ['ШАБЛОНЫ.json', pack.templates],
+    ['КОМПЛЕКТ_ТЕЛА.json', pack.parts],
     ['ЗАМЕРЫ.json', pack.metrics],
   ])
     await writeFile(
       path.join(output, name),
       await format(JSON.stringify(value), { parser: 'json' }),
     );
-  const runtime = fileURLToPath(
-    new URL('../content/avatars/modular/hair-indexed.png', import.meta.url),
+  await writeFile(
+    path.join(output, 'ПРИЧЕСКИ_ИНДЕКСЫ.png'),
+    await readFile(
+      fileURLToPath(new URL('../content/avatars/modular/hair-indexed.png', import.meta.url)),
+    ),
   );
-  await writeFile(path.join(output, 'ПРИЧЕСКИ_ИНДЕКСЫ.png'), await readFile(runtime));
   await writeFile(
     path.join(output, 'manifest.json'),
     await format(
       JSON.stringify({
-        version: 'modular-adult-v1',
+        version: 'modular-adult-v2',
         outputs: Object.keys(pack.images),
-        hairAtlas: {
-          file: 'ПРИЧЕСКИ_ИНДЕКСЫ.png',
-          width: 128,
-          height: 128,
-          columns: 4,
-          rows: ['north', 'east', 'south', 'west'],
-          cellWidth: 32,
-          cellHeight: 32,
-          anchor: { x: 16, y: 19 },
-        },
+        artistSources: 'ШАБЛОНЫ.json',
+        bodyKit: 'КОМПЛЕКТ_ТЕЛА.json',
         original: 'ПРИЧЕСКИ_ИСХОДНИК.png',
+        note: 'Artist sources are static V3. A24 outputs are automatic engineering previews.',
       }),
       { parser: 'json' },
     ),
   );
   console.log(
-    'Modular art built:',
+    'Built',
     Object.keys(pack.images).length,
-    'technical PNGs, 1 small shared hair atlas, one rig; templates and runtime use the same compiler.',
+    'PNGs,',
+    pack.templates.length,
+    'static V3 templates and a matching importable four-source body kit.',
   );
   console.log(JSON.stringify(pack.metrics));
 } finally {

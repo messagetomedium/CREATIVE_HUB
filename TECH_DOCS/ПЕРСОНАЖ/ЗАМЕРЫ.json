@@ -1,9 +1,8 @@
 {
   "distinctAssemblies": 50,
-  "totalMs": 1302.0999999996275,
-  "averageMs": 26.041999999992548,
-  "repeat100Ms": 54.799999999813735,
+  "totalMs": 1119.9000000003725,
+  "averageMs": 22.39800000000745,
+  "repeat100Ms": 20.59999999962747,
   "cache": { "builds": 55, "hits": 99, "entries": 8, "rgbaBytes": 2359296 },
-  "before": { "builds": 54, "hits": 0, "entries": 8, "rgbaBytes": 2359296 },
-  "scope": "Local headless Chromium CPU texture assembly. Not multiplayer, FPS or total browser RAM."
+  "scope": "Local headless Chromium CPU texture assembly. Not FPS or total browser RAM."
 }

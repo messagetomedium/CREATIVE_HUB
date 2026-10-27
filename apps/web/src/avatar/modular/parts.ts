@@ -41,6 +41,11 @@ export const PartSchema = z
     offset: PointSchema,
     fit: z.enum(['head', 'torso', 'pelvis', 'limb', 'fixed']),
     mirrorWest: z.boolean().default(false),
+    mirrorX: z.boolean().default(false),
+    referenceWidth: z
+      .object({ front: z.number().int().min(1).max(48), side: z.number().int().min(1).max(48) })
+      .strict()
+      .optional(),
     sync: z.enum(['head', 'limb', 'body', 'static']),
     overrides: z
       .array(
@@ -68,6 +73,7 @@ export const PartEntrySchema = PartSchema.extend({
   selection: z
     .object({
       field: z.enum([
+        'base',
         'bodyFeatures',
         'faceFeatures',
         'hair',

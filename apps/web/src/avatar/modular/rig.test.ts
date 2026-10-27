@@ -17,8 +17,8 @@ test('all 72 poses keep the same head geometry, grounded anchor and integer join
             expect([Number.isInteger(q.x), Number.isInteger(q.y)]).toEqual([true, true]);
       }
   expect(pose('slim', 'south', 0).torsoWidth).toBeLessThan(pose('sturdy', 'south', 0).torsoWidth);
-  expect(pose('average', 'east', 3).legs.map((l) => l.end.x)).not.toEqual(
-    pose('average', 'east', 5).legs.map((l) => l.end.x),
+  expect(pose('average', 'east', 3).legs.map((l) => l.end.y)).not.toEqual(
+    pose('average', 'east', 5).legs.map((l) => l.end.y),
   );
 });
 test('legacy child saves become adults without losing identity-independent appearance or revision', () => {
@@ -80,4 +80,49 @@ test('skin overlay normalization retains subtle alpha instead of dropping blush'
   colorMask(d, '#c08070');
   expect(d.data[3]).toBe(64);
   expect([...d.data.slice(0, 3)]).toEqual([192, 128, 112]);
+});
+
+test('whole arms swing, legs only translate and sturdy feet remain close under the hips', () => {
+  for (const dir of DIRECTIONS)
+    for (let frame = 0; frame < 6; frame++) {
+      const p = pose('sturdy', dir, frame),
+        neutral = pose('sturdy', dir, 0);
+      p.legs.forEach((l, i) => {
+        expect(l.root.x).toBe(l.end.x);
+        expect(l.joint.x).toBe(l.end.x);
+        expect(l.end.x).toBe(neutral.legs[i]!.end.x);
+        expect(l.end.y - l.root.y).toBe(12);
+      });
+      for (const arm of p.arms) {
+        expect(Math.abs(arm.joint.x - (arm.root.x + arm.end.x) / 2)).toBeLessThanOrEqual(0.5);
+        expect(arm.end.y - arm.root.y).toBe(12);
+      }
+    }
+  const sturdy = pose('sturdy', 'south', 0);
+  expect(sturdy.legs[1]!.end.x - sturdy.legs[0]!.end.x).toBe(10);
+  const a = pose('average', 'south', 0),
+    b = pose('average', 'south', 1);
+  expect(b.torso).toEqual(a.torso);
+  expect(b.neck).toEqual(a.neck);
+  expect(b.head.y).toBe(a.head.y - 1);
+});
+
+test('artist kit has four static V3 modules, shared pivots and no separate hand or neck', async () => {
+  const { SOURCE_TEMPLATES, templateDescriptor } = await import('./templates');
+  const base = SOURCE_TEMPLATES.filter((t) => t.field === 'base');
+  expect(base.map((t) => t.id)).toEqual(['head', 'torso', 'arm', 'leg']);
+  for (const t of SOURCE_TEMPLATES) {
+    const d = templateDescriptor(t);
+    expect(d.mirrorWest).toBe(true);
+    expect(d.anchor).toEqual(t.anchor);
+    expect(d.selection.slot).toBe(1);
+  }
+  const { hairPlacement } = await import('./hair');
+  for (let slot = 1; slot <= 4; slot++) {
+    const east = hairPlacement(slot, 'east'),
+      west = hairPlacement(slot, 'west');
+    expect(west.anchor).toEqual(east.anchor);
+    expect(west.row).toBe(east.row);
+    expect(west.mirror).toBe(true);
+  }
 });
