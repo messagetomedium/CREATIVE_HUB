@@ -42,9 +42,7 @@ export function HomePage() {
             <span className="tiny-dot" /> ЛЮДИ. ИДЕИ. КРЕАТИВНЫЕ ИНДУСТРИИ.
           </div>
           <h1>
-            {config.mode === 'demo' ? (
-              <DemoEntry />
-            ) : user ? (
+            {user ? (
               <>
                 Ваше место
                 <br />
@@ -63,7 +61,15 @@ export function HomePage() {
             Найдите своё пространство и придайте форму своим идеям.
           </p>
           <div className="hero-actions">
-            {user ? (
+            {config.mode === 'demo' ? (
+              user ? (
+                <a className="button primary" href="#/menu">
+                  Открыть меню <ArrowIcon />
+                </a>
+              ) : (
+                <DemoEntry />
+              )
+            ) : user ? (
               <a className="button primary" href={data.profile ? '#/factory' : '#/profile'}>
                 {data.profile ? 'Войти на завод' : 'Заполнить профиль'}{' '}
                 <span>
@@ -135,7 +141,7 @@ export function HomePage() {
               Личный кабинет <ArrowIcon />
             </a>
           </div>
-          {!data.profile && (
+          {config.mode !== 'demo' && !data.profile && (
             <p className="onboarding-note">
               Укажите имя и фамилию для публичного профиля. Совпадение имён допустимо: ваш аккаунт
               связан с неизменяемым ID.
@@ -144,7 +150,7 @@ export function HomePage() {
           <div className="dashboard-grid">
             <a
               className="destination-card factory-card"
-              href={data.profile ? '#/factory' : '#/profile'}
+              href={config.mode === 'demo' || data.profile ? '#/factory' : '#/profile'}
             >
               <span className="card-number">01 / ПРОСТРАНСТВО</span>
               <div className="card-symbol">⌘</div>

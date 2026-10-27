@@ -70,7 +70,7 @@ function ChoiceGrid({
             type="button"
             className="choice-button"
             aria-label={`${label}: ${option.name}`}
-            title={`${option.name} — временная иконка`}
+            title={option.name}
             aria-pressed={option.selected}
             onClick={option.choose}
           >
@@ -377,9 +377,6 @@ export function AvatarPage() {
               </div>
             ))}
           </fieldset>
-          <p className="constructor-placeholder-note">
-            Новые детали — заглушки до загрузки спрайтов.
-          </p>
         </section>
         <div className="avatar-preview-column">
           <section className="avatar-stage" aria-label="Просмотр персонажа">
@@ -429,20 +426,7 @@ export function AvatarPage() {
             </div>
             <span className="preview-direction">{directionLabels[direction]}</span>
           </section>
-          <div className="constructor-actions">
-            <a
-              className={`button secondary menu-action${busy ? ' is-disabled' : ''}`}
-              href={account.config.mode === 'demo' ? '#/menu' : '#/'}
-              aria-disabled={busy}
-              onClick={(e) => {
-                if (busy) e.preventDefault();
-              }}
-            >
-              Вернуться в меню
-            </a>
-            <button className="button save-action" disabled={busy}>
-              {busy ? 'Сохраняем…' : 'Сохранить'}
-            </button>
+          <div className="constructor-actions" role="group" aria-label="Действия с внешностью">
             <button
               type="button"
               className="button secondary reset-action"
@@ -451,8 +435,31 @@ export function AvatarPage() {
             >
               Сбросить вид
             </button>
+            <button
+              type="button"
+              className="button secondary random-action"
+              disabled={busy}
+              onClick={() => change(randomAvatar(avatarCatalog, config))}
+            >
+              Случайный вид
+            </button>
+            <button className="button save-action" disabled={busy}>
+              {busy ? 'Сохраняем…' : 'Сохранить'}
+            </button>
+          </div>
+          <nav className="constructor-navigation" aria-label="Переходы из конструктора">
             <a
-              className={`button primary factory-action${busy ? ' is-disabled' : ''}`}
+              className={`button secondary${busy ? ' is-disabled' : ''}`}
+              href={account.config.mode === 'demo' ? '#/menu' : '#/'}
+              aria-disabled={busy}
+              onClick={(e) => {
+                if (busy) e.preventDefault();
+              }}
+            >
+              <span aria-hidden="true">←</span> Вернуться в меню
+            </a>
+            <a
+              className={`button primary${busy ? ' is-disabled' : ''}`}
               href="#/factory"
               aria-disabled={busy}
               onClick={(e) => {
@@ -461,10 +468,7 @@ export function AvatarPage() {
             >
               Войти на завод <span aria-hidden="true">→</span>
             </a>
-          </div>
-          <p className="editor-dirty" role="status">
-            {dirty ? 'Есть несохранённые изменения' : 'Сохранённый образ'}
-          </p>
+          </nav>
           {error && <Notice error>{error}</Notice>}
           {conflict && (
             <button type="button" className="text-link" onClick={() => void account.refresh()}>
@@ -472,19 +476,6 @@ export function AvatarPage() {
             </button>
           )}
           {saved && <Notice>Персонаж сохранён. Можно отправляться на завод.</Notice>}
-          <button
-            className="text-link random-action"
-            type="button"
-            onClick={() => change(randomAvatar(avatarCatalog, config))}
-            disabled={busy}
-          >
-            Случайный персонаж
-          </button>
-          <p className="field-hint editor-storage-note">
-            {account.config.mode === 'demo'
-              ? 'Сохранение только в этом браузере.'
-              : 'Настройки хранятся в вашем аккаунте.'}
-          </p>
         </div>
       </form>
     </main>

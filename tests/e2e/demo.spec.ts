@@ -35,7 +35,7 @@ test('complete local flow, saved avatar in factory, reload, logout and repeat en
   await page.getByRole('button', { name: 'Цвет верха: вариант 10', exact: true }).click();
   await page.getByRole('tab', { name: 'Детали', exact: true }).click();
   await page.getByRole('button', { name: 'Особый предмет: Вариант 1', exact: true }).click();
-  await expect(page.getByText('Есть несохранённые изменения', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Сбросить вид', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(
     page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
@@ -104,8 +104,8 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   await expect(
     page.getByRole('button', { name: 'Причёска: Мужская 1', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: 'Случайный персонаж', exact: true }).click();
-  await expect(page.getByText('Есть несохранённые изменения', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Случайный вид', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Сбросить вид', exact: true })).toBeEnabled();
   page.once('dialog', (d) => {
     expect(d.type()).toBe('confirm');
     void d.dismiss();
@@ -229,7 +229,7 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
     'aria-selected',
     'true',
   );
-  await expect(page.getByText('Сохранённый образ', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Сбросить вид', exact: true })).toBeDisabled();
 });
 
 test('new placeholder choices, independent hair sets and colors survive save, reset and factory', async ({
@@ -301,4 +301,111 @@ test('new placeholder choices, independent hair sets and colors survive save, re
   await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
   await expect(page.getByTestId('current-zone')).toBeVisible({ timeout: 20000 });
   expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar).toEqual(saved);
+});
+
+test('reset restores the most recent save, not the initial avatar or an earlier save', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await page.getByRole('button', { name: 'Телосложение: Худое', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Телосложение: Плотное', exact: true }).click();
+  await page.getByRole('button', { name: 'Цвет кожи: вариант 9', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
+  const latest = await page.evaluate(
+    (key) => JSON.parse(localStorage.getItem(key)!),
+    DEMO_AVATAR_KEY,
+  );
+  expect(latest.avatar.revision).toBe(2);
+  await page.getByRole('button', { name: 'Случайный вид', exact: true }).click();
+  await page.getByRole('button', { name: 'Сбросить вид', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Телосложение: Плотное', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(
+    page.getByRole('button', { name: 'Цвет кожи: вариант 9', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Сбросить вид', exact: true })).toBeDisabled();
+  expect(
+    await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), DEMO_AVATAR_KEY),
+  ).toEqual(latest);
+  await page.reload();
+  await page.getByRole('button', { name: 'Телосложение: Худое', exact: true }).click();
+  await page.getByRole('button', { name: 'Сбросить вид', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Телосложение: Плотное', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('original homepage stays available with a session, after reload and through the logo', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: /Здесь встречаются/ })).toBeVisible();
+  await enterDemo(page);
+  await page.getByRole('link', { name: 'Creative Factory — начало', exact: true }).click();
+  await expect(page).toHaveURL(/#\/$/);
+  await expect(page.getByRole('heading', { name: /Ваше место/ })).toBeVisible();
+  await expect(page.locator('.dashboard-grid > *')).toHaveCount(4);
+  await expect(page.getByRole('heading', { name: 'Эксперты ККИ', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'События завода', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page).toHaveURL(/#\/$/);
+  await expect(page.getByRole('link', { name: 'Открыть меню', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Открыть меню', exact: true }).click();
+  await expect(page.locator('.menu-grid > a')).toHaveCount(3);
+  await expect(page.locator('.demo-strip')).toHaveCount(0);
+});
+
+test('editor actions have two requested rows and no explanatory blocks', async ({ page }) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  const actions = page.getByRole('group', { name: 'Действия с внешностью', exact: true });
+  expect(await actions.getByRole('button').allTextContents()).toEqual([
+    'Сбросить вид',
+    'Случайный вид',
+    'Сохранить',
+  ]);
+  const navigation = page.getByRole('navigation', {
+    name: 'Переходы из конструктора',
+    exact: true,
+  });
+  await expect(
+    navigation.getByRole('link', { name: 'Вернуться в меню', exact: true }),
+  ).toContainText('←');
+  await expect(navigation.getByRole('link', { name: 'Войти на завод', exact: true })).toContainText(
+    '→',
+  );
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const positions = await actions
+      .getByRole('button')
+      .evaluateAll((buttons) =>
+        buttons.map((b) => ({ x: b.getBoundingClientRect().x, y: b.getBoundingClientRect().y })),
+      );
+    expect(new Set(positions.map((b) => b.y)).size).toBe(1);
+    expect(positions[0]!.x).toBeLessThan(positions[1]!.x);
+    expect(positions[1]!.x).toBeLessThan(positions[2]!.x);
+    const actionBox = await actions.boundingBox(),
+      navBox = await navigation.boundingBox();
+    expect(navBox!.y).toBeGreaterThanOrEqual(actionBox!.y + actionBox!.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  }
+  for (const selector of [
+    '.demo-strip',
+    '.editor-dirty',
+    '.editor-storage-note',
+    '.constructor-placeholder-note',
+  ])
+    await expect(page.locator(selector)).toHaveCount(0);
+  await page.screenshot({ path: '.cache/review/editor-clean-mobile.png', fullPage: true });
 });

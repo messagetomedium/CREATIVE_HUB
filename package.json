@@ -24,7 +24,9 @@
     "format": "prettier --write .",
     "content:author": "tsx packages/content-tools/src/author-map.ts",
     "art:reference": "node scripts/export-art-reference.mjs",
-    "export:pages": "node scripts/export-pages.mjs"
+    "export:pages": "node scripts/export-pages.mjs",
+    "art:tech": "node scripts/export-avatar-tech.mjs",
+    "art:check": "node scripts/check-avatar-tech.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.11",

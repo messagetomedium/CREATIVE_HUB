@@ -1354,21 +1354,7 @@ fieldset {
   }
 }
 
-/* Local demo shell and the existing avatar constructor. */
-.demo-strip {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  padding: 9px 20px;
-  background: #eee6db;
-  color: #77635d;
-  font-size: 9px;
-  letter-spacing: 1.4px;
-}
-.demo-strip span {
-  color: #88796f;
-  letter-spacing: 0.2px;
-}
+/* Existing entry and menu screens. */
 .demo-entry > p {
   font-size: 11px;
   color: #88796f;
@@ -1493,15 +1479,6 @@ fieldset {
     max-width: 140px;
     font-size: 10px;
   }
-  .demo-strip {
-    font-size: 8px;
-    gap: 10px;
-    letter-spacing: 0.6px;
-  }
-  .demo-strip span {
-    font-size: 8px;
-    letter-spacing: 0;
-  }
   .menu-main {
     padding-top: 32px;
   }
@@ -1534,11 +1511,6 @@ fieldset {
   .account-nav a {
     gap: 5px;
   }
-  .demo-strip {
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
 }
 
 /* Shared palette inspired by warm paper, lavender, coral and a little dusty blue. */
@@ -1555,14 +1527,10 @@ fieldset {
 .site-header {
   background: #f9f5ee;
 }
-.demo-strip {
-  background: #eee6db;
-}
 .user-dot {
   background: var(--ui-lavender);
 }
-.header-note,
-.demo-strip span {
+.header-note {
   color: #83746a;
 }
 .hero-copy h1 span,
@@ -1753,11 +1721,6 @@ fieldset {
   outline: 2px solid #9c83ba;
   outline-offset: 1px;
 }
-.constructor-placeholder-note {
-  margin: 22px 0 0 !important;
-  color: #9c8d7f !important;
-  font-size: 10px !important;
-}
 .avatar-preview-column {
   position: sticky;
   top: 24px;
@@ -1839,62 +1802,49 @@ fieldset {
 }
 .constructor-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 14px;
 }
 .constructor-actions .button {
-  padding: 12px 10px;
+  padding: 12px 8px;
+  min-height: 48px;
   font-size: 12px;
-  line-height: 1.5;
-  gap: 8px;
-  min-width: 0;
-  min-height: 44px;
+  line-height: 1.4;
   border-radius: 13px;
 }
-.constructor-actions .menu-action {
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  font-size: 13px;
-  background: #eee6dc;
-}
 .constructor-actions .save-action {
-  grid-column: 2;
-  grid-row: 1;
   background: #9480b6;
   color: #fffaf6;
 }
 .constructor-actions .save-action:hover:not(:disabled) {
   background: #7e68a1;
 }
-.constructor-actions .reset-action {
-  grid-column: 2;
-  grid-row: 2;
+.constructor-actions .reset-action,
+.constructor-actions .random-action {
   background: #f4eee6;
   border: 1px solid var(--ui-line);
 }
-.constructor-actions .factory-action {
-  grid-column: 3;
-  grid-row: 1 / span 2;
+.constructor-navigation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.constructor-navigation .button {
+  min-height: 58px;
+  padding: 15px 12px;
   font-size: 13px;
+  line-height: 1.4;
+  gap: 10px;
+  border-radius: 13px;
+}
+.avatar-preview-column > .notice {
+  margin-top: 14px;
 }
 .is-disabled {
   opacity: 0.5;
   cursor: default;
-}
-.editor-dirty {
-  font-size: 10px;
-  color: #968477;
-  margin: 14px 0;
-}
-.random-action {
-  font-size: 11px;
-}
-.editor-storage-note {
-  font-size: 9px;
-  color: #a19082;
-  margin: 14px 0 0;
 }
 @media (max-width: 1100px) {
   .editor-main {
@@ -1975,8 +1925,7 @@ fieldset {
     border-width: 1px;
   }
   .constructor-actions .button,
-  .constructor-actions .menu-action,
-  .constructor-actions .factory-action {
+  .constructor-navigation .button {
     font-size: 11px;
     padding: 10px 6px;
   }

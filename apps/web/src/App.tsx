@@ -72,7 +72,7 @@ function Application() {
         </button>
       </main>
     );
-  else if (demo && (route === '/' || route === '/login') && account.user)
+  else if (demo && route === '/login' && account.user)
     screen = <Redirect to="/menu" from={route} />;
   else if (!demo && route === '/login' && account.user)
     screen = <Redirect to={account.data.profile ? '/' : '/profile'} from="/login" />;
@@ -145,11 +145,7 @@ function Application() {
         К содержимому
       </a>
       <header className="site-header">
-        <a
-          className="brand"
-          href={demo && account.user ? '#/menu' : '#/'}
-          aria-label="Creative Factory — начало"
-        >
+        <a className="brand" href="#/" aria-label="Creative Factory — начало">
           <span className="brand-mark">
             <FactoryMark />
           </span>
@@ -182,11 +178,6 @@ function Application() {
         </nav>
       </header>
       {logoutError && <Notice error>{logoutError}</Notice>}
-      {account.user && demo && (
-        <div className="demo-strip">
-          ДЕМОРЕЖИМ <span>Данные сохраняются только в этом браузере</span>
-        </div>
-      )}
       {account.data.notice && <Notice>{account.data.notice}</Notice>}
       <div id="main-content" tabIndex={-1}>
         {screen}

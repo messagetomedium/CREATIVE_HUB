@@ -41,7 +41,7 @@
   },
   {
     "path": "apps/web/src/pages/HomePage.tsx",
-    "sha256": "a2031e2f4818fc53a2fd854c38d45c0ceb3f3eb90f1dd3f1fc8a348c3befaee0",
+    "sha256": "86073b76c39db7baceb4989a305dc042b6c8502031afbdf5dd813211d9a679c1",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
@@ -51,7 +51,7 @@
   },
   {
     "path": "apps/web/src/App.tsx",
-    "sha256": "1c6664ba96964adee256c9b73682143f3e51f21fef1d3cc57c9fda98ed3d71cc",
+    "sha256": "a847bab04666e1a13c17b14974b55a3fe8058dca3336fb39937363a8548e6111",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
