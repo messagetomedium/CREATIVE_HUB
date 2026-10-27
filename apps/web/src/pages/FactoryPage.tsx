@@ -3,6 +3,7 @@ import type { AvatarConfig, Zone, World, Workshop } from '@creative-factory/cont
 import { GameBridge } from '../game/bridge';
 import { loadContent, type GameContent } from '../game/content';
 import { GameView } from '../GameView';
+import { useAccount } from '../account/AccountProvider';
 
 function ArrowIcon() {
   return (
@@ -101,6 +102,7 @@ function MiniMap({
   );
 }
 export function FactoryPage({ avatar }: { avatar?: AvatarConfig }) {
+  const { config } = useAccount();
   const [bridge] = useState(() => new GameBridge());
   const [content, setContent] = useState<GameContent>();
   const [zone, setZone] = useState<Zone>();
@@ -130,7 +132,9 @@ export function FactoryPage({ avatar }: { avatar?: AvatarConfig }) {
     <div className="app-shell">
       <main className="factory-main">
         <div className="factory-topline">
-          <a href="#/">← На главную</a>
+          <a href={config.mode === 'demo' ? '#/menu' : '#/'}>
+            {config.mode === 'demo' ? '← Вернуться в меню' : '← На главную'}
+          </a>
           <span className="local-badge">
             <i />
             Локальная прогулка · без мультиплеера

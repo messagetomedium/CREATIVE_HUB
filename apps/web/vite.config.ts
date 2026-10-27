@@ -6,10 +6,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, envDir, 'VITE_');
   // Fail before emitting a bundle if someone accidentally supplies a private/legacy key.
   const key = env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  if (key && !/^sb_publishable_[A-Za-z0-9_-]+$/.test(key))
+  const realAccounts = env.VITE_ACCOUNT_MODE === 'supabase';
+  if (realAccounts && key && !/^sb_publishable_[A-Za-z0-9_-]+$/.test(key))
     throw new Error('Only a Supabase publishable key is allowed in the browser configuration.');
   return {
     envDir,
+    envPrefix: realAccounts ? ['VITE_'] : ['VITE_ACCOUNT_MODE', 'VITE_BASE_PATH'],
     base: env.VITE_BASE_PATH ?? '/',
     plugins: [react()],
     server: { strictPort: true },

@@ -2,16 +2,18 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AccountProvider, useAccount } from './account/AccountProvider';
 import { safeAccountError, type AuthConfig } from './account/service';
 import { ArrowIcon, FactoryMark, Notice } from './components';
-import { navigate, parseRoute, useRoute, type Route } from './router';
+import { confirmNavigation, navigate, parseRoute, useRoute, type Route } from './router';
+import { DEMO_NAME } from './account/demo';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AvatarPage } from './pages/AvatarPage';
 import { FactoryPage } from './pages/FactoryPage';
+import { MenuPage } from './pages/MenuPage';
 function Redirect({ to, from }: { to: Route; from: Route }) {
   // A completed Auth request must not overwrite a newer hash navigation.
   useEffect(() => {
-    if (parseRoute(window.location.hash) === from) navigate(to, true);
+    if (parseRoute(window.location.hash) === from) navigate(to, true, true);
   }, [to, from]);
   return null;
 }
@@ -19,8 +21,9 @@ function Application() {
   const route = useRoute(),
     account = useAccount();
   const previousUser = useRef<string | null>(null);
+  const demo = account.config.mode === 'demo';
   useLayoutEffect(() => {
-    if (previousUser.current && !account.user) navigate('/', true);
+    if (previousUser.current && !account.user) navigate('/', true, true);
     previousUser.current = account.user?.userId ?? null;
   }, [account.user]);
   const [logoutError, setLogoutError] = useState('');
@@ -32,12 +35,14 @@ function Application() {
       '/profile': 'Личный кабинет',
       '/avatar': 'Мой персонаж',
       '/factory': 'Завод',
+      '/menu': 'Главное меню',
     };
     document.title = `${route ? titles[route] : 'Страница не найдена'} — Creative Factory`;
     window.scrollTo(0, 0);
   }, [route]);
   async function logout() {
-    navigate('/', true);
+    if (!confirmNavigation()) return;
+    navigate('/', true, true);
     setLoggingOut(true);
     setLogoutError('');
     try {
@@ -67,11 +72,24 @@ function Application() {
         </button>
       </main>
     );
-  else if (route === '/login' && account.user)
+  else if (demo && (route === '/' || route === '/login') && account.user)
+    screen = <Redirect to="/menu" from={route} />;
+  else if (!demo && route === '/login' && account.user)
     screen = <Redirect to={account.data.profile ? '/' : '/profile'} from="/login" />;
-  else if ((route === '/profile' || route === '/avatar') && !account.user)
+  else if (
+    demo &&
+    (route === '/menu' || route === '/profile' || route === '/avatar' || route === '/factory') &&
+    !account.user
+  )
+    screen = <Redirect to="/" from={route} />;
+  else if ((route === '/profile' || route === '/avatar' || route === '/menu') && !account.user)
     screen = <Redirect to="/login" from={route} />;
-  else if ((route === '/factory' || route === '/avatar') && account.user && !account.data.profile)
+  else if (
+    !demo &&
+    (route === '/factory' || route === '/avatar') &&
+    account.user &&
+    !account.data.profile
+  )
     screen = <Redirect to="/profile" from={route} />;
   else
     switch (route) {
@@ -79,10 +97,24 @@ function Application() {
         screen = <HomePage />;
         break;
       case '/login':
-        screen = <LoginPage />;
+        screen = demo ? <HomePage /> : <LoginPage />;
+        break;
+      case '/menu':
+        screen = <MenuPage />;
         break;
       case '/profile':
-        screen = <ProfilePage />;
+        screen = demo ? (
+          <main className="narrow-main">
+            <a className="back-link" href="#/menu">
+              ← Вернуться в меню
+            </a>
+            <div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div>
+            <h1>Личный кабинет скоро появится</h1>
+            <p className="field-hint">Сейчас можно настроить персонажа и исследовать завод.</p>
+          </main>
+        ) : (
+          <ProfilePage />
+        );
         break;
       case '/avatar':
         screen = <AvatarPage />;
@@ -113,7 +145,11 @@ function Application() {
         К содержимому
       </a>
       <header className="site-header">
-        <a className="brand" href="#/" aria-label="Creative Factory — начало">
+        <a
+          className="brand"
+          href={demo && account.user ? '#/menu' : '#/'}
+          aria-label="Creative Factory — начало"
+        >
           <span className="brand-mark">
             <FactoryMark />
           </span>
@@ -128,7 +164,7 @@ function Application() {
               <a className={route === '/profile' ? 'active' : ''} href="#/profile">
                 <span className="user-dot" />
                 <span className="header-username">
-                  {account.data.profile?.firstName ?? 'Личный кабинет'}
+                  {demo ? DEMO_NAME : (account.data.profile?.firstName ?? 'Личный кабинет')}
                 </span>
               </a>
               <button className="logout-button" onClick={() => void logout()} disabled={loggingOut}>
@@ -137,7 +173,7 @@ function Application() {
             </>
           ) : (
             <a className="header-login" href="#/login">
-              Вход / регистрация{' '}
+              {demo ? 'Деморежим' : 'Вход / регистрация'}{' '}
               <span>
                 <ArrowIcon />
               </span>
@@ -146,6 +182,12 @@ function Application() {
         </nav>
       </header>
       {logoutError && <Notice error>{logoutError}</Notice>}
+      {account.user && demo && (
+        <div className="demo-strip">
+          ДЕМОРЕЖИМ <span>Данные сохраняются только в этом браузере</span>
+        </div>
+      )}
+      {account.data.notice && <Notice>{account.data.notice}</Notice>}
       <div id="main-content" tabIndex={-1}>
         {screen}
       </div>

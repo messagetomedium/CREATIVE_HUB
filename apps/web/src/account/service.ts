@@ -11,7 +11,14 @@ import {
 
 export class AccountError extends Error {
   constructor(
-    public readonly kind: 'conflict' | 'auth' | 'invalid' | 'rate' | 'expired' | 'network',
+    public readonly kind:
+      | 'conflict'
+      | 'auth'
+      | 'invalid'
+      | 'rate'
+      | 'expired'
+      | 'network'
+      | 'storage',
   ) {
     super(
       {
@@ -22,6 +29,8 @@ export class AccountError extends Error {
         rate: 'Слишком много попыток. Подождите минуту перед повторной отправкой.',
         expired: 'Код неверен или срок его действия истёк. Проверьте код либо запросите новый.',
         network: 'Сервис недоступен. Проверьте соединение и попробуйте снова.',
+        storage:
+          'Браузер не разрешил сохранить демоданные. Разрешите локальное хранилище и попробуйте снова.',
       }[kind],
     );
     this.name = 'AccountError';
@@ -47,8 +56,10 @@ export interface Identity {
 export interface AccountData {
   profile: PublicProfile | null;
   avatar: AvatarConfig | null;
+  notice?: string;
 }
 export interface AccountService {
+  enterDemo?(): Promise<void>;
   session(): Promise<Identity | null>;
   subscribe(listener: (identity: Identity | null) => void): () => void;
   requestCode(email: string): Promise<void>;
@@ -182,6 +193,7 @@ export function supabaseService(client: SupabaseClient): AccountService {
 }
 
 export interface AuthConfig {
+  mode: 'demo' | 'supabase';
   service: AccountService | null;
   message: string;
   otpExpirySeconds: number;
@@ -191,7 +203,7 @@ export const AUTH_STORAGE_KEY = 'creative-factory-auth-v1';
 export function configureAuth(env: Record<string, string | boolean | undefined>): AuthConfig {
   const seconds = Number(env.VITE_AUTH_OTP_EXPIRY_SECONDS ?? 600);
   const length = Number(env.VITE_AUTH_OTP_LENGTH ?? 6);
-  const base = { otpExpirySeconds: seconds, otpLength: length };
+  const base = { mode: 'supabase' as const, otpExpirySeconds: seconds, otpLength: length };
   const url = String(env.VITE_SUPABASE_URL ?? '');
   const key = String(env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '');
   if (!url || !key)

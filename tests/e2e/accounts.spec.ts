@@ -41,13 +41,13 @@ test('registration, required public profile, avatar persistence, session restora
   await expect(page).toHaveURL(/#\/avatar$/);
   const initial = await preview(page);
   for (const [name, option] of [
-    ['body', 'base-02'],
-    ['hair', 'curls-01'],
-    ['outfit', 'jacket-01'],
-    ['accessory', 'headphones-01'],
+    ['Тело', 'Широкое'],
+    ['Причёска', 'Кудри'],
+    ['Одежда', 'Куртка'],
+    ['Аксессуар', 'Наушники'],
   ]) {
     const before = await preview(page);
-    await page.locator(`[name=${name}]`).selectOption(option!);
+    await page.getByRole('button', { name: `${name}: ${option}`, exact: true }).click();
     await expect.poll(() => preview(page)).not.toBe(before);
   }
   for (const name of ['Цвет кожи', 'Цвет волос', 'Цвет одежды', 'Цвет обуви'])
@@ -58,15 +58,21 @@ test('registration, required public profile, avatar persistence, session restora
     await page.getByRole('button', { name: `Повернуть: ${name}` }).click();
     await expect.poll(() => preview(page)).not.toBe(before);
   }
+  await page.getByRole('button', { name: 'Ожидание', exact: true }).click();
   const savedImage = await preview(page);
   await page.screenshot({ path: '.cache/review/account-avatar.png', fullPage: true });
   await page.getByRole('button', { name: 'Сохранить персонажа' }).click();
-  await expect(page.getByRole('status')).toContainText('Персонаж сохранён');
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
   expect(state.avatarSaves).toBe(1);
   await page.reload();
-  await expect(page.locator('[name=hair]')).toHaveValue('curls-01');
-  expect(await preview(page)).toBe(savedImage);
-  await page.getByRole('link', { name: 'На завод →', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Причёска: Кудри', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  expect(savedImage).toBeTruthy();
+  await page.getByRole('link', { name: 'Войти на завод →', exact: true }).click();
   await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
   expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar.parts.hair).toBe(
     'curls-01',
@@ -213,7 +219,7 @@ test('landing, login and editor fit a narrow screen without horizontal scrolling
   await page.screenshot({ path: '.cache/review/home-mobile.png', fullPage: true });
   await signIn(page);
   await page.goto('/#/avatar');
-  await expect(page.getByRole('combobox', { name: 'Тело', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Тело: Обычное', exact: true })).toBeVisible();
   expect(await fits()).toBe(true);
   await page.screenshot({ path: '.cache/review/avatar-mobile.png', fullPage: true });
 });

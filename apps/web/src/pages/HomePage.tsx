@@ -2,8 +2,38 @@ import { ArrowIcon } from '../components';
 import { useAccount } from '../account/AccountProvider';
 import { avatarCatalog } from '../avatar/catalog';
 import { AvatarPreview } from '../avatar/AvatarPreview';
+import { useState } from 'react';
+import { navigate } from '../router';
+import { Notice } from '../components';
+import { safeAccountError } from '../account/service';
+function DemoEntry() {
+  const account = useAccount();
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState('');
+  async function enter() {
+    setBusy(true);
+    setError('');
+    try {
+      await account.enterDemo();
+      navigate('/menu', true, true);
+    } catch (e) {
+      setError(safeAccountError(e).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="demo-entry">
+      <button className="button primary demo-enter" disabled={busy} onClick={() => void enter()}>
+        {busy ? 'Открываем пространство…' : 'Войти в деморежим'} <ArrowIcon />
+      </button>
+      <p>Без регистрации. Ваш персонаж сохранится в этом браузере.</p>
+      {error && <Notice error>{error}</Notice>}
+    </div>
+  );
+}
 export function HomePage() {
-  const { user, data } = useAccount();
+  const { user, data, config } = useAccount();
   return (
     <main className="home-main">
       <section className="home-hero">
@@ -12,7 +42,9 @@ export function HomePage() {
             <span className="tiny-dot" /> ЛЮДИ. ИДЕИ. КРЕАТИВНЫЕ ИНДУСТРИИ.
           </div>
           <h1>
-            {user ? (
+            {config.mode === 'demo' ? (
+              <DemoEntry />
+            ) : user ? (
               <>
                 Ваше место
                 <br />

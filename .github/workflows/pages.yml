@@ -27,6 +27,7 @@ jobs:
       - run: npm run export:pages
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_ACCOUNT_MODE: ${{ vars.VITE_ACCOUNT_MODE || 'demo' }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_AUTH_OTP_EXPIRY_SECONDS: ${{ vars.VITE_AUTH_OTP_EXPIRY_SECONDS || '600' }}

@@ -20,6 +20,7 @@ interface AccountContextValue {
   saveProfile(input: ProfileInput, revision: number): Promise<PublicProfile>;
   saveAvatar(config: AvatarConfig): Promise<AvatarConfig>;
   logout(): Promise<void>;
+  enterDemo(): Promise<void>;
 }
 const Context = createContext<AccountContextValue | null>(null);
 const empty: AccountData = { profile: null, avatar: null };
@@ -97,6 +98,10 @@ export function AccountProvider({ config, children }: { config: AuthConfig; chil
     status,
     error,
     refresh,
+    async enterDemo() {
+      if (config.mode !== 'demo' || !config.service?.enterDemo) throw new Error('Demo unavailable');
+      await config.service.enterDemo();
+    },
     async saveProfile(input, revision) {
       const id = currentUser.current;
       const request = generation.current;
@@ -112,7 +117,7 @@ export function AccountProvider({ config, children }: { config: AuthConfig; chil
       if (!id || !config.service) throw new Error('Authentication required');
       const saved = await config.service.saveAvatar(avatar);
       if (id === currentUser.current && request === generation.current)
-        setData((old) => ({ ...old, avatar: saved }));
+        setData((old) => ({ ...old, avatar: saved, notice: undefined }));
       return saved;
     },
     async logout() {

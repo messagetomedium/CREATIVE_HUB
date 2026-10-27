@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useAccount } from './account/AccountProvider';
 export function ArrowIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -30,10 +31,11 @@ export function PageHeading({
   title: string;
   children?: ReactNode;
 }) {
+  const { config } = useAccount();
   return (
     <div className="screen-heading">
-      <a className="back-link" href="#/">
-        ← На главную
+      <a className="back-link" href={config.mode === 'demo' ? '#/menu' : '#/'}>
+        {config.mode === 'demo' ? '← Вернуться в меню' : '← На главную'}
       </a>
       <div className="eyebrow">{tag}</div>
       <h1>

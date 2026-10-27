@@ -41,17 +41,17 @@
   },
   {
     "path": "apps/web/src/pages/HomePage.tsx",
-    "sha256": "787c92d12cb9c6dfd2f4b22d21ac327c210d1f96c4ef7385854b5f60fcab6fd8",
+    "sha256": "a2031e2f4818fc53a2fd854c38d45c0ceb3f3eb90f1dd3f1fc8a348c3befaee0",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/components.tsx",
-    "sha256": "f148c5941d6f7336a12cf1bb7bd8f9b92a334a7bf7078c3c93056eb5a0a76674",
+    "sha256": "239524f1045a170440083f4bdb62402a9b473ea40aff8c64c315877bae03d812",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/App.tsx",
-    "sha256": "dd7fd45a756e16f697a4e115b3ae09d8c2339be60138ce4d72c7ad398bd7a763",
+    "sha256": "1c6664ba96964adee256c9b73682143f3e51f21fef1d3cc57c9fda98ed3d71cc",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {

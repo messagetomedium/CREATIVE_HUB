@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import type { AvatarCatalog } from '@creative-factory/contracts';
+import { enterDemo } from './demoFixture';
 test('real PNG layers share frames, use palette masks and reject incorrect sheet dimensions', async ({
   page,
 }) => {
@@ -108,6 +109,7 @@ test('real PNG layers share frames, use palette masks and reject incorrect sheet
 test('the actual Phaser scene can replace procedural props with one PNG without touching collision data', async ({
   page,
 }) => {
+  await enterDemo(page);
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { enterDemo } from './demoFixture';
 const snapshot = (page: Page) => page.evaluate(() => window.__CF_DEBUG__!.snapshot());
 let pageErrors: string[] = [];
 test.beforeEach(({ page }) => {
@@ -9,6 +10,7 @@ test.afterEach(() => {
   expect(pageErrors).toEqual([]);
 });
 async function open(page: Page) {
+  await enterDemo(page);
   await page.goto('/#/factory');
   await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
   await page.waitForFunction(() => (window.__CF_DEBUG__?.snapshot().tick ?? 0) > 3);
@@ -197,6 +199,7 @@ test('overview, workshop markers and resize keep a single working game', async (
 test('a failed content integrity check shows an actionable error instead of a broken game', async ({
   page,
 }) => {
+  await enterDemo(page);
   await page.route('**/content/world-*.json', (route) =>
     route.fulfill({ contentType: 'application/json', body: '{}' }),
   );
@@ -207,6 +210,7 @@ test('a failed content integrity check shows an actionable error instead of a br
 test('failed tileset loading tears down the game canvas and its debug reference', async ({
   page,
 }) => {
+  await enterDemo(page);
   await page.route('**/content/tiles-*.svg', (route) =>
     route.fulfill({ status: 404, body: 'not found' }),
   );
