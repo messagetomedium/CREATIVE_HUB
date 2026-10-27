@@ -88,7 +88,9 @@ test('upright feet anchor, shared textures and real occlusion in front of/behind
   const bench = state.rendering.props.find((p) => p.id === 'hall-bench-west')!;
   expect(state.rendering.playerDepth).toBeGreaterThan(bench.depth);
   // The avatar's dark hair is actually drawn over the bench top here.
-  await expect.poll(async () => (await sample(897, 645)).every((v) => v < 100)).toBe(true);
+  await expect
+    .poll(async () => (await sample(state.player.x, state.player.y - 35)).every((v) => v < 100))
+    .toBe(true);
   await page.screenshot({ path: '.cache/review/three-quarter-front.png', fullPage: true });
   await moveTo(page, 'KeyD', 'x', 980, 'greater');
   await moveTo(page, 'KeyW', 'y', 600, 'less');
@@ -103,7 +105,9 @@ test('upright feet anchor, shared textures and real occlusion in front of/behind
   // The bench now hides the bottom of the avatar, rather than merely having a depth number.
   await expect
     .poll(async () =>
-      (await sample(897, 628)).every((v, i) => Math.abs(v - [173, 187, 145][i]!) < 15),
+      (await sample(state.player.x - 4, state.player.y - 1)).every(
+        (v, i) => Math.abs(v - [173, 187, 145][i]!) < 15,
+      ),
     )
     .toBe(true);
   await page.screenshot({ path: '.cache/review/three-quarter-behind.png', fullPage: true });

@@ -18,7 +18,12 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --reporter=line,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: .cache/e2e-report.json
+      - name: Browser test summary
+        if: always()
+        run: node scripts/write-browser-summary.mjs
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
