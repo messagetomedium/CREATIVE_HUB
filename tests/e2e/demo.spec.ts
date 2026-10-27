@@ -173,7 +173,7 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
   ).toEqual(['Повернуть влево', 'Стоит', 'Идёт', 'Повернуть вправо']);
   await expect(
     page.getByRole('group', { name: 'Пол и возраст', exact: true }).getByRole('button'),
-  ).toHaveCount(4);
+  ).toHaveCount(2);
   await expect(
     page.getByRole('group', { name: 'Телосложение', exact: true }).getByRole('button'),
   ).toHaveCount(3);
@@ -237,11 +237,11 @@ test('new placeholder choices, independent hair sets and colors survive save, re
 }) => {
   await enterDemo(page);
   await page.goto('/#/avatar');
-  await page.getByRole('button', { name: 'Пол и возраст: Девочка', exact: true }).click();
+  await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
   await page.getByRole('button', { name: 'Телосложение: Худое', exact: true }).click();
   await page.getByRole('button', { name: 'Особенности тела: Вариант 12', exact: true }).click();
   await page.getByRole('tab', { name: 'Голова', exact: true }).click();
-  await page.getByRole('button', { name: 'Причёска: Женская 6', exact: true }).click();
+  await page.getByRole('button', { name: 'Причёска: Женская 3', exact: true }).click();
   await page.getByRole('button', { name: 'Рот: Вариант 4', exact: true }).click();
   await page.getByRole('button', { name: 'Глаза: Вариант 5', exact: true }).click();
   await page.getByRole('button', { name: 'Особенности лица: Веснушки', exact: true }).click();
@@ -249,7 +249,7 @@ test('new placeholder choices, independent hair sets and colors survive save, re
   await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
   await page.getByRole('tab', { name: 'Голова', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Причёска: Женская 6', exact: true }),
+    page.getByRole('button', { name: 'Причёска: Женская 3', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('tab', { name: 'Одежда', exact: true }).click();
   await page.getByRole('button', { name: 'Низ: Вариант 6', exact: true }).click();
@@ -276,7 +276,7 @@ test('new placeholder choices, independent hair sets and colors survive save, re
     eyes: 5,
     faceFeatures: [1],
     bodyFeatures: [12],
-    hair: { female: 6 },
+    hair: { female: 3 },
     bottom: 6,
     hat: 4,
     jewelry: 3,

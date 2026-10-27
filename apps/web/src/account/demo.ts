@@ -48,7 +48,12 @@ export function demoService(
       const known = Object.entries(avatar.parts).every(
         ([part, id]) => id === null || catalog.parts[part]?.some((p) => p.id === id),
       );
-      if (known) return avatar;
+      if (known) {
+        const original = raw as { avatar?: { customization?: { age?: string } } };
+        if (original.avatar?.customization?.age === 'child')
+          write(DEMO_AVATAR_KEY, { formatVersion: 1, avatar });
+        return avatar;
+      }
     }
     recovered = raw !== null;
     const fallback = structuredClone(catalog.defaultAvatar);

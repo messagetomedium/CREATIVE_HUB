@@ -22,13 +22,19 @@ try {
     const avatarPath = '/src/avatar/art.ts',
       catalogPath = '/src/avatar/catalog.ts',
       scenePath = '/src/game/sceneArt.ts';
-    const [{ createAvatarSheet }, { avatarCatalog }, { createPropSheet, createWallSheet }] =
+    const [{ loadAvatarSheet }, { avatarCatalog }, { createPropSheet, createWallSheet }] =
       await Promise.all([import(avatarPath), import(catalogPath), import(scenePath)]);
     const response = await fetch('/content/manifest.json', { cache: 'no-store' });
     const manifest = await response.json();
     const art = await (await fetch(manifest.sceneArtUrl)).json();
     return {
-      avatar: createAvatarSheet(avatarCatalog, avatarCatalog.defaultAvatar)
+      avatar: (
+        await loadAvatarSheet(
+          avatarCatalog,
+          avatarCatalog.defaultAvatar,
+          new AbortController().signal,
+        )
+      )
         .toDataURL('image/png')
         .split(',')[1],
       props: createPropSheet(art).toDataURL('image/png').split(',')[1],

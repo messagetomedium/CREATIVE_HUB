@@ -36,18 +36,18 @@
   },
   {
     "path": "apps/web/src/avatar/art.ts",
-    "sha256": "1de7c2daa0c582039305d4b16fdb307b581c32b580fe55ece13007a75f9af99d",
+    "sha256": "686e80a0b5e163b31fb04eee7e250e52e3e770fc559fefde9a5e125ef9b74211",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
-    "path": "apps/web/src/avatar/bodyTest.ts",
-    "sha256": "65f784d5de4b19c4cc25b12a71924421974ee0162a65bda572829574ab80e164",
+    "path": "apps/web/src/avatar/modular/render.ts",
+    "sha256": "afe4fc32a95a6801a05cf35a984061b916be8944ced72e8b7acb8654f36b7c80",
     "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
-    "path": "content/art/female-adult-test.png",
-    "sha256": "1218dd880f4f924eab629ffbce3edd8df1b2f8083116c99dcd28a84af37763c1",
-    "origin": "User-created adult female sprite; supplied by project owner for testing"
+    "path": "content/avatars/modular/hair-indexed.png",
+    "sha256": "d9251d4888ff5cb157e0282f89c11acf2a5b5aa57363abdefa751138795554f0",
+    "origin": "Original Creative Factory placeholder; created for this project"
   },
   {
     "path": "apps/web/src/pages/HomePage.tsx",

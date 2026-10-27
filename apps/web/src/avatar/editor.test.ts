@@ -34,11 +34,11 @@ test('legacy saves acquire constructor choices only after an explicit edit', asy
   const inferred = constructorChoices(legacy);
   expect(inferred.build).toBe('average');
   expect(JSON.stringify(legacy)).toBe(before);
-  const next = updateConstructor(legacy, { build: 'slim', age: 'child', mouth: 6, hat: 4 });
+  const next = updateConstructor(legacy, { build: 'slim', age: 'adult', mouth: 6, hat: 4 });
   expect(next.customization).toMatchObject({
     version: 1,
     build: 'slim',
-    age: 'child',
+    age: 'adult',
     mouth: 6,
     hat: 4,
   });
@@ -52,7 +52,7 @@ test('gender changes preserve both hair choices; age does not replace the hairst
   value = updateConstructor(value, { gender: 'female' });
   expect(constructorChoices(value).hair).toEqual({ male: 6, female: 4 });
   const female = value.parts.hair;
-  value = updateConstructor(value, { age: 'child' });
+  value = updateConstructor(value, { age: 'adult' });
   expect(value.parts.hair).toBe(female);
   expect(updateConstructor(value, { gender: 'male' }).parts.hair).toBe(male);
 });

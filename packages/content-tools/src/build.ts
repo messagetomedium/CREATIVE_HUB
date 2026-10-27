@@ -56,13 +56,19 @@ const sources = [
   sceneArt.walls.source,
   avatars.sprite.source,
 ];
-const imageUrls = sources.flatMap((s) =>
-  s.kind === 'spritesheet'
-    ? [s.url]
-    : s.kind === 'layered-sheets'
-      ? s.layers.map((l) => l.url)
-      : [],
-);
+const modularParts = (await readJson('content/avatars/modular/parts.json')) as {
+  source?: string;
+}[];
+const imageUrls = [
+  ...modularParts.flatMap((p) => (p.source ? [p.source] : [])),
+  ...sources.flatMap((s) =>
+    s.kind === 'spritesheet'
+      ? [s.url]
+      : s.kind === 'layered-sheets'
+        ? s.layers.map((l) => l.url)
+        : [],
+  ),
+];
 for (const url of imageUrls) {
   if (!/^\/content\/[A-Za-z0-9][A-Za-z0-9._-]*\.png$/.test(url) || url.includes('..'))
     throw new Error('Недопустимый путь PNG');
@@ -80,8 +86,8 @@ const originals = [
   'apps/web/src/game/sceneArt.ts',
   'apps/web/src/game/placeholderArt.ts',
   'apps/web/src/avatar/art.ts',
-  'apps/web/src/avatar/bodyTest.ts',
-  'content/art/female-adult-test.png',
+  'apps/web/src/avatar/modular/render.ts',
+  'content/avatars/modular/hair-indexed.png',
   'apps/web/src/pages/HomePage.tsx',
   'apps/web/src/components.tsx',
   'apps/web/src/App.tsx',

@@ -105,3 +105,26 @@ describe('local demo adapter, no remote authorization', () => {
     expect(await service.session()).toBeNull();
   });
 });
+
+test('legacy child local save migrates in place, retaining all choices and revision', async () => {
+  const storage = new MemoryStorage();
+  const { updateConstructor } = await import('../avatar/editor');
+  const config = updateConstructor(avatarCatalog.defaultAvatar, {
+    gender: 'female',
+    hair: { male: 2, female: 4 },
+  });
+  config.revision = 6;
+  storage.setItem(
+    DEMO_AVATAR_KEY,
+    JSON.stringify({
+      formatVersion: 1,
+      avatar: { ...config, customization: { ...config.customization, age: 'child' } },
+    }),
+  );
+  const service = demoService(storage, avatarCatalog);
+  await service.enterDemo!();
+  const loaded = await service.load(DEMO_ID);
+  expect(loaded.avatar).toEqual(config);
+  expect(JSON.parse(storage.getItem(DEMO_AVATAR_KEY)!).avatar.customization.age).toBe('adult');
+  expect(loaded.notice).toBeUndefined();
+});

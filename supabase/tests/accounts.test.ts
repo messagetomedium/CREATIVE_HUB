@@ -197,7 +197,7 @@ describe('real migration under authenticated/anon PostgreSQL roles', () => {
     await as(A);
     const { revision: _, ...config } = updateConstructor(avatarCatalog.defaultAvatar, {
       gender: 'female',
-      age: 'child',
+      age: 'adult',
       build: 'slim',
       bodyFeatures: [1, 12],
       faceFeatures: [1, 6],
@@ -243,5 +243,31 @@ describe('real migration under authenticated/anon PostgreSQL roles', () => {
     await as(A);
     // Removing the optional extension remains valid, so legacy clients/saves are not locked out.
     expect((await saveAvatar(1, avatar)).rows[0]!.revision).toBe(2);
+  });
+  test('SQL migration upgrades stored children and refuses new child payloads under RLS', async () => {
+    // Reconstruct the previous validator so an actual legacy row exists before reapplying migration.
+    await db.exec('reset role');
+    const old = await readFile('supabase/migrations/202610270001_avatar_constructor.sql', 'utf8');
+    const a = old.indexOf('create function public.cf_valid_customization'),
+      b = old.indexOf('revoke all on function', a);
+    await db.exec(old.slice(a, b).replace('create function', 'create or replace function'));
+    await as(A);
+    const { revision: _, ...config } = updateConstructor(avatarCatalog.defaultAvatar, {
+      gender: 'female',
+      hair: { male: 2, female: 4 },
+    });
+    const child = { ...config, customization: { ...config.customization, age: 'child' } };
+    await saveAvatar(0, child);
+    await db.exec('reset role');
+    await db.exec(await readFile('supabase/migrations/202610270002_adult_avatar_rig.sql', 'utf8'));
+    await as(A);
+    const row = (
+      await db.query<{ config: unknown; revision: number }>(
+        'select config,revision from avatar_configs',
+      )
+    ).rows[0]!;
+    expect(row.config).toEqual(config);
+    expect(row.revision).toBe(2);
+    await expect(saveAvatar(2, child)).rejects.toMatchObject({ code: '23514' });
   });
 });

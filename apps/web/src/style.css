@@ -1935,3 +1935,15 @@ fieldset {
     transition: none;
   }
 }
+
+.art-tools {
+  margin-top: 12px;
+  color: #88796f;
+  font-size: 10px;
+}
+.art-tools summary {
+  cursor: pointer;
+}
+.art-tools .preview-controls {
+  margin-top: 10px;
+}

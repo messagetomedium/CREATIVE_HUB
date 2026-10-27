@@ -145,66 +145,120 @@ test('the actual Phaser scene can replace procedural props with one PNG without 
   expect(errors).toEqual([]);
 });
 
-test('supplied adult woman PNG is shown in preview and the moving factory avatar', async ({
+test('modular adult rig shares head, compiles four hair views and bounds its texture cache', async ({
   page,
 }) => {
   await enterDemo(page);
   await page.goto('/#/avatar');
+  await expect(page.getByRole('button', { name: /Пол и возраст: (Мальчик|Девочка)/ })).toHaveCount(
+    0,
+  );
   await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
-  const preview = page.locator('.avatar-stage canvas');
-  const hasSkin = () =>
-    preview.evaluate((node) => {
-      const c = node as HTMLCanvasElement,
-        p = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
-      let n = 0;
-      for (let i = 0; i < p.length; i += 4)
-        if (
-          p[i]! > 220 &&
-          p[i + 1]! > 130 &&
-          p[i + 1]! < 220 &&
-          p[i + 2]! < 170 &&
-          p[i + 3]! >= 240
-        )
-          n++;
-      return n;
-    });
-  await expect.poll(hasSkin).toBeGreaterThan(50);
-  for (const direction of ['west', 'north', 'east', 'south']) {
-    await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
-    await expect(preview).toHaveAttribute('data-direction', direction);
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  const pictures = [];
+  for (let h = 1; h <= 4; h++) {
+    await page.getByRole('button', { name: `Причёска: Женская ${h}`, exact: true }).click();
+    await page.waitForTimeout(100);
+    pictures.push(
+      await page
+        .locator('.avatar-stage canvas')
+        .evaluate((c) => (c as HTMLCanvasElement).toDataURL()),
+    );
   }
-  await page.screenshot({ path: '.cache/review/female-body-preview.png', fullPage: true });
-  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(
-    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
-  await expect(page.getByTestId('current-zone')).toBeVisible({ timeout: 20000 });
-  expect(
-    (await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar.customization,
-  ).toMatchObject({ gender: 'female', age: 'adult' });
-  const first = await page.locator('.game-canvas canvas').evaluate((node) => {
-    const c = node as HTMLCanvasElement,
-      p = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
-    let n = 0;
-    for (let i = 0; i < p.length; i += 4)
-      if (p[i]! > 220 && p[i + 1]! > 130 && p[i + 1]! < 220 && p[i + 2]! < 170 && p[i + 3]! >= 240)
-        n++;
-    return n;
+  expect(new Set(pictures).size).toBe(4);
+  const result = await page.evaluate(async () => {
+    const { loadAvatarSheet, assemblyStats } = await import(
+      /* @vite-ignore */ String('/src/avatar/art.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const { assemble } = await import(/* @vite-ignore */ String('/src/avatar/modular/render.ts'));
+    const { pose } = await import(/* @vite-ignore */ String('/src/avatar/modular/rig.ts'));
+    const c = updateConstructor(avatarCatalog.defaultAvatar, {
+        gender: 'female',
+        hair: { male: 1, female: 1 },
+      }),
+      head = [];
+    for (const build of ['slim', 'average', 'sturdy'] as const) {
+      const sheet = assemble(updateConstructor(c, { build }), { bodyOnly: true });
+      head.push([...sheet.getContext('2d')!.getImageData(14, 135, 20, 20).data]);
+    }
+    for (let i = 0; i < 15; i++) {
+      const v = structuredClone(c);
+      v.palette.outfit = '#' + (0x550000 + i).toString(16);
+      await loadAvatarSheet(avatarCatalog, v, new AbortController().signal);
+    }
+    const a = await loadAvatarSheet(avatarCatalog, c, new AbortController().signal),
+      b = await loadAvatarSheet(
+        avatarCatalog,
+        { ...c, revision: 99 },
+        new AbortController().signal,
+      );
+    return {
+      head,
+      same: a === b,
+      stats: assemblyStats(),
+      phase3: pose('average', 'east', 3).legs.map((l: { end: { x: number; y: number } }) => l.end),
+      phase5: pose('average', 'east', 5).legs.map((l: { end: { x: number; y: number } }) => l.end),
+    };
   });
-  expect(first).toBeGreaterThan(20);
-  await page.locator('.game-canvas canvas').focus();
-  for (const [key, direction] of [
-    ['KeyD', 'east'],
-    ['KeyS', 'south'],
-    ['KeyA', 'west'],
-    ['KeyW', 'north'],
-  ]) {
-    await page.keyboard.down(key!);
-    await expect
-      .poll(() => page.evaluate(() => window.__CF_DEBUG__!.snapshot().animation))
-      .toBe(`${direction}-walk`);
-    await page.keyboard.up(key!);
-  }
-  await page.screenshot({ path: '.cache/review/female-body-factory.png', fullPage: true });
+  expect(result.head[0]).toEqual(result.head[1]);
+  expect(result.head[1]).toEqual(result.head[2]);
+  expect(result.same).toBe(true);
+  expect(result.stats.entries).toBeLessThanOrEqual(8);
+  expect(result.phase3).not.toEqual(result.phase5);
+  await page.locator('summary').filter({ hasText: 'Проверка графики' }).click();
+  await page.getByRole('button', { name: '1×', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('width', '48');
+  await page.getByRole('button', { name: 'A24', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('width', '288');
+});
+
+test('real modular PNG import tints material, follows a bent limb and accepts a pose override', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const buffer = await readFile('TECH_DOCS/ПЕРСОНАЖ/РУКАВ_МАСКА_V4.png');
+  await page.route('**/content/example-sleeve.png', (r) =>
+    r.fulfill({ contentType: 'image/png', body: buffer }),
+  );
+  const imported = await page.evaluate(async () => {
+    const { loadParts } = await import(/* @vite-ignore */ String('/src/avatar/modular/assets.ts'));
+    const { assemble } = await import(/* @vite-ignore */ String('/src/avatar/modular/render.ts'));
+    const { PartEntrySchema } = await import(
+      /* @vite-ignore */ String('/src/avatar/modular/parts.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const d = PartEntrySchema.parse({
+      id: 'sleeve',
+      source: '/content/example-sleeve.png',
+      parent: 'armRight',
+      pass: 'front',
+      material: 'top',
+      frameWidth: 6,
+      frameHeight: 12,
+      anchor: { x: 3, y: 0 },
+      offset: { x: 0, y: 0 },
+      fit: 'limb',
+      sync: 'limb',
+      selection: { field: 'top', slot: 1 },
+      overrides: [{ direction: 'east', phase: 3, sourceFrame: 1, offset: { x: 1, y: 0 } }],
+    });
+    const c = updateConstructor(avatarCatalog.defaultAvatar, { top: 1 });
+    c.palette.outfit = '#cc33bb';
+    const parts = await loadParts(c, new AbortController().signal, [d]);
+    const sheet = assemble(c, { parts }),
+      base = assemble(c);
+    return {
+      w: parts[0].image.width,
+      h: parts[0].image.height,
+      different: sheet.toDataURL() !== base.toDataURL(),
+      frames: [...sheet.getContext('2d').getImageData(144, 64, 48, 64).data]
+        .filter((_, i) => i % 4 === 3)
+        .filter((v) => v > 0).length,
+    };
+  });
+  expect(imported).toMatchObject({ w: 6, h: 48, different: true });
+  expect(imported.frames).toBeGreaterThan(100);
 });

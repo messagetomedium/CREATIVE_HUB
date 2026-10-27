@@ -72,7 +72,7 @@ const TOP_PARTS = ['workwear-01', 'jacket-01', 'dress-01', 'workwear-01', 'jacke
 
 /** Read old saves without changing them or marking an untouched form dirty. */
 export function constructorChoices(config: AvatarConfig): AvatarCustomization {
-  if (config.customization) return structuredClone(config.customization);
+  if (config.customization) return { ...structuredClone(config.customization), age: 'adult' };
   return {
     version: 1,
     gender: 'male',
@@ -138,7 +138,7 @@ export function randomAvatar(
     items[Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))]!;
   let avatar = updateConstructor(previous, {
     gender: choose(['male', 'female'] as const),
-    age: choose(['child', 'adult'] as const),
+    age: 'adult',
     build: choose(['slim', 'average', 'sturdy'] as const),
     hair: { male: choose(SLOTS), female: choose(SLOTS) },
     top: choose(SLOTS),

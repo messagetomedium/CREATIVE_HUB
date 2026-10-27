@@ -19,6 +19,7 @@ import {
   type ConstructorTab,
 } from '../avatar/editor';
 import { useUnsavedChanges } from '../router';
+import hairAtlasUrl from '../../../../content/avatars/modular/hair-indexed.png?url&no-inline';
 import { Notice } from '../components';
 
 const directions: Direction[] = ['north', 'east', 'south', 'west'];
@@ -59,6 +60,8 @@ function ChoiceGrid({
     name: string;
     caption?: string;
     selected: boolean;
+    preview?: ReactNode;
+    disabled?: boolean;
     choose(): void;
   }[];
 }) {
@@ -72,9 +75,10 @@ function ChoiceGrid({
             aria-label={`${label}: ${option.name}`}
             title={option.name}
             aria-pressed={option.selected}
+            disabled={option.disabled}
             onClick={option.choose}
           >
-            <ConstructorIcon name={icon} />
+            {option.preview ?? <ConstructorIcon name={icon} />}
             <span className="choice-number" aria-hidden="true">
               {String(i + 1).padStart(2, '0')}
             </span>
@@ -122,6 +126,7 @@ export function AvatarPage() {
   );
   const [config, setConfig] = useState<AvatarConfig>(() => structuredClone(baseline));
   const [tab, setTab] = useState<ConstructorTab>('body');
+  const [previewMode, setPreviewMode] = useState<'large' | 'native' | 'atlas'>('large');
   const [direction, setDirection] = useState<Direction>('south');
   const [animation, setAnimation] = useState<'idle' | 'walk'>('idle');
   const [busy, setBusy] = useState(false),
@@ -271,14 +276,12 @@ export function AvatarPage() {
               >
                 {id === 'body' && (
                   <>
-                    <EditorSection number="01" title="Пол и возраст">
+                    <EditorSection number="01" title="Персонаж">
                       <ChoiceGrid
                         label="Пол и возраст"
                         icon="body"
                         options={(
                           [
-                            ['male', 'child', 'Мальчик'],
-                            ['female', 'child', 'Девочка'],
                             ['female', 'adult', 'Женщина'],
                             ['male', 'adult', 'Мужчина'],
                           ] as const
@@ -335,6 +338,21 @@ export function AvatarPage() {
                           id,
                           name: `${c.gender === 'male' ? 'Мужская' : 'Женская'} ${id}`,
                           selected: c.hair[c.gender] === id,
+                          disabled: c.gender === 'female' && id > 4,
+                          preview:
+                            c.gender === 'female' && id <= 4 ? (
+                              <span
+                                aria-hidden="true"
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  backgroundImage: `url(${hairAtlasUrl})`,
+                                  backgroundSize: '128px 128px',
+                                  backgroundPosition: `-${(id - 1) * 32}px -64px`,
+                                  imageRendering: 'pixelated',
+                                }}
+                              />
+                            ) : undefined,
                           choose: () => customize({ hair: { ...c.hair, [c.gender]: id } }),
                         }))}
                       />
@@ -385,6 +403,7 @@ export function AvatarPage() {
                 config={config}
                 direction={direction}
                 size={384}
+                mode={previewMode}
                 animation={animation}
               />
             </div>
@@ -425,6 +444,28 @@ export function AvatarPage() {
               </button>
             </div>
             <span className="preview-direction">{directionLabels[direction]}</span>
+            <details className="art-tools">
+              <summary>Проверка графики</summary>
+              <div className="preview-controls" aria-label="Формат предпросмотра">
+                {(
+                  [
+                    ['large', 'Крупно'],
+                    ['native', '1×'],
+                    ['atlas', 'A24'],
+                  ] as const
+                ).map(([id, label]) => (
+                  <button
+                    style={{ width: 56 }}
+                    type="button"
+                    key={id}
+                    aria-pressed={previewMode === id}
+                    onClick={() => setPreviewMode(id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </details>
           </section>
           <div className="constructor-actions" role="group" aria-label="Действия с внешностью">
             <button
