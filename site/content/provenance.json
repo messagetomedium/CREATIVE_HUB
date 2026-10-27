@@ -36,8 +36,18 @@
   },
   {
     "path": "apps/web/src/avatar/art.ts",
-    "sha256": "4c1c1dcb341431c25044b8e17d64672511ec7e73a92cde49b97d32ab49f7b0de",
+    "sha256": "1de7c2daa0c582039305d4b16fdb307b581c32b580fe55ece13007a75f9af99d",
     "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "apps/web/src/avatar/bodyTest.ts",
+    "sha256": "65f784d5de4b19c4cc25b12a71924421974ee0162a65bda572829574ab80e164",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/female-adult-test.png",
+    "sha256": "1218dd880f4f924eab629ffbce3edd8df1b2f8083116c99dcd28a84af37763c1",
+    "origin": "User-created adult female sprite; supplied by project owner for testing"
   },
   {
     "path": "apps/web/src/pages/HomePage.tsx",

@@ -1,4 +1,5 @@
 import type { AvatarCatalog, AvatarConfig, Direction } from '@creative-factory/contracts';
+import { loadBodyTest } from './bodyTest';
 import { contentPath } from '../game/contentPath';
 
 export const DIRECTIONS: Direction[] = ['north', 'east', 'south', 'west'];
@@ -164,6 +165,8 @@ export async function loadAvatarSheet(
   config: AvatarConfig,
   signal: AbortSignal,
 ): Promise<HTMLCanvasElement> {
+  const bodyTest = await loadBodyTest(config, signal);
+  if (bodyTest) return bodyTest;
   const source = catalog.sprite.source;
   if (source.kind === 'procedural') return createAvatarSheet(catalog, config);
   const width = catalog.sprite.frameWidth * 6,

@@ -144,3 +144,67 @@ test('the actual Phaser scene can replace procedural props with one PNG without 
   await expect(page.locator('.game-canvas canvas')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+test('supplied adult woman PNG is shown in preview and the moving factory avatar', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
+  const preview = page.locator('.avatar-stage canvas');
+  const hasSkin = () =>
+    preview.evaluate((node) => {
+      const c = node as HTMLCanvasElement,
+        p = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+      let n = 0;
+      for (let i = 0; i < p.length; i += 4)
+        if (
+          p[i]! > 220 &&
+          p[i + 1]! > 130 &&
+          p[i + 1]! < 220 &&
+          p[i + 2]! < 170 &&
+          p[i + 3]! >= 240
+        )
+          n++;
+      return n;
+    });
+  await expect.poll(hasSkin).toBeGreaterThan(50);
+  for (const direction of ['west', 'north', 'east', 'south']) {
+    await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
+    await expect(preview).toHaveAttribute('data-direction', direction);
+  }
+  await page.screenshot({ path: '.cache/review/female-body-preview.png', fullPage: true });
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
+  await expect(page.getByTestId('current-zone')).toBeVisible({ timeout: 20000 });
+  expect(
+    (await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar.customization,
+  ).toMatchObject({ gender: 'female', age: 'adult' });
+  const first = await page.locator('.game-canvas canvas').evaluate((node) => {
+    const c = node as HTMLCanvasElement,
+      p = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+    let n = 0;
+    for (let i = 0; i < p.length; i += 4)
+      if (p[i]! > 220 && p[i + 1]! > 130 && p[i + 1]! < 220 && p[i + 2]! < 170 && p[i + 3]! >= 240)
+        n++;
+    return n;
+  });
+  expect(first).toBeGreaterThan(20);
+  await page.locator('.game-canvas canvas').focus();
+  for (const [key, direction] of [
+    ['KeyD', 'east'],
+    ['KeyS', 'south'],
+    ['KeyA', 'west'],
+    ['KeyW', 'north'],
+  ]) {
+    await page.keyboard.down(key!);
+    await expect
+      .poll(() => page.evaluate(() => window.__CF_DEBUG__!.snapshot().animation))
+      .toBe(`${direction}-walk`);
+    await page.keyboard.up(key!);
+  }
+  await page.screenshot({ path: '.cache/review/female-body-factory.png', fullPage: true });
+});

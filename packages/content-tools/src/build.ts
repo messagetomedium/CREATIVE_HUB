@@ -80,6 +80,8 @@ const originals = [
   'apps/web/src/game/sceneArt.ts',
   'apps/web/src/game/placeholderArt.ts',
   'apps/web/src/avatar/art.ts',
+  'apps/web/src/avatar/bodyTest.ts',
+  'content/art/female-adult-test.png',
   'apps/web/src/pages/HomePage.tsx',
   'apps/web/src/components.tsx',
   'apps/web/src/App.tsx',
@@ -92,7 +94,10 @@ const provenance = await Promise.all(
     sha256: createHash('sha256')
       .update(await readFile(path))
       .digest('hex'),
-    origin: 'Original Creative Factory placeholder; created for this project',
+    origin:
+      path === 'content/art/female-adult-test.png'
+        ? 'User-created adult female sprite; supplied by project owner for testing'
+        : 'Original Creative Factory placeholder; created for this project',
   })),
 );
 await writeFile(`${destination}/provenance.json`, JSON.stringify(provenance, null, 2));
