@@ -8,7 +8,9 @@ concurrency:
 jobs:
   prototype:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Fresh runner browser/dependency installation can take over eight minutes.
+    # Keep the browser suite itself bounded to four minutes below.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

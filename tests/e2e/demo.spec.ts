@@ -27,13 +27,16 @@ test('complete local flow, saved avatar in factory, reload, logout and repeat en
   await page.screenshot({ path: '.cache/review/demo-menu.png', fullPage: true });
   await page.getByRole('link', { name: /Редактировать персонажа/ }).click();
   await expect(page).toHaveURL(/#\/avatar$/);
-  await page.getByRole('button', { name: 'Тело: Широкое', exact: true }).click();
-  await page.getByRole('button', { name: 'Причёска: Кудри', exact: true }).click();
-  await page.getByRole('button', { name: 'Одежда: Куртка', exact: true }).click();
-  await page.getByRole('button', { name: 'Аксессуар: Наушники', exact: true }).click();
-  await page.getByRole('button', { name: 'Цвет одежды: вариант 3', exact: true }).click();
+  await page.getByRole('button', { name: 'Телосложение: Плотное', exact: true }).click();
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  await page.getByRole('button', { name: 'Причёска: Мужская 3', exact: true }).click();
+  await page.getByRole('tab', { name: 'Одежда', exact: true }).click();
+  await page.getByRole('button', { name: 'Верх: Вариант 2', exact: true }).click();
+  await page.getByRole('button', { name: 'Цвет верха: вариант 10', exact: true }).click();
+  await page.getByRole('tab', { name: 'Детали', exact: true }).click();
+  await page.getByRole('button', { name: 'Особый предмет: Вариант 1', exact: true }).click();
   await expect(page.getByText('Есть несохранённые изменения', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Сохранить персонажа', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(
     page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
   ).toBeVisible();
@@ -44,7 +47,7 @@ test('complete local flow, saved avatar in factory, reload, logout and repeat en
   expect(saved.formatVersion).toBe(1);
   expect(saved.avatar.parts.hair).toBe('curls-01');
   await page.screenshot({ path: '.cache/review/demo-editor.png', fullPage: true });
-  await page.getByRole('link', { name: 'Войти на завод →', exact: true }).click();
+  await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
   await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
   expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar).toEqual(saved.avatar);
   await page.locator('.game-canvas canvas').focus();
@@ -79,7 +82,7 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   await expect(preview).toHaveAttribute('data-direction', 'south');
   const first = await preview.getAttribute('data-frame');
   await expect.poll(() => preview.getAttribute('data-frame')).not.toBe(first);
-  await page.getByRole('button', { name: 'Ходьба', exact: true }).click();
+  await page.getByRole('button', { name: 'Идёт', exact: true }).click();
   await expect(preview).toHaveAttribute('data-animation', 'walk');
   for (const direction of ['west', 'north', 'east', 'south']) {
     await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
@@ -89,16 +92,17 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   }
   await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
   await expect(preview).toHaveAttribute('data-direction', 'east');
-  await page.getByRole('button', { name: 'Причёска: Каре', exact: true }).click();
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  await page.getByRole('button', { name: 'Причёска: Мужская 2', exact: true }).click();
   page.once('dialog', (d) => {
     expect(d.type()).toBe('confirm');
     void d.dismiss();
   });
   await page.getByRole('link', { name: 'Вернуться в меню', exact: true }).click();
   await expect(page).toHaveURL(/#\/avatar$/);
-  await page.getByRole('button', { name: 'Сбросить изменения', exact: true }).click();
+  await page.getByRole('button', { name: 'Сбросить вид', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Причёска: Короткая стрижка', exact: true }),
+    page.getByRole('button', { name: 'Причёска: Мужская 1', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Случайный персонаж', exact: true }).click();
   await expect(page.getByText('Есть несохранённые изменения', { exact: true })).toBeVisible();
@@ -114,8 +118,9 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   await page.getByRole('link', { name: 'Вернуться в меню', exact: true }).click();
   await expect(page).toHaveURL(/#\/menu$/);
   await page.goto('/#/avatar');
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Причёска: Короткая стрижка', exact: true }),
+    page.getByRole('button', { name: 'Причёска: Мужская 1', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
 });
 test('damaged storage recovers and nested hash routes reload with one game', async ({ page }) => {
@@ -143,9 +148,157 @@ test('narrow-screen demo and editor remain usable', async ({ page }) => {
   await enterDemo(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('link', { name: /Редактировать персонажа/ }).click();
-  await expect(
-    page.getByRole('button', { name: 'Сохранить персонажа', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Сохранить', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '.cache/review/demo-editor-mobile.png', fullPage: true });
+});
+
+test('compact tabs, six-column slots, fixed palettes and four preview controls', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Конструктор персонажа');
+  await expect(page.getByText('Ваш образ. Ваш характер', { exact: false })).toHaveCount(0);
+  await expect(page.locator('.avatar-layout canvas')).toHaveCount(1);
+  await expect(page.locator('input[type=color]')).toHaveCount(0);
+  const catalog = await page.locator('.avatar-form').boundingBox();
+  const stage = await page.locator('.avatar-stage').boundingBox();
+  expect(catalog!.x + catalog!.width).toBeLessThan(stage!.x);
+  const controls = page.getByRole('group', { name: 'Управление предпросмотром', exact: true });
+  expect(
+    await controls
+      .getByRole('button')
+      .evaluateAll((buttons) => buttons.map((b) => b.getAttribute('aria-label'))),
+  ).toEqual(['Повернуть влево', 'Стоит', 'Идёт', 'Повернуть вправо']);
+  await expect(
+    page.getByRole('group', { name: 'Пол и возраст', exact: true }).getByRole('button'),
+  ).toHaveCount(4);
+  await expect(
+    page.getByRole('group', { name: 'Телосложение', exact: true }).getByRole('button'),
+  ).toHaveCount(3);
+  await expect(
+    page.getByRole('group', { name: 'Особенности тела', exact: true }).getByRole('button'),
+  ).toHaveCount(12);
+  await expect(
+    page.getByRole('group', { name: 'Цвет кожи', exact: true }).getByRole('button'),
+  ).toHaveCount(10);
+  const bodyFeatures = await page
+    .getByRole('group', { name: 'Особенности тела', exact: true })
+    .getByRole('button')
+    .evaluateAll((buttons) =>
+      buttons.map((b) => ({ x: b.getBoundingClientRect().x, y: b.getBoundingClientRect().y })),
+    );
+  expect(new Set(bodyFeatures.slice(0, 6).map((b) => b.y)).size).toBe(1);
+  expect(new Set(bodyFeatures.slice(6).map((b) => b.y)).size).toBe(1);
+  expect(bodyFeatures[6]!.y).toBeGreaterThan(bodyFeatures[0]!.y);
+  const buttonWidth = await page
+    .getByRole('button', { name: 'Телосложение: Худое', exact: true })
+    .evaluate((b) => b.getBoundingClientRect().width);
+  const colorWidth = await page
+    .getByRole('button', { name: 'Цвет кожи: вариант 1', exact: true })
+    .evaluate((b) => b.getBoundingClientRect().width);
+  expect(colorWidth / buttonWidth).toBeGreaterThan(0.4);
+  expect(colorWidth / buttonWidth).toBeLessThan(0.55);
+  const sections = [
+    ['Голова', ['Рот', 'Глаза', 'Особенности лица', 'Причёска'], ['Цвет волос']],
+    ['Одежда', ['Верх', 'Низ', 'Обувь'], ['Цвет верха', 'Цвет низа', 'Цвет обуви']],
+    [
+      'Детали',
+      ['Шапка', 'Украшение', 'Особый предмет'],
+      ['Цвет шапки', 'Цвет украшения', 'Цвет особого предмета'],
+    ],
+  ] as const;
+  for (const [tab, groups, colors] of sections) {
+    await page.getByRole('tab', { name: tab, exact: true }).click();
+    for (const group of groups)
+      await expect(
+        page.getByRole('group', { name: group, exact: true }).getByRole('button'),
+      ).toHaveCount(6);
+    for (const color of colors)
+      await expect(
+        page.getByRole('group', { name: color, exact: true }).getByRole('button'),
+      ).toHaveCount(12);
+  }
+  // Tabs have roving focus and support keyboard navigation, without changing the avatar.
+  await page.getByRole('tab', { name: 'Детали', exact: true }).focus();
+  await page.keyboard.press('Home');
+  await expect(page.getByRole('tab', { name: 'Тело', exact: true })).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Голова', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(page.getByText('Сохранённый образ', { exact: true })).toBeVisible();
+});
+
+test('new placeholder choices, independent hair sets and colors survive save, reset and factory', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await page.getByRole('button', { name: 'Пол и возраст: Девочка', exact: true }).click();
+  await page.getByRole('button', { name: 'Телосложение: Худое', exact: true }).click();
+  await page.getByRole('button', { name: 'Особенности тела: Вариант 12', exact: true }).click();
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  await page.getByRole('button', { name: 'Причёска: Женская 6', exact: true }).click();
+  await page.getByRole('button', { name: 'Рот: Вариант 4', exact: true }).click();
+  await page.getByRole('button', { name: 'Глаза: Вариант 5', exact: true }).click();
+  await page.getByRole('button', { name: 'Особенности лица: Веснушки', exact: true }).click();
+  await page.getByRole('tab', { name: 'Тело', exact: true }).click();
+  await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Причёска: Женская 6', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('tab', { name: 'Одежда', exact: true }).click();
+  await page.getByRole('button', { name: 'Низ: Вариант 6', exact: true }).click();
+  await page.getByRole('button', { name: 'Цвет низа: вариант 11', exact: true }).click();
+  await page.getByRole('tab', { name: 'Детали', exact: true }).click();
+  await page.getByRole('button', { name: 'Шапка: Вариант 4', exact: true }).click();
+  await page.getByRole('button', { name: 'Украшение: Вариант 3', exact: true }).click();
+  await page.getByRole('button', { name: 'Особый предмет: Вариант 6', exact: true }).click();
+  await page.getByRole('button', { name: 'Цвет шапки: вариант 12', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
+  const saved = await page.evaluate(
+    (key) => JSON.parse(localStorage.getItem(key)!).avatar,
+    DEMO_AVATAR_KEY,
+  );
+  expect(saved.customization).toMatchObject({
+    version: 1,
+    gender: 'female',
+    age: 'adult',
+    build: 'slim',
+    mouth: 4,
+    eyes: 5,
+    faceFeatures: [1],
+    bodyFeatures: [12],
+    hair: { female: 6 },
+    bottom: 6,
+    hat: 4,
+    jewelry: 3,
+    special: 6,
+  });
+  await page.reload();
+  await page.getByRole('tab', { name: 'Детали', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Шапка: Вариант 4', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'Шапка: Вариант 4', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Шапка: Вариант 4', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  await page.getByRole('button', { name: 'Сбросить вид', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Шапка: Вариант 4', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
+  await expect(page.getByTestId('current-zone')).toBeVisible({ timeout: 20000 });
+  expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar).toEqual(saved);
 });

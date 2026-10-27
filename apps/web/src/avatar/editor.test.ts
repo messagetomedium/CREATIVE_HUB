@@ -26,3 +26,59 @@ test('random action still changes the appearance if every initial choice matched
     value.palette[key] = AVATAR_PALETTES[key][0]!;
   expect(appearanceKey(randomAvatar(avatarCatalog, value, () => 0))).not.toBe(appearanceKey(value));
 });
+
+test('legacy saves acquire constructor choices only after an explicit edit', async () => {
+  const { constructorChoices, updateConstructor } = await import('./editor');
+  const legacy = structuredClone(avatarCatalog.defaultAvatar);
+  const before = JSON.stringify(legacy);
+  const inferred = constructorChoices(legacy);
+  expect(inferred.build).toBe('average');
+  expect(JSON.stringify(legacy)).toBe(before);
+  const next = updateConstructor(legacy, { build: 'slim', age: 'child', mouth: 6, hat: 4 });
+  expect(next.customization).toMatchObject({
+    version: 1,
+    build: 'slim',
+    age: 'child',
+    mouth: 6,
+    hat: 4,
+  });
+  expect(appearanceKey(next)).not.toBe(appearanceKey(legacy));
+  expect(SavedAvatarSchema.parse(JSON.parse(JSON.stringify(next)))).toEqual(next);
+});
+test('gender changes preserve both hair choices; age does not replace the hairstyle', async () => {
+  const { constructorChoices, updateConstructor } = await import('./editor');
+  let value = updateConstructor(avatarCatalog.defaultAvatar, { hair: { male: 6, female: 4 } });
+  const male = value.parts.hair;
+  value = updateConstructor(value, { gender: 'female' });
+  expect(constructorChoices(value).hair).toEqual({ male: 6, female: 4 });
+  const female = value.parts.hair;
+  value = updateConstructor(value, { age: 'child' });
+  expect(value.parts.hair).toBe(female);
+  expect(updateConstructor(value, { gender: 'male' }).parts.hair).toBe(male);
+});
+test('new choices are bounded and strict, including feature sets, colors and versions', async () => {
+  const { updateConstructor } = await import('./editor');
+  const config = updateConstructor(avatarCatalog.defaultAvatar, {});
+  for (const bad of [
+    { version: 2 },
+    { mouth: 0 },
+    { eyes: 7 },
+    { footwear: 1.5 },
+    { hat: 'url' },
+    { bodyFeatures: [13] },
+    { bodyFeatures: [1, 1] },
+    { faceFeatures: [7] },
+    { hair: { male: 7, female: 1 } },
+    { hair: { male: 1 } },
+    { colors: { ...config.customization!.colors, bottom: 'red' } },
+    { externalUrl: 'https://example.com' },
+  ])
+    expect(
+      SavedAvatarSchema.safeParse({ ...config, customization: { ...config.customization, ...bad } })
+        .success,
+    ).toBe(false);
+  expect(AVATAR_PALETTES.skin).toHaveLength(10);
+  expect(AVATAR_PALETTES.hair).toHaveLength(12);
+  expect(AVATAR_PALETTES.outfit).toHaveLength(12);
+  expect(AVATAR_PALETTES.shoes).toHaveLength(12);
+});

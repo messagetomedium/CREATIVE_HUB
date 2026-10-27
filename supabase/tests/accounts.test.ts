@@ -1,8 +1,9 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { avatarCatalog } from '../../apps/web/src/avatar/catalog';
 import { profilePayload } from '../../apps/web/src/account/service';
+import { updateConstructor } from '../../apps/web/src/avatar/editor';
 import { EMPTY_PROFILE } from '@creative-factory/contracts';
 
 // Runs the ACTUAL migration/constraints/RLS in PostgreSQL WASM, with simulated JWT identity.
@@ -39,7 +40,10 @@ beforeAll(async () => {
     grant execute on function auth.uid() to anon, authenticated;
     insert into auth.users values ('${A}'), ('${B}');
   `);
-  await db.exec(await readFile('supabase/migrations/202610260001_accounts.sql', 'utf8'));
+  for (const file of (await readdir('supabase/migrations'))
+    .filter((f) => f.endsWith('.sql'))
+    .sort())
+    await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8'));
 }, 30000);
 beforeEach(async () => {
   await db.exec(
@@ -188,5 +192,56 @@ describe('real migration under authenticated/anon PostgreSQL roles', () => {
         revision = result.rows[0]!.revision;
       }
     }
+  });
+  test('extended constructor choices round-trip under owner RLS and reject malformed extensions', async () => {
+    await as(A);
+    const { revision: _, ...config } = updateConstructor(avatarCatalog.defaultAvatar, {
+      gender: 'female',
+      age: 'child',
+      build: 'slim',
+      bodyFeatures: [1, 12],
+      faceFeatures: [1, 6],
+      hair: { male: 6, female: 4 },
+      hat: 3,
+      mouth: 6,
+    });
+    for (const bad of [
+      null,
+      {},
+      { ...config.customization, version: 2 },
+      { ...config.customization, gender: null },
+      { ...config.customization, mouth: '1' },
+      { ...config.customization, eyes: 7 },
+      { ...config.customization, top: 1.5 },
+      { ...config.customization, footwear: null },
+      { ...config.customization, hair: { male: 1, female: 7 } },
+      { ...config.customization, hair: { male: 1 } },
+      { ...config.customization, bodyFeatures: [1, 1] },
+      { ...config.customization, bodyFeatures: [13] },
+      { ...config.customization, faceFeatures: [7] },
+      { ...config.customization, faceFeatures: 'bad' },
+      { ...config.customization, colors: {} },
+      { ...config.customization, colors: { ...config.customization!.colors, hat: 'red' } },
+      { ...config.customization, externalUrl: 'https://example.com' },
+    ])
+      await expect(saveAvatar(0, { ...config, customization: bad })).rejects.toMatchObject({
+        code: '23514',
+      });
+    await saveAvatar(0, config);
+    expect(
+      (await db.query<{ config: unknown }>('select config from avatar_configs')).rows[0]!.config,
+    ).toEqual(config);
+    await as(B);
+    expect(
+      (
+        await db.query('update avatar_configs set config=$1::jsonb where user_id=$2 returning *', [
+          JSON.stringify(config),
+          A,
+        ])
+      ).rows,
+    ).toHaveLength(0);
+    await as(A);
+    // Removing the optional extension remains valid, so legacy clients/saves are not locked out.
+    expect((await saveAvatar(1, avatar)).rows[0]!.revision).toBe(2);
   });
 });

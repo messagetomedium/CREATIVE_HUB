@@ -1,30 +1,127 @@
-import { useState, type FormEvent } from 'react';
-import type { AvatarConfig, Direction } from '@creative-factory/contracts';
+import { useState, type FormEvent, type ReactNode } from 'react';
+import type { AvatarConfig, AvatarCustomization, Direction } from '@creative-factory/contracts';
 import { useAccount } from '../account/AccountProvider';
 import { safeAccountError } from '../account/service';
 import { avatarCatalog } from '../avatar/catalog';
 import { AvatarPreview } from '../avatar/AvatarPreview';
-import { appearanceKey, AVATAR_PALETTES, randomAvatar } from '../avatar/editor';
+import { ConstructorIcon, type ConstructorIconName } from '../avatar/ConstructorIcon';
+import {
+  appearanceKey,
+  AVATAR_PALETTES,
+  FABRIC_PALETTE,
+  randomAvatar,
+  constructorChoices,
+  updateConstructor,
+  CONSTRUCTOR_TABS,
+  TAB_LABELS,
+  FACE_FEATURES,
+  SLOTS,
+  type ConstructorTab,
+} from '../avatar/editor';
 import { useUnsavedChanges } from '../router';
-import { Notice, PageHeading } from '../components';
-const labels = {
-  skin: 'Цвет кожи',
-  hair: 'Цвет волос',
-  outfit: 'Цвет одежды',
-  shoes: 'Цвет обуви',
+import { Notice } from '../components';
+
+const directions: Direction[] = ['north', 'east', 'south', 'west'];
+const directionLabels: Record<Direction, string> = {
+  north: 'Со спины',
+  east: 'Правый бок',
+  south: 'Спереди',
+  west: 'Левый бок',
 };
-const directions: [Direction, string, string][] = [
-  ['north', 'Север', '↑'],
-  ['east', 'Восток', '→'],
-  ['south', 'Юг', '↓'],
-  ['west', 'Запад', '←'],
-];
+function EditorSection({
+  number,
+  title,
+  children,
+}: {
+  number: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="constructor-section">
+      <h2>
+        <span>{number}</span>
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+function ChoiceGrid({
+  label,
+  icon,
+  options,
+}: {
+  label: string;
+  icon: ConstructorIconName;
+  options: {
+    id: string | number;
+    name: string;
+    caption?: string;
+    selected: boolean;
+    choose(): void;
+  }[];
+}) {
+  return (
+    <div className="choice-grid" role="group" aria-label={label}>
+      {options.map((option, i) => (
+        <div className="choice-cell" key={option.id}>
+          <button
+            type="button"
+            className="choice-button"
+            aria-label={`${label}: ${option.name}`}
+            title={`${option.name} — временная иконка`}
+            aria-pressed={option.selected}
+            onClick={option.choose}
+          >
+            <ConstructorIcon name={icon} />
+            <span className="choice-number" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+          </button>
+          {option.caption && <span className="choice-caption">{option.caption}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+function ColorRow({
+  label,
+  colors,
+  value,
+  choose,
+}: {
+  label: string;
+  colors: string[];
+  value: string;
+  choose(color: string): void;
+}) {
+  return (
+    <div className="constructor-colors" role="group" aria-label={label}>
+      <span>{label}</span>
+      <div className="constructor-swatches">
+        {colors.map((color, i) => (
+          <button
+            type="button"
+            key={color}
+            aria-label={`${label}: вариант ${i + 1}`}
+            aria-pressed={value.toLowerCase() === color.toLowerCase()}
+            title={`${label}: ${i + 1}`}
+            style={{ backgroundColor: color }}
+            onClick={() => choose(color)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 export function AvatarPage() {
   const account = useAccount();
   const [baseline, setBaseline] = useState<AvatarConfig>(() =>
     structuredClone(account.data.avatar ?? avatarCatalog.defaultAvatar),
   );
   const [config, setConfig] = useState<AvatarConfig>(() => structuredClone(baseline));
+  const [tab, setTab] = useState<ConstructorTab>('body');
   const [direction, setDirection] = useState<Direction>('south');
   const [animation, setAnimation] = useState<'idle' | 'walk'>('idle');
   const [busy, setBusy] = useState(false),
@@ -33,19 +130,21 @@ export function AvatarPage() {
     [conflict, setConflict] = useState(false);
   const dirty = appearanceKey(config) !== appearanceKey(baseline);
   useUnsavedChanges(dirty);
+  const c = constructorChoices(config);
   const change = (next: AvatarConfig) => {
     setConfig(next);
     setSaved(false);
     setError('');
+    setConflict(false);
   };
-  const part = (key: keyof AvatarConfig['parts'], value: string | null) =>
-    change({ ...config, parts: { ...config.parts, [key]: value } });
+  const customize = (patch: Partial<AvatarCustomization>) =>
+    change(updateConstructor(config, patch));
   const color = (key: keyof AvatarConfig['palette'], value: string) =>
     change({ ...config, palette: { ...config.palette, [key]: value } });
+  const extraColor = (key: keyof AvatarCustomization['colors'], value: string) =>
+    customize({ colors: { ...c.colors, [key]: value } });
   const rotate = (offset: number) =>
-    setDirection(
-      directions[(directions.findIndex(([id]) => id === direction) + offset + 4) % 4]![0],
-    );
+    setDirection(directions[(directions.indexOf(direction) + offset + 4) % 4]!);
   async function save(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
@@ -66,149 +165,306 @@ export function AvatarPage() {
       setBusy(false);
     }
   }
-  const swatches = (key: keyof typeof labels) => (
-    <div className="palette-field">
-      <span>{labels[key]}</span>
-      <div className="swatch-row">
-        {AVATAR_PALETTES[key].map((value, i) => (
-          <button
-            type="button"
-            key={value}
-            aria-label={`${labels[key]}: вариант ${i + 1}`}
-            aria-pressed={config.palette[key] === value}
-            style={{ background: value }}
-            onClick={() => color(key, value)}
-          />
-        ))}
-        <label className="custom-color">
-          <span className="sr-only">{labels[key]}: свой цвет</span>
-          <input
-            aria-label={`${labels[key]}: свой цвет`}
-            type="color"
-            value={config.palette[key]}
-            onChange={(e) => color(key, e.target.value)}
-          />
-        </label>
-      </div>
-    </div>
+  const palette = (key: keyof AvatarConfig['palette'], label: string) => (
+    <ColorRow
+      label={label}
+      colors={AVATAR_PALETTES[key]}
+      value={config.palette[key]}
+      choose={(value) => color(key, value)}
+    />
   );
-  const choices = (key: keyof AvatarConfig['parts'], label: string) => (
-    <div className="part-choices" role="group" aria-label={label}>
-      {[
-        ...(key === 'accessory' ? [{ id: '', label: 'Без аксессуара' }] : []),
-        ...(avatarCatalog.parts[key] ?? []),
-      ].map((p) => (
-        <button
-          type="button"
-          key={p.id}
-          aria-label={`${label}: ${p.label}`}
-          aria-pressed={(config.parts[key] ?? '') === p.id}
-          onClick={() => part(key, p.id || null)}
-        >
-          <AvatarPreview
-            config={{ ...config, parts: { ...config.parts, [key]: p.id || null } }}
-            size={72}
-          />
-          <span>{p.label}</span>
-        </button>
-      ))}
-    </div>
+  const detailPalette = (key: keyof AvatarCustomization['colors'], label: string) => (
+    <ColorRow
+      label={label}
+      colors={FABRIC_PALETTE}
+      value={c.colors[key]}
+      choose={(value) => extraColor(key, value)}
+    />
+  );
+  const slots = (
+    key: 'mouth' | 'eyes' | 'top' | 'bottom' | 'footwear' | 'hat' | 'jewelry' | 'special',
+    label: string,
+    icon: ConstructorIconName,
+  ) => (
+    <ChoiceGrid
+      label={label}
+      icon={icon}
+      options={SLOTS.map((id) => ({
+        id,
+        name: `Вариант ${id}`,
+        selected: c[key] === id,
+        choose: () =>
+          customize({
+            [key]: ['hat', 'jewelry', 'special'].includes(key) && c[key] === id ? null : id,
+          }),
+      }))}
+    />
+  );
+  const features = (key: 'bodyFeatures' | 'faceFeatures', label: string) => (
+    <ChoiceGrid
+      label={label}
+      icon="features"
+      options={Array.from({ length: key === 'bodyFeatures' ? 12 : 6 }, (_, i) => i + 1).map(
+        (id) => ({
+          id,
+          name: key === 'faceFeatures' ? FACE_FEATURES[id - 1]! : `Вариант ${id}`,
+          selected: c[key].includes(id),
+          choose: () =>
+            customize({
+              [key]: c[key].includes(id)
+                ? c[key].filter((v) => v !== id)
+                : [...c[key], id].sort((a, b) => a - b),
+            }),
+        }),
+      )}
+    />
   );
   return (
     <main className="account-main editor-main">
-      <PageHeading tag="КОНСТРУКТОР ПЕРСОНАЖА" title="Ваш образ. Ваш характер">
-        Выберите детали, проверьте образ в движении и сохраните перед прогулкой.
-      </PageHeading>
-      <div className="avatar-layout">
-        <section className="avatar-stage" aria-label="Просмотр персонажа">
-          <div className="eyebrow">ВАШ ПЕРСОНАЖ / РАКУРС 3/4</div>
-          <div className="avatar-platform">
-            <AvatarPreview config={config} direction={direction} size={384} animation={animation} />
+      <h1 className="constructor-heading">Конструктор персонажа</h1>
+      <form className="avatar-layout" onSubmit={save} aria-busy={busy}>
+        <section className="form-panel avatar-form" aria-label="Каталог персонажа">
+          <div className="constructor-tabs" role="tablist" aria-label="Настройки персонажа">
+            {CONSTRUCTOR_TABS.map((id, index) => (
+              <button
+                type="button"
+                role="tab"
+                key={id}
+                id={`tab-${id}`}
+                aria-controls={`panel-${id}`}
+                aria-selected={tab === id}
+                tabIndex={tab === id ? 0 : -1}
+                disabled={busy}
+                onClick={() => setTab(id)}
+                onKeyDown={(event) => {
+                  const next =
+                    event.key === 'ArrowRight'
+                      ? (index + 1) % 4
+                      : event.key === 'ArrowLeft'
+                        ? (index + 3) % 4
+                        : event.key === 'Home'
+                          ? 0
+                          : event.key === 'End'
+                            ? 3
+                            : -1;
+                  if (next < 0) return;
+                  event.preventDefault();
+                  setTab(CONSTRUCTOR_TABS[next]!);
+                  document.getElementById(`tab-${CONSTRUCTOR_TABS[next]}`)?.focus();
+                }}
+              >
+                <ConstructorIcon name={id} />
+                <span>{TAB_LABELS[id]}</span>
+              </button>
+            ))}
           </div>
-          <div className="rotate-controls">
-            <button type="button" aria-label="Повернуть влево" onClick={() => rotate(-1)}>
-              ↶
-            </button>
-            <div className="direction-controls" aria-label="Направление персонажа">
-              {directions.map(([id, label, icon]) => (
-                <button
-                  key={id}
-                  aria-label={`Повернуть: ${label}`}
-                  aria-pressed={direction === id}
-                  onClick={() => setDirection(id)}
-                >
-                  {icon}
-                </button>
-              ))}
+          <fieldset disabled={busy}>
+            <legend className="sr-only">Варианты внешности</legend>
+            {CONSTRUCTOR_TABS.map((id) => (
+              <div
+                role="tabpanel"
+                key={id}
+                id={`panel-${id}`}
+                aria-labelledby={`tab-${id}`}
+                hidden={tab !== id}
+                tabIndex={0}
+              >
+                {id === 'body' && (
+                  <>
+                    <EditorSection number="01" title="Пол и возраст">
+                      <ChoiceGrid
+                        label="Пол и возраст"
+                        icon="body"
+                        options={(
+                          [
+                            ['male', 'child', 'Мальчик'],
+                            ['female', 'child', 'Девочка'],
+                            ['female', 'adult', 'Женщина'],
+                            ['male', 'adult', 'Мужчина'],
+                          ] as const
+                        ).map(([gender, age, name]) => ({
+                          id: `${gender}-${age}`,
+                          name,
+                          caption: name,
+                          selected: c.gender === gender && c.age === age,
+                          choose: () => customize({ gender, age }),
+                        }))}
+                      />
+                    </EditorSection>
+                    <EditorSection number="02" title="Телосложение">
+                      <ChoiceGrid
+                        label="Телосложение"
+                        icon="body"
+                        options={(
+                          [
+                            ['slim', 'Худое'],
+                            ['average', 'Среднее'],
+                            ['sturdy', 'Плотное'],
+                          ] as const
+                        ).map(([build, name]) => ({
+                          id: build,
+                          name,
+                          caption: name,
+                          selected: c.build === build,
+                          choose: () => customize({ build }),
+                        }))}
+                      />
+                      {palette('skin', 'Цвет кожи')}
+                    </EditorSection>
+                    <EditorSection number="03" title="Особенности">
+                      {features('bodyFeatures', 'Особенности тела')}
+                    </EditorSection>
+                  </>
+                )}
+                {id === 'head' && (
+                  <>
+                    <EditorSection number="01" title="Рот">
+                      {slots('mouth', 'Рот', 'mouth')}
+                    </EditorSection>
+                    <EditorSection number="02" title="Глаза">
+                      {slots('eyes', 'Глаза', 'eyes')}
+                    </EditorSection>
+                    <EditorSection number="03" title="Особенности">
+                      {features('faceFeatures', 'Особенности лица')}
+                    </EditorSection>
+                    <EditorSection number="04" title="Причёска">
+                      <ChoiceGrid
+                        label="Причёска"
+                        icon="hair"
+                        options={SLOTS.map((id) => ({
+                          id,
+                          name: `${c.gender === 'male' ? 'Мужская' : 'Женская'} ${id}`,
+                          selected: c.hair[c.gender] === id,
+                          choose: () => customize({ hair: { ...c.hair, [c.gender]: id } }),
+                        }))}
+                      />
+                      {palette('hair', 'Цвет волос')}
+                    </EditorSection>
+                  </>
+                )}
+                {id === 'clothes' && (
+                  <>
+                    <EditorSection number="01" title="Верх">
+                      {slots('top', 'Верх', 'top')}
+                      {palette('outfit', 'Цвет верха')}
+                    </EditorSection>
+                    <EditorSection number="02" title="Низ">
+                      {slots('bottom', 'Низ', 'bottom')}
+                      {detailPalette('bottom', 'Цвет низа')}
+                    </EditorSection>
+                    <EditorSection number="03" title="Обувь">
+                      {slots('footwear', 'Обувь', 'shoes')}
+                      {palette('shoes', 'Цвет обуви')}
+                    </EditorSection>
+                  </>
+                )}
+                {id === 'details' && (
+                  <>
+                    <EditorSection number="01" title="Шапки">
+                      {slots('hat', 'Шапка', 'hat')}
+                      {detailPalette('hat', 'Цвет шапки')}
+                    </EditorSection>
+                    <EditorSection number="02" title="Украшения">
+                      {slots('jewelry', 'Украшение', 'jewelry')}
+                      {detailPalette('jewelry', 'Цвет украшения')}
+                    </EditorSection>
+                    <EditorSection number="03" title="Особые предметы">
+                      {slots('special', 'Особый предмет', 'special')}
+                      {detailPalette('special', 'Цвет особого предмета')}
+                    </EditorSection>
+                  </>
+                )}
+              </div>
+            ))}
+          </fieldset>
+          <p className="constructor-placeholder-note">
+            Новые детали — заглушки до загрузки спрайтов.
+          </p>
+        </section>
+        <div className="avatar-preview-column">
+          <section className="avatar-stage" aria-label="Просмотр персонажа">
+            <div className="avatar-platform">
+              <AvatarPreview
+                config={config}
+                direction={direction}
+                size={384}
+                animation={animation}
+              />
             </div>
-            <button type="button" aria-label="Повернуть вправо" onClick={() => rotate(1)}>
-              ↷
+            <div className="preview-controls" role="group" aria-label="Управление предпросмотром">
+              <button
+                type="button"
+                aria-label="Повернуть влево"
+                title="Повернуть влево"
+                onClick={() => rotate(-1)}
+              >
+                <ConstructorIcon name="left" />
+              </button>
+              <button
+                type="button"
+                aria-label="Стоит"
+                title="Стоит"
+                aria-pressed={animation === 'idle'}
+                onClick={() => setAnimation('idle')}
+              >
+                <ConstructorIcon name="idle" />
+              </button>
+              <button
+                type="button"
+                aria-label="Идёт"
+                title="Идёт"
+                aria-pressed={animation === 'walk'}
+                onClick={() => setAnimation('walk')}
+              >
+                <ConstructorIcon name="walk" />
+              </button>
+              <button
+                type="button"
+                aria-label="Повернуть вправо"
+                title="Повернуть вправо"
+                onClick={() => rotate(1)}
+              >
+                <ConstructorIcon name="right" />
+              </button>
+            </div>
+            <span className="preview-direction">{directionLabels[direction]}</span>
+          </section>
+          <div className="constructor-actions">
+            <a
+              className={`button secondary menu-action${busy ? ' is-disabled' : ''}`}
+              href={account.config.mode === 'demo' ? '#/menu' : '#/'}
+              aria-disabled={busy}
+              onClick={(e) => {
+                if (busy) e.preventDefault();
+              }}
+            >
+              Вернуться в меню
+            </a>
+            <button className="button save-action" disabled={busy}>
+              {busy ? 'Сохраняем…' : 'Сохранить'}
             </button>
-          </div>
-          <div className="animation-controls" aria-label="Анимация предпросмотра">
-            <button aria-pressed={animation === 'idle'} onClick={() => setAnimation('idle')}>
-              Ожидание
+            <button
+              type="button"
+              className="button secondary reset-action"
+              disabled={busy || !dirty}
+              onClick={() => change(structuredClone(baseline))}
+            >
+              Сбросить вид
             </button>
-            <button aria-pressed={animation === 'walk'} onClick={() => setAnimation('walk')}>
-              Ходьба
-            </button>
+            <a
+              className={`button primary factory-action${busy ? ' is-disabled' : ''}`}
+              href="#/factory"
+              aria-disabled={busy}
+              onClick={(e) => {
+                if (busy) e.preventDefault();
+              }}
+            >
+              Войти на завод <span aria-hidden="true">→</span>
+            </a>
           </div>
           <p className="editor-dirty" role="status">
             {dirty ? 'Есть несохранённые изменения' : 'Сохранённый образ'}
           </p>
-          <button
-            className="text-link"
-            onClick={() => change(randomAvatar(avatarCatalog, config))}
-            disabled={busy}
-          >
-            Случайный персонаж
-          </button>
-        </section>
-        <form className="form-panel avatar-form" onSubmit={save} aria-busy={busy}>
-          <fieldset disabled={busy}>
-            <section className="editor-category">
-              <h2>
-                <span>01</span> Тело
-              </h2>
-              <p>Выберите силуэт персонажа.</p>
-              {choices('body', 'Тело')}
-            </section>
-            <section className="editor-category">
-              <h2>
-                <span>02</span> Кожа
-              </h2>
-              {swatches('skin')}
-            </section>
-            <section className="editor-category">
-              <h2>
-                <span>03</span> Причёска
-              </h2>
-              {choices('hair', 'Причёска')}
-              {swatches('hair')}
-            </section>
-            <section className="editor-category">
-              <h2>
-                <span>04</span> Одежда
-              </h2>
-              {choices('outfit', 'Одежда')}
-              {swatches('outfit')}
-            </section>
-            <section className="editor-category">
-              <h2>
-                <span>05</span> Обувь
-              </h2>
-              {swatches('shoes')}
-              <p className="field-hint">
-                Сейчас доступна базовая модель. Другие модели добавим позже.
-              </p>
-            </section>
-            <section className="editor-category">
-              <h2>
-                <span>06</span> Аксессуары
-              </h2>
-              {choices('accessory', 'Аксессуар')}
-            </section>
-          </fieldset>
           {error && <Notice error>{error}</Notice>}
           {conflict && (
             <button type="button" className="text-link" onClick={() => void account.refresh()}>
@@ -216,37 +472,21 @@ export function AvatarPage() {
             </button>
           )}
           {saved && <Notice>Персонаж сохранён. Можно отправляться на завод.</Notice>}
-          <div className="editor-actions">
-            <button className="button primary" disabled={busy}>
-              {busy ? 'Сохраняем…' : 'Сохранить персонажа'}
-            </button>
-            <button
-              type="button"
-              className="button secondary"
-              disabled={busy || !dirty}
-              onClick={() => {
-                change(structuredClone(baseline));
-                setConflict(false);
-              }}
-            >
-              Сбросить изменения
-            </button>
-          </div>
-          <div className="editor-navigation">
-            <a className="text-link" href={account.config.mode === 'demo' ? '#/menu' : '#/'}>
-              Вернуться в меню
-            </a>
-            <a className="text-link" href="#/factory">
-              Войти на завод →
-            </a>
-          </div>
+          <button
+            className="text-link random-action"
+            type="button"
+            onClick={() => change(randomAvatar(avatarCatalog, config))}
+            disabled={busy}
+          >
+            Случайный персонаж
+          </button>
           <p className="field-hint editor-storage-note">
             {account.config.mode === 'demo'
-              ? 'Сохранение только в этом браузере. Выход из деморежима не удаляет персонажа.'
+              ? 'Сохранение только в этом браузере.'
               : 'Настройки хранятся в вашем аккаунте.'}
           </p>
-        </form>
-      </div>
+        </div>
+      </form>
     </main>
   );
 }

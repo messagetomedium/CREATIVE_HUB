@@ -42,14 +42,16 @@ export function drawAvatarFrame(
   const { parts, palette: p } = config;
   const side = direction === 'east' || direction === 'west';
   const back = direction === 'north';
-  const broad = parts.body === 'base-02' ? 2 : 0;
+  const broad = config.customization?.build === 'slim' ? -2 : parts.body === 'base-02' ? 2 : 0;
+  const trousers = config.customization?.colors.bottom ?? '#46584c';
   const step = frame < 2 ? 0 : ([0, 2, 0, -2][frame - 2] ?? 0);
   const bob = frame === 1 || frame === 3 || frame === 5 ? -1 : 0;
   ctx.save();
+  if (config.customization?.age === 'child') ctx.scale(0.9, 0.86);
   if (direction === 'west') ctx.scale(-1, 1);
   // Legs and shoes are separate colours; feet stay near the same baseline.
-  box(ctx, side ? -5 : -8, -14 + step, side ? 8 : 6, 12, '#46584c');
-  box(ctx, side ? 0 : 2, -14 - step, side ? 7 : 6, 12, '#46584c');
+  box(ctx, side ? -5 : -8, -14 + step, side ? 8 : 6, 12, trousers);
+  box(ctx, side ? 0 : 2, -14 - step, side ? 7 : 6, 12, trousers);
   box(ctx, side ? -5 : -9, -4 + Math.min(step, 0), 9, 4, p.shoes, 1);
   box(ctx, side ? 1 : 1, -4 + Math.min(-step, 0), 9, 4, p.shoes, 1);
   const torsoWidth = side ? 16 + broad : 22 + broad * 2;
@@ -110,13 +112,14 @@ export function drawAvatarFrame(
   if (back && parts.hair === 'curls-01')
     for (const x of [-9, -3, 3, 9]) oval(ctx, x, -47 + bob, 4, 4, p.hair);
   if (parts.accessory === 'headphones-01') {
-    ctx.strokeStyle = '#dddccb';
+    const accessoryColor = config.customization?.colors.special ?? '#dddccb';
+    ctx.strokeStyle = accessoryColor;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(0, -40 + bob, 11, Math.PI, 2 * Math.PI);
     ctx.stroke();
-    box(ctx, -13, -41 + bob, 4, 8, '#dddccb', 1);
-    if (!side) box(ctx, 9, -41 + bob, 4, 8, '#dddccb', 1);
+    box(ctx, -13, -41 + bob, 4, 8, accessoryColor, 1);
+    if (!side) box(ctx, 9, -41 + bob, 4, 8, accessoryColor, 1);
   }
   ctx.restore();
 }

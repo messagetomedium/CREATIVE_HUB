@@ -86,6 +86,37 @@ export const WorldSchema = z
       ctx.addIssue({ code: 'custom', message: 'zoneId должен быть уникальным' });
   });
 export type World = z.infer<typeof WorldSchema>;
+const avatarSlot = z.number().int().min(1).max(6);
+const uniqueFeatures = (max: number) =>
+  z
+    .array(z.number().int().min(1).max(max))
+    .max(max)
+    .refine((ids) => new Set(ids).size === ids.length);
+// Optional, versioned constructor choices. Legacy catalog-v1 saves remain valid.
+// A slot is an internal catalog choice, never a user-supplied asset URL.
+export const AvatarCustomizationSchema = z
+  .object({
+    version: z.literal(1),
+    gender: z.enum(['male', 'female']),
+    age: z.enum(['child', 'adult']),
+    build: z.enum(['slim', 'average', 'sturdy']),
+    bodyFeatures: uniqueFeatures(12),
+    mouth: avatarSlot,
+    eyes: avatarSlot,
+    faceFeatures: uniqueFeatures(6),
+    hair: z.object({ male: avatarSlot, female: avatarSlot }).strict(),
+    top: avatarSlot,
+    bottom: avatarSlot,
+    footwear: avatarSlot,
+    hat: avatarSlot.nullable(),
+    jewelry: avatarSlot.nullable(),
+    special: avatarSlot.nullable(),
+    colors: z
+      .object({ bottom: hexColor, hat: hexColor, jewelry: hexColor, special: hexColor })
+      .strict(),
+  })
+  .strict();
+export type AvatarCustomization = z.infer<typeof AvatarCustomizationSchema>;
 export const AvatarConfigSchema = z.object({
   catalogVersion: z.literal(1),
   presetId: z.string(),
@@ -97,6 +128,7 @@ export const AvatarConfigSchema = z.object({
     accessory: z.string().nullable(),
   }),
   palette: z.object({ skin: hexColor, hair: hexColor, outfit: hexColor, shoes: hexColor }),
+  customization: AvatarCustomizationSchema.optional(),
 });
 export type AvatarConfig = z.infer<typeof AvatarConfigSchema>;
 // Shared with the original procedural provider and the database's catalog-v1 constraint.
