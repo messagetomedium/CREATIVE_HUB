@@ -84,14 +84,14 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   await expect.poll(() => preview.getAttribute('data-frame')).not.toBe(first);
   await page.getByRole('button', { name: 'Идёт', exact: true }).click();
   await expect(preview).toHaveAttribute('data-animation', 'walk');
-  for (const direction of ['west', 'north', 'east', 'south']) {
+  for (const direction of ['east', 'north', 'west', 'south']) {
     await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
     await expect(preview).toHaveAttribute('data-direction', direction);
     const frame = await preview.getAttribute('data-frame');
     await expect.poll(() => preview.getAttribute('data-frame')).not.toBe(frame);
   }
   await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
-  await expect(preview).toHaveAttribute('data-direction', 'east');
+  await expect(preview).toHaveAttribute('data-direction', 'west');
   await page.getByRole('tab', { name: 'Голова', exact: true }).click();
   await page.getByRole('button', { name: 'Причёска: Мужская 2', exact: true }).click();
   page.once('dialog', (d) => {
@@ -182,7 +182,7 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
   ).toHaveCount(12);
   await expect(
     page.getByRole('group', { name: 'Цвет кожи', exact: true }).getByRole('button'),
-  ).toHaveCount(10);
+  ).toHaveCount(12);
   const bodyFeatures = await page
     .getByRole('group', { name: 'Особенности тела', exact: true })
     .getByRole('button')

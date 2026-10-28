@@ -518,3 +518,55 @@ test('DPR 1 and 2 keep 48×64 world size, feet origin, crisp sampling and bounde
     }
   }
 });
+
+test('editor approval body has two pixel contours, rigid breathing hair and equal front trouser colors', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await expect(page.locator('.preview-direction')).toHaveCount(0);
+  const result = await page.evaluate(async () => {
+    const { loadEditorReview } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const s = await loadEditorReview(
+      updateConstructor(avatarCatalog.defaultAvatar, {
+        gender: 'female',
+        hair: { male: 1, female: 1 },
+        special: null,
+      }),
+      new AbortController().signal,
+    );
+    const ctx = s.getContext('2d')!;
+    const pixel = (x: number, y: number) => [...ctx.getImageData(x, y, 1, 1).data];
+    let headDifferences = 0,
+      legDifferences = 0;
+    for (let y = 0; y < 53; y++)
+      for (let x = 0; x < 96; x++)
+        if (String(pixel(x, 256 + y)) !== String(pixel(96 + x, 256 + y + 1))) headDifferences++;
+    for (let y = 94; y < 116; y++)
+      for (let x = 0; x < 96; x++)
+        if (String(pixel(x, 256 + y)) !== String(pixel(96 + x, 256 + y))) legDifferences++;
+    const male = await loadEditorReview(
+      updateConstructor(avatarCatalog.defaultAvatar, { gender: 'male', special: null }),
+      new AbortController().signal,
+    );
+    const mc = male.getContext('2d')!;
+    const edge = [28, 29, 30].map((x) => [...mc.getImageData(x, 256 + 34, 1, 1).data]);
+    return {
+      headDifferences,
+      legDifferences,
+      left: pixel(40, 356),
+      right: pixel(56, 356),
+      edge,
+    };
+  });
+  expect(result.headDifferences).toBe(0);
+  expect(result.legDifferences).toBe(0);
+  expect(result.left).toEqual(result.right);
+  expect(result.edge[0]).toEqual([53, 43, 53, 255]);
+  expect(result.edge[1]).toEqual(result.edge[0]);
+  expect(result.edge[2]).not.toEqual(result.edge[0]);
+});

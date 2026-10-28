@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { AvatarConfig, Direction } from '@creative-factory/contracts';
 import { loadAvatarSheet } from './art';
 import { avatarCatalog } from './catalog';
+import { loadEditorReview } from './editorReview';
 import { FRAME, ANIMATION_FPS } from './modular/rig';
 export function AvatarPreview({
   config,
@@ -9,12 +10,14 @@ export function AvatarPreview({
   size = 288,
   animation = 'static',
   mode = 'large',
+  review = false,
 }: {
   config: AvatarConfig;
   direction?: Direction;
   size?: number;
   animation?: 'static' | 'idle' | 'walk';
   mode?: 'large' | 'native' | 'atlas';
+  review?: boolean;
 }) {
   const ratio = mode === 'large' ? Math.min(2, Math.max(1, window.devicePixelRatio || 1)) : 1;
   const width =
@@ -27,7 +30,11 @@ export function AvatarPreview({
   useEffect(() => {
     const controller = new AbortController();
     setError(false);
-    void loadAvatarSheet(avatarCatalog, config, controller.signal)
+    void (
+      review
+        ? loadEditorReview(config, controller.signal)
+        : loadAvatarSheet(avatarCatalog, config, controller.signal)
+    )
       .then((loaded) => {
         if (!controller.signal.aborted) setSheet(loaded);
       })
@@ -35,7 +42,7 @@ export function AvatarPreview({
         if (!controller.signal.aborted) setError(true);
       });
     return () => controller.abort();
-  }, [config]);
+  }, [config, review]);
   useEffect(() => {
     const node = canvas.current,
       ctx = node?.getContext('2d');

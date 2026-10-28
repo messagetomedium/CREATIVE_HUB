@@ -303,7 +303,7 @@ export function attachPart(ctx: CanvasRenderingContext2D, p: Pose, part: PartIma
   }
   ctx.restore();
 }
-function legacyHair(
+export function legacyHair(
   ctx: CanvasRenderingContext2D,
   p: Pose,
   hair: HTMLCanvasElement,
@@ -347,7 +347,7 @@ function legacyHair(
   );
   ctx.restore();
 }
-function face(ctx: CanvasRenderingContext2D, p: Pose, c: AvatarConfig, parts: PartImage[]) {
+export function face(ctx: CanvasRenderingContext2D, p: Pose, c: AvatarConfig, parts: PartImage[]) {
   if (p.direction === 'north') return;
   const y = p.head.y - 34,
     choices = constructorChoices(c),

@@ -3,6 +3,7 @@ import type { AvatarConfig, AvatarCustomization, Direction } from '@creative-fac
 import { useAccount } from '../account/AccountProvider';
 import { safeAccountError } from '../account/service';
 import { avatarCatalog } from '../avatar/catalog';
+import { EDITOR_SKIN_PALETTE } from '../avatar/editorReview';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { ConstructorIcon, type ConstructorIconName } from '../avatar/ConstructorIcon';
 import {
@@ -24,12 +25,6 @@ import { Notice } from '../components';
 import { importedChoice, importedThumbnail } from '../avatar/imported';
 
 const directions: Direction[] = ['north', 'east', 'south', 'west'];
-const directionLabels: Record<Direction, string> = {
-  north: 'Со спины',
-  east: 'Правый бок',
-  south: 'Спереди',
-  west: 'Левый бок',
-};
 function EditorSection({
   number,
   title,
@@ -174,7 +169,7 @@ export function AvatarPage() {
   const palette = (key: keyof AvatarConfig['palette'], label: string) => (
     <ColorRow
       label={label}
-      colors={AVATAR_PALETTES[key]}
+      colors={key === 'skin' ? EDITOR_SKIN_PALETTE : AVATAR_PALETTES[key]}
       value={config.palette[key]}
       choose={(value) => color(key, value)}
     />
@@ -418,6 +413,7 @@ export function AvatarPage() {
           <section className="avatar-stage" aria-label="Просмотр персонажа">
             <div className="avatar-platform">
               <AvatarPreview
+                review
                 config={config}
                 direction={direction}
                 size={384}
@@ -430,7 +426,7 @@ export function AvatarPage() {
                 type="button"
                 aria-label="Повернуть влево"
                 title="Повернуть влево"
-                onClick={() => rotate(-1)}
+                onClick={() => rotate(1)}
               >
                 <ConstructorIcon name="left" />
               </button>
@@ -456,12 +452,11 @@ export function AvatarPage() {
                 type="button"
                 aria-label="Повернуть вправо"
                 title="Повернуть вправо"
-                onClick={() => rotate(1)}
+                onClick={() => rotate(-1)}
               >
                 <ConstructorIcon name="right" />
               </button>
             </div>
-            <span className="preview-direction">{directionLabels[direction]}</span>
             <details className="art-tools">
               <summary>Проверка графики</summary>
               <div className="preview-controls" aria-label="Формат предпросмотра">
