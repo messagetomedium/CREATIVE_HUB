@@ -571,7 +571,7 @@ test('editor approval body has two pixel contours, rigid breathing hair and equa
   expect(result.edge[2]).not.toEqual(result.edge[0]);
 });
 
-test('live editor rig only moves cached textures and keeps front/back height equal', async ({
+test('authoring rig only shifts cached textures and keeps front/back height equal', async ({
   page,
 }) => {
   await enterDemo(page);
@@ -650,4 +650,91 @@ test('live editor rig only moves cached textures and keeps front/back height equ
   expect(result.sourceCount).toBeGreaterThan(8);
   expect(result.transform).toBe(true);
   for (const [back, front] of result.heights) expect(back).toBe(front);
+});
+
+test('editor plays baked pixel frames with pauses and equal front/profile ears', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as {
+      __sheetCalls: { width: number; height: number; x: number; y: number }[];
+    };
+    w.__sheetCalls = [];
+    const draw = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (
+      this: CanvasRenderingContext2D,
+      ...args: Parameters<typeof draw>
+    ) {
+      if (this.canvas instanceof HTMLCanvasElement && this.canvas.matches('.avatar-stage canvas')) {
+        const image = args[0];
+        w.__sheetCalls.push({
+          width: image instanceof HTMLCanvasElement ? image.width : 0,
+          height: image instanceof HTMLCanvasElement ? image.height : 0,
+          x: args[1],
+          y: args[2],
+        });
+      }
+      return draw.apply(this, args);
+    } as typeof draw;
+  });
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute(
+    'data-playback',
+    'spritesheet',
+  );
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('data-frame', /\d+/);
+  await page.evaluate(() => {
+    (window as unknown as { __sheetCalls: unknown[] }).__sheetCalls = [];
+  });
+  await page.waitForTimeout(600);
+  const idle = await page.evaluate(
+    () => (window as unknown as { __sheetCalls: unknown[] }).__sheetCalls.length,
+  );
+  expect(idle).toBeGreaterThanOrEqual(1);
+  expect(idle).toBeLessThanOrEqual(2);
+  await page.evaluate(() => {
+    (window as unknown as { __sheetCalls: unknown[] }).__sheetCalls = [];
+  });
+  await page.getByRole('button', { name: 'Идёт', exact: true }).click();
+  await page.waitForTimeout(650);
+  const calls = await page.evaluate(
+    () =>
+      (
+        window as unknown as {
+          __sheetCalls: { width: number; height: number; x: number; y: number }[];
+        }
+      ).__sheetCalls,
+  );
+  expect(calls.length).toBeGreaterThanOrEqual(4);
+  expect(calls.length).toBeLessThanOrEqual(7);
+  expect(calls.every((c) => c.width === 576 && c.height === 512)).toBe(true);
+  expect(new Set(calls.map((c) => `${c.x},${c.y}`)).size).toBe(4);
+  await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('data-direction', 'west');
+  await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('data-direction', 'south');
+  const ears = await page.evaluate(async () => {
+    const { loadEditorReview } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const s = await loadEditorReview(
+      updateConstructor(avatarCatalog.defaultAvatar, {
+        gender: 'male',
+        hair: { male: 1, female: 1 },
+        special: null,
+      }),
+      new AbortController().signal,
+    );
+    const ctx = s.getContext('2d')!;
+    return {
+      front: [...ctx.getImageData(21, 256 + 33, 7, 10).data],
+      side: [...ctx.getImageData(38, 128 + 33, 7, 10).data],
+    };
+  });
+  // Profile corners contain head pixels; compare the actual ear silhouette only.
+  for (let i = 0; i < ears.front.length; i += 4)
+    if (ears.front[i + 3]) expect(ears.side.slice(i, i + 4)).toEqual(ears.front.slice(i, i + 4));
 });

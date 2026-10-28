@@ -18,7 +18,7 @@ test('editor stance is symmetric with a fuller profile and a forward plant/backw
   const a = reviewPose('average', 'south', 0);
   expect(a.arms[0]!.root.x + a.arms[1]!.root.x).toBe(96);
   expect(a.arms[0]!.end.x + a.arms[1]!.end.x).toBe(96);
-  expect(a.arms[0]!.end.x).toBeLessThan(a.arms[0]!.root.x);
+  expect(a.arms[0]!.end.x).toBe(a.arms[0]!.root.x);
   expect(a.legs[0]!.root.x + a.legs[1]!.root.x).toBe(96);
   expect(reviewPose('average', 'east', 0).torsoWidth).toBeGreaterThan(
     pose('average', 'east', 0).torsoWidth,
@@ -30,26 +30,39 @@ test('editor stance is symmetric with a fuller profile and a forward plant/backw
   expect(EDITOR_SKIN_PALETTE).toHaveLength(12);
 });
 
-test('continuous editor rig rotates fixed length arms and legs and follows a smooth weight arc', async () => {
+test('editor uses two held idle frames, four integer walking frames and viewer-relative arrows', async () => {
   const { editorMotion, WALK_SECONDS, turnPreview } = await import('./editorMotion');
-  expect(turnPreview('south', 'left')).toBe('east');
-  expect(turnPreview('south', 'right')).toBe('west');
-  for (const dir of ['east', 'west', 'south', 'north'] as const)
-    for (let i = 0; i <= 120; i++) {
+  expect(turnPreview('south', 'left')).toBe('west');
+  expect(turnPreview('south', 'right')).toBe('east');
+  expect(turnPreview(turnPreview('south', 'left'), 'right')).toBe('south');
+  for (const dir of ['east', 'west', 'south', 'north'] as const) {
+    const poses = new Set<string>();
+    for (let i = 0; i < 120; i++) {
       const m = editorMotion('average', dir, 'walk', (i * WALK_SECONDS) / 120);
+      poses.add(JSON.stringify(m));
+      const joints = [
+        m.body,
+        ...m.arms,
+        ...m.hands,
+        ...m.legs.flatMap((l) => [l.hip, l.knee, l.ankle]),
+      ];
+      expect(
+        joints.every((j) => Number.isInteger(j.x) && Number.isInteger(j.y) && j.rotation === 0),
+      ).toBe(true);
+      expect(m.body.x).toBe(48);
       for (const l of m.legs) {
-        expect(Math.hypot(l.knee.x - l.hip.x, l.knee.y - l.hip.y)).toBeCloseTo(12, 6);
-        expect(Math.hypot(l.ankle.x - l.knee.x, l.ankle.y - l.knee.y)).toBeCloseTo(12, 6);
+        expect(l.hip.x).toBe(l.knee.x);
+        expect(l.knee.x).toBe(l.ankle.x);
+        expect(l.ankle.y - l.hip.y).toBe(24);
       }
-      if (dir === 'east') expect(m.arms[1]!.x).toBeLessThan(0);
     }
-  const down = editorMotion('average', 'east', 'walk', WALK_SECONDS / 8),
-    up = editorMotion('average', 'east', 'walk', (3 * WALK_SECONDS) / 8);
-  expect(down.body.y).toBeGreaterThan(84);
-  expect(up.body.y).toBeLessThan(84);
-  const contact = editorMotion('average', 'east', 'walk', 0).legs[0]!.ankle;
-  const passing = editorMotion('average', 'east', 'walk', WALK_SECONDS / 4).legs[0]!.ankle;
-  expect(contact.y).toBeCloseTo(108);
-  expect(passing.y).toBeCloseTo(108);
-  expect(passing.x).toBeLessThan(contact.x);
+    expect(poses.size).toBeLessThanOrEqual(4);
+    expect(poses.size).toBeGreaterThanOrEqual(3);
+    expect(editorMotion('average', dir, 'idle', 0)).toEqual(
+      editorMotion('average', dir, 'idle', 0.49),
+    );
+    expect(editorMotion('average', dir, 'idle', 0.5)).toEqual(
+      editorMotion('average', dir, 'idle', 0.99),
+    );
+  }
 });

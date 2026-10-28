@@ -128,20 +128,10 @@ function texture(source: HTMLCanvasElement, pivot: { x: number; y: number }): Te
     c.getContext('2d')!.drawImage(source, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
   return { image: c, x: pivot.x - x0, y: pivot.y - y0 };
 }
-function drawTexture(
-  ctx: CanvasRenderingContext2D,
-  t: Texture,
-  x: number,
-  y: number,
-  rotation = 0,
-) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-  ctx.drawImage(t.image, -t.x, -t.y);
-  ctx.restore();
+function drawTexture(ctx: CanvasRenderingContext2D, t: Texture, x: number, y: number) {
+  ctx.drawImage(t.image, Math.round(x) - t.x, Math.round(y) - t.y);
 }
-/** Prepare immutable local textures once. Animation only translates/rotates these images. */
+/** Prepare immutable local textures once. The authoring rig only translates these images into integer-pixel poses. */
 export async function createEditorRig(
   config: AvatarConfig,
   signal: AbortSignal,
@@ -181,9 +171,7 @@ export async function createEditorRig(
       back: Texture;
       arms: Texture[];
       hands: Texture[];
-      upper: Texture[];
-      lower: Texture[];
-      knees: Texture[];
+      legs: Texture[];
       feet: Texture[];
     }
   >();
@@ -206,7 +194,7 @@ export async function createEditorRig(
     });
     const head = make(p.head, (ctx) => {
       if (!side)
-        for (const x of [26, 70])
+        for (const x of [24.5, 71.5])
           shape(ctx, (px, py) => ((px - x) / 3.5) ** 2 + ((py - 38) / 5) ** 2 <= 1, skin);
       rounded(ctx, 28, 14, 40, 40, 10, skin);
       face(ctx, p, config, parts);
@@ -227,7 +215,7 @@ export async function createEditorRig(
             );
       }
       // One small near ear, on the side plane; never a second ear on the rear silhouette.
-      if (side) shape(ctx, (x, y) => ((x - 41) / 3.5) ** 2 + ((y - 38) / 4.5) ** 2 <= 1, skin);
+      if (side) shape(ctx, (x, y) => ((x - 41.5) / 3.5) ** 2 + ((y - 38) / 5) ** 2 <= 1, skin);
       paint(ctx, p, 'head');
       if (config.parts.accessory === 'headphones-01' && !has('special')) {
         if (!side) rounded(ctx, 22, 30, 7, 15, 3, c.colors.special);
@@ -249,9 +237,7 @@ export async function createEditorRig(
     });
     const arms: Texture[] = [],
       hands: Texture[] = [],
-      upper: Texture[] = [],
-      lower: Texture[] = [],
-      knees: Texture[] = [],
+      legs: Texture[] = [],
       feet: Texture[] = [];
     for (let i = 0; i < 2; i++) {
       const armParent = i === 0 ? 'armLeft' : 'armRight',
@@ -295,25 +281,8 @@ export async function createEditorRig(
       );
       hands.push(
         make({ x: 48, y: 84 }, (ctx) => {
-          const thumb = side ? 1 : i === 0 ? 1 : -1;
-          shape(
-            ctx,
-            (x, y) => {
-              const dx = (x - 48) * thumb,
-                dy = y - 84;
-              const palm =
-                dx >= -4 &&
-                dx <= 4 &&
-                dy >= -2 &&
-                dy <= 9 &&
-                Math.hypot(Math.max(0, Math.abs(dx) - 2), Math.max(0, Math.abs(dy - 3.5) - 3.5)) <=
-                  2;
-              return palm || ((dx - 3) / 3) ** 2 + ((dy - 2) / 3) ** 2 <= 1;
-            },
-            skin,
-          );
-          ctx.fillStyle = skin;
-          ctx.fillRect(46, 81, 4, 5);
+          // One invariant round fist, without fingers or a thumb.
+          shape(ctx, (x, y) => ((x - 48) / 5) ** 2 + ((y - 88) / 5) ** 2 <= 1, skin);
           paint(ctx, armP, handParent);
         }),
       );
@@ -327,14 +296,7 @@ export async function createEditorRig(
       if (!has('bottom')) rounded(lc, x - w / 2, 82, w, 28, Math.min(4, w / 2), color);
       paint(lc, p, i === 0 ? 'legLeft' : 'legRight', 'back');
       paint(lc, p, i === 0 ? 'legLeft' : 'legRight');
-      // Overlapping pre-cut rigid segments, plus a cached joint cap: no frame-time deformation.
-      upper.push(make({ x, y: 84 }, (ctx) => ctx.drawImage(leg, 0, 0, 96, 99, 0, 0, 96, 99)));
-      lower.push(make({ x, y: 96 }, (ctx) => ctx.drawImage(leg, 0, 94, 96, 34, 0, 94, 96, 34)));
-      knees.push(
-        make({ x, y: 96 }, (ctx) => {
-          ctx.drawImage(leg, x - w / 2 + 2, 94, w - 4, 4, x - w / 2 + 2, 94, w - 4, 4);
-        }),
-      );
+      legs.push(texture(leg, { x, y: 84 }));
       feet.push(
         make({ x, y: 108 }, (ctx) => {
           rounded(
@@ -350,10 +312,10 @@ export async function createEditorRig(
         }),
       );
     }
-    prepared.set(dir, { torso, head, back, arms, hands, upper, lower, knees, feet });
+    prepared.set(dir, { torso, head, back, arms, hands, legs, feet });
   }
   return {
-    textureCount: 3 * 15,
+    textureCount: 3 * 11,
     draw(ctx, direction, animation, seconds) {
       const assets = prepared.get(direction === 'west' ? 'east' : direction)!;
       const m = editorMotion(c.build, direction, animation, seconds),
@@ -367,7 +329,6 @@ export async function createEditorRig(
       const body = (draw: () => void) => {
         ctx.save();
         ctx.translate(m.body.x, m.body.y);
-        ctx.rotate(m.body.rotation);
         draw();
         ctx.restore();
       };
@@ -376,7 +337,6 @@ export async function createEditorRig(
           h = m.hands[i]!;
         ctx.save();
         ctx.translate(a.x, a.y);
-        ctx.rotate(a.rotation);
         drawTexture(ctx, assets.arms[i]!, 0, 0);
         drawTexture(ctx, assets.hands[i]!, h.x, h.y);
         ctx.restore();
@@ -385,10 +345,8 @@ export async function createEditorRig(
       if (side) body(() => arm(0));
       for (let i = 0; i < 2; i++) {
         const l = m.legs[i]!;
-        drawTexture(ctx, assets.lower[i]!, 48 + l.knee.x, l.knee.y, l.knee.rotation);
-        drawTexture(ctx, assets.upper[i]!, 48 + l.hip.x, l.hip.y, l.hip.rotation);
-        drawTexture(ctx, assets.knees[i]!, 48 + l.knee.x, l.knee.y, l.hip.rotation);
-        drawTexture(ctx, assets.feet[i]!, 48 + l.ankle.x, l.ankle.y, l.ankle.rotation);
+        drawTexture(ctx, assets.legs[i]!, 48 + l.hip.x, l.hip.y);
+        drawTexture(ctx, assets.feet[i]!, 48 + l.ankle.x, l.ankle.y);
       }
       body(() => {
         drawTexture(ctx, assets.torso, 0, 0);
@@ -400,7 +358,7 @@ export async function createEditorRig(
     },
   };
 }
-/** Static inspection only; the visible editor animates the cached rig directly. */
+/** Bake once per appearance change. Both the player and inspector use this exact sheet. */
 export async function loadEditorReview(config: AvatarConfig, signal: AbortSignal) {
   const rig = await createEditorRig(config, signal),
     sheet = document.createElement('canvas');
@@ -415,7 +373,7 @@ export async function loadEditorReview(config: AvatarConfig, signal: AbortSignal
         ctx,
         direction,
         frame >= 2 ? 'walk' : frame === 1 ? 'idle' : 'static',
-        frame >= 2 ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 1.5 : 0,
+        frame >= 2 ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 0.5 : 0,
       );
       ctx.restore();
     }
