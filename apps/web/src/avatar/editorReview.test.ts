@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { reviewPose, EDITOR_SKIN_PALETTE } from './editorReview';
 import { pose } from './modular/rig';
 test('editor idle keeps entire legs and shoes fixed while head and torso breathe together', () => {
-  for (const build of ['slim', 'average', 'sturdy'] as const)
+  for (const build of ['very-slim', 'slim', 'average', 'sturdy'] as const)
     for (const dir of ['north', 'east', 'south', 'west'] as const) {
       const a = reviewPose(build, dir, 0),
         b = reviewPose(build, dir, 1);
@@ -65,4 +65,36 @@ test('editor uses two held idle frames, four integer walking frames and viewer-r
       editorMotion('average', dir, 'idle', 0.99),
     );
   }
+});
+
+test('wider arm seams, overlapping fists and narrow profile feet stay attached in every phase', async () => {
+  const { editorMotion, editorDimensions } = await import('./editorMotion');
+  for (const build of ['very-slim', 'slim', 'average', 'sturdy'] as const) {
+    const front = editorMotion(build, 'south', 'static', 0),
+      dims = editorDimensions(build, false);
+    expect(Math.abs(front.arms[0]!.x) - dims.armWidth / 2).toBe(dims.torsoWidth / 2 - 1);
+    for (const dir of ['south', 'north', 'east', 'west'] as const)
+      for (let i = 0; i < 4; i++) {
+        const p = editorMotion(build, dir, 'walk', i / 8);
+        for (const hand of p.hands) {
+          expect(hand.y + 4 - 5).toBeLessThan(20); // circle overlaps the end of the arm
+          expect(Math.abs(hand.x)).toBeLessThanOrEqual(1);
+        }
+        expect(reviewPose(build, dir, i + 2).head.y - 34).toBe(p.body.y - 84);
+        if ((build === 'slim' || build === 'very-slim') && (dir === 'east' || dir === 'west')) {
+          const half = editorDimensions(build, true).torsoWidth / 2;
+          for (const l of p.legs) {
+            expect(l.ankle.x - 5).toBeGreaterThanOrEqual(-half);
+            expect(l.ankle.x + 9).toBeLessThanOrEqual(half);
+          }
+        }
+      }
+  }
+  const thin = reviewPose('very-slim', 'south', 0),
+    slim = reviewPose('slim', 'south', 0);
+  expect(thin.torsoWidth).toBeLessThan(slim.torsoWidth);
+  expect(thin.arms[0]!.width).toBeLessThan(slim.arms[0]!.width);
+  expect(thin.legs[0]!.width).toBeLessThan(slim.legs[0]!.width);
+  expect(thin.head).toEqual(slim.head);
+  expect(pose('very-slim', 'south', 0)).toEqual(pose('slim', 'south', 0));
 });

@@ -1,5 +1,15 @@
-import type { Direction } from '@creative-factory/contracts';
-import { pose, ANIMATION_FPS, type Build, type Point, type Pose } from './modular/rig';
+import type { AvatarCustomization, Direction } from '@creative-factory/contracts';
+import { pose, ANIMATION_FPS, type Point, type Pose } from './modular/rig';
+export type EditorBuild = AvatarCustomization['build'];
+export function editorDimensions(build: EditorBuild, side: boolean) {
+  const factor = { 'very-slim': 0.84, slim: 1, average: 1.16, sturdy: 1.32 }[build];
+  return {
+    torsoWidth: 2 * Math.round(((side ? 22 : 26) * factor) / 2),
+    armWidth: 2 * Math.round((8 * factor) / 2),
+    legWidth: 2 * Math.round((10 * factor) / 2),
+    spacing: Math.round(7 * factor),
+  };
+}
 export const WALK_SECONDS = 4 / ANIMATION_FPS.walk;
 export type Joint = Point & { rotation: 0 };
 export interface EditorMotion {
@@ -10,7 +20,7 @@ export interface EditorMotion {
 }
 /** Authoring poses only: integer translations, two idle poses, four walking poses. */
 export function editorMotion(
-  build: Build,
+  build: EditorBuild,
   direction: Direction,
   animation: 'static' | 'idle' | 'walk',
   seconds: number,
@@ -23,23 +33,29 @@ export function editorMotion(
     : animation === 'idle'
       ? Math.floor(Math.max(0, seconds) * ANIMATION_FPS.idle) % 2
       : 0;
-  const factor = { slim: 1, average: 1.16, sturdy: 1.32 }[build];
-  const width = 2 * Math.round(((side ? 22 : 26) * factor) / 2);
-  const arms: Joint[] = [-1, 1].map((sign) => ({
-    x: side ? -5 + sign : sign * (width / 2 - 1),
+  const dims = editorDimensions(build, side),
+    width = dims.torsoWidth;
+  const arms: Joint[] = [-1, 1].map((sign, i) => ({
+    // Flat inner shoulder touches the torso; only one pixel overlaps the seam.
+    x: side
+      ? -5 + sign + (walking ? [0, 1, 0, -1][(phase + i * 2) % 4]! : 0)
+      : sign * (width / 2 + dims.armWidth / 2 - 1),
     y: -20,
     rotation: 0,
   }));
   const hands: Joint[] = arms.map((_, i) => ({
-    x: 0,
-    y: 20 + (walking ? [0, -1, 0, 1][(phase + i * 2) % 4]! : 0),
+    x: walking && side ? [0, 1, 0, -1][(phase + i * 2) % 4]! : 0,
+    // The fist overlaps the rounded forearm, even at its lowest position.
+    y: 16 + (walking && !side ? [0, -2, 0, 2][(phase + i * 2) % 4]! : 0),
     rotation: 0,
   }));
   const legs = [-1, 1].map((sign, i) => {
     const step = (phase + i * 2) % 4;
-    const x =
-      (side ? sign * 2 : sign * Math.round(7 * factor)) +
-      (walking && side ? [5, 0, -5, 0][step]! : 0);
+    const narrow = build === 'slim' || build === 'very-slim';
+    const baseX = side ? (narrow ? -2 + sign : sign * 2) : sign * dims.spacing;
+    // Include the compact boot (-5..+9), so the whole foot stays inside a narrow profile.
+    const stride = narrow ? Math.max(0, width / 2 - 8) : 5;
+    const x = baseX + (walking && side ? [stride, 0, -stride, 0][step]! : 0);
     const y = 84 - (walking && step === 3 ? 4 : 0);
     // The entire straight leg is translated as one image; no knee segments or bends.
     return {
@@ -51,7 +67,7 @@ export function editorMotion(
   return { body: { x: 48, y: 84 + bob, rotation: 0 }, arms, hands, legs };
 }
 /** These exact poses are baked into the same sheet shown by the editor player. */
-export function reviewPose(build: Build, direction: Direction, frame: number): Pose {
+export function reviewPose(build: EditorBuild, direction: Direction, frame: number): Pose {
   const p = pose(build, direction, frame),
     walking = frame >= 2;
   const m = editorMotion(
@@ -61,28 +77,28 @@ export function reviewPose(build: Build, direction: Direction, frame: number): P
     walking ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 0.5 : 0,
   );
   const mirror = (x: number) => (direction === 'west' ? 96 - x : x);
-  const factor = { slim: 1, average: 1.16, sturdy: 1.32 }[build];
+  const dims = editorDimensions(build, p.side);
   p.bob = m.body.y - 84;
   p.head = { x: 48, y: 34 + p.bob };
-  p.torsoWidth = 2 * Math.round(((p.side ? 22 : 26) * factor) / 2);
+  p.torsoWidth = dims.torsoWidth;
   p.hipWidth = p.torsoWidth;
   p.torso = { x: 48, y: 72 + p.bob };
   p.pelvis = { x: 48, y: 84 + p.bob };
   p.arms = m.arms.map((a) => {
-    const root = { x: mirror(48 + a.x), y: 64 + p.bob },
+    const root = { x: mirror(48 + a.x), y: a.y + 84 + p.bob },
       end = { x: root.x, y: root.y + 20 };
     return {
       root,
       end,
       joint: { x: root.x, y: root.y + 10 },
-      width: 2 * Math.round((8 * factor) / 2),
+      width: dims.armWidth,
     };
   });
   p.legs = m.legs.map((l) => ({
     root: { x: mirror(48 + l.hip.x), y: l.hip.y },
     joint: { x: mirror(48 + l.knee.x), y: l.knee.y },
     end: { x: mirror(48 + l.ankle.x), y: l.ankle.y },
-    width: 2 * Math.round((10 * factor) / 2),
+    width: dims.legWidth,
   }));
   p.hands = p.arms.map((a, i) => ({ x: a.end.x, y: a.end.y + m.hands[i]!.y - 20 }));
   p.feet = p.legs.map((l) => l.end);

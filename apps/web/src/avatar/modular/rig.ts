@@ -38,7 +38,9 @@ export const BODY_SHAPES = {
   sturdy: shape(BUILD_FACTORS.sturdy),
 };
 export type Limb = { root: Point; joint: Point; end: Point; width: number; tipWidth?: number };
-export function pose(build: Build, direction: Direction, frame: number) {
+export function pose(build: Build | 'very-slim', direction: Direction, frame: number) {
+  // The new proportion study is editor-only until approved; retain the game's slim rig.
+  build = build === 'very-slim' ? 'slim' : build;
   const shape = BODY_SHAPES[build],
     side = direction === 'east' || direction === 'west';
   const walking = frame >= 2,

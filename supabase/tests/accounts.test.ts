@@ -244,6 +244,25 @@ describe('real migration under authenticated/anon PostgreSQL roles', () => {
     // Removing the optional extension remains valid, so legacy clients/saves are not locked out.
     expect((await saveAvatar(1, avatar)).rows[0]!.revision).toBe(2);
   });
+  test('very slim build persists through the real SQL validator without changing other avatar fields', async () => {
+    await as(A);
+    const { revision: _, ...config } = updateConstructor(avatarCatalog.defaultAvatar, {
+      build: 'very-slim',
+    });
+    await saveAvatar(0, config);
+    expect(
+      (await db.query<{ config: unknown }>('select config from avatar_configs')).rows[0]!.config,
+    ).toEqual(config);
+    await as(B);
+    expect(
+      (
+        await db.query('update avatar_configs set config=$1::jsonb where user_id=$2 returning *', [
+          JSON.stringify(config),
+          A,
+        ])
+      ).rows,
+    ).toHaveLength(0);
+  });
   test('SQL migration upgrades stored children and refuses new child payloads under RLS', async () => {
     // Reconstruct the previous validator so an actual legacy row exists before reapplying migration.
     await db.exec('reset role');

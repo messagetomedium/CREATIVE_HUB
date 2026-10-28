@@ -308,6 +308,7 @@ export function AvatarPage() {
                         icon="body"
                         options={(
                           [
+                            ['very-slim', 'Очень худое'],
                             ['slim', 'Худое'],
                             ['average', 'Среднее'],
                             ['sturdy', 'Плотное'],

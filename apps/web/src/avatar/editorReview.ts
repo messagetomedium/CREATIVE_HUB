@@ -65,6 +65,46 @@ function rounded(
     color,
   );
 }
+/** Flat top at the shoulder; preserve the existing rounded lower torso. */
+function torsoShape(ctx: CanvasRenderingContext2D, width: number, color: string) {
+  const left = 48 - width / 2,
+    right = 48 + width / 2;
+  shape(
+    ctx,
+    (x, y) => {
+      if (x < left || x >= right || y < 58 || y >= 92) return false;
+      if (y <= 87) return true;
+      const cx = Math.max(left + 5, Math.min(right - 5, x));
+      return (x - cx) ** 2 + (y - 87) ** 2 <= 25;
+    },
+    color,
+  );
+}
+/** The inner shoulder is square; the outer shoulder slopes into a straight arm. */
+function armShape(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  index: number,
+  side: boolean,
+  color: string,
+  sleeve = false,
+) {
+  const left = 48 - width / 2,
+    right = 48 + width / 2,
+    r = width / 2,
+    bottom = sleeve ? 77 : 84;
+  shape(
+    ctx,
+    (x, y) => {
+      if (x < left || x >= right || y < 58 || y >= bottom) return false;
+      if (!sleeve && y > bottom - r) return (x - 48) ** 2 + (y - (bottom - r)) ** 2 <= r * r;
+      if (y >= 58 + r) return true;
+      const outer = side || (index === 0 ? x < 48 : x > 48);
+      return !outer || (x - 48) ** 2 + (y - (58 + r)) ** 2 <= r * r;
+    },
+    color,
+  );
+}
 function hairContour(c: HTMLCanvasElement) {
   const ctx = c.getContext('2d')!,
     d = ctx.getImageData(0, 0, 96, 128),
@@ -223,9 +263,8 @@ export async function createEditorRig(
       }
     });
     const torso = make({ x: 48, y: 84 }, (ctx) => {
-      rounded(ctx, 48 - p.torsoWidth / 2, 58, p.torsoWidth, 34, 5, skin);
-      if (!has('top'))
-        rounded(ctx, 48 - p.torsoWidth / 2, 58, p.torsoWidth, 34, 5, config.palette.outfit);
+      torsoShape(ctx, p.torsoWidth, skin);
+      if (!has('top')) torsoShape(ctx, p.torsoWidth, config.palette.outfit);
       ctx.fillStyle = skin;
       ctx.fillRect(44, 50, 8, 12);
       ctx.fillStyle = OUTLINE;
@@ -255,26 +294,11 @@ export async function createEditorRig(
           { x: 48, y: 84 },
         ],
       };
-      const width = p.arms[i]!.width,
-        left = 48 - width / 2;
+      const width = p.arms[i]!.width;
       arms.push(
         make({ x: 48, y: 64 }, (ctx) => {
-          // Parallel sides, a circular shoulder cap, and a straight 20px bone.
-          shape(
-            ctx,
-            (x, y) =>
-              (x >= left && x < left + width && y >= 64 && y <= 84) ||
-              Math.hypot(x - 48, y - 64) < width / 2,
-            skin,
-          );
-          if (!has('top'))
-            shape(
-              ctx,
-              (x, y) =>
-                (x >= left && x < left + width && y >= 64 && y <= 77) ||
-                Math.hypot(x - 48, y - 64) < width / 2,
-              config.palette.outfit,
-            );
+          armShape(ctx, width, i, side, skin);
+          if (!has('top')) armShape(ctx, width, i, side, config.palette.outfit, true);
           paint(ctx, armP, armParent, 'back');
           paint(ctx, armP, armParent);
         }),

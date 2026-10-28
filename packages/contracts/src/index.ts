@@ -99,7 +99,7 @@ export const AvatarCustomizationSchema = z
     version: z.literal(1),
     gender: z.enum(['male', 'female']),
     age: z.enum(['child', 'adult']).transform(() => 'adult' as const),
-    build: z.enum(['slim', 'average', 'sturdy']),
+    build: z.enum(['very-slim', 'slim', 'average', 'sturdy']),
     bodyFeatures: uniqueFeatures(12),
     mouth: avatarSlot,
     eyes: avatarSlot,

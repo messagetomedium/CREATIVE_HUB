@@ -176,7 +176,7 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
   ).toHaveCount(2);
   await expect(
     page.getByRole('group', { name: 'Телосложение', exact: true }).getByRole('button'),
-  ).toHaveCount(3);
+  ).toHaveCount(4);
   await expect(
     page.getByRole('group', { name: 'Особенности тела', exact: true }).getByRole('button'),
   ).toHaveCount(12);
@@ -408,4 +408,27 @@ test('editor actions have two requested rows and no explanatory blocks', async (
   ])
     await expect(page.locator(selector)).toHaveCount(0);
   await page.screenshot({ path: '.cache/review/editor-clean-mobile.png', fullPage: true });
+});
+
+test('very slim is a fourth editable build and survives save/reload', async ({ page }) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  const builds = page.getByRole('group', { name: 'Телосложение', exact: true });
+  await expect(builds.getByRole('button')).toHaveCount(4);
+  await page.getByRole('button', { name: 'Телосложение: Очень худое', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(
+    page.getByText('Персонаж сохранён. Можно отправляться на завод.', { exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole('button', { name: 'Телосложение: Очень худое', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Идёт', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute(
+    'data-playback',
+    'spritesheet',
+  );
+  await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
+  await expect(page.locator('.avatar-stage canvas')).toHaveAttribute('data-direction', 'west');
 });

@@ -139,7 +139,7 @@ export function randomAvatar(
   let avatar = updateConstructor(previous, {
     gender: choose(['male', 'female'] as const),
     age: 'adult',
-    build: choose(['slim', 'average', 'sturdy'] as const),
+    build: choose(['very-slim', 'slim', 'average', 'sturdy'] as const),
     hair: { male: choose(SLOTS), female: choose(SLOTS) },
     top: choose(SLOTS),
     bottom: choose(SLOTS),
