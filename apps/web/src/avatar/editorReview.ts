@@ -3,7 +3,9 @@ import type { AvatarConfig, Direction } from '@creative-factory/contracts';
 import { constructorChoices } from './editor';
 import { loadHairAtlas, loadParts } from './modular/assets';
 import { tintHair, legacyHair, face, attachPart } from './modular/render';
-import { pose, DIRECTIONS, type Pose, type Limb } from './modular/rig';
+import { DIRECTIONS, type Pose } from './modular/rig';
+import { editorMotion, reviewPose, WALK_SECONDS } from './editorMotion';
+export { reviewPose } from './editorMotion';
 import { OUTLINE, mix } from './modular/materials';
 
 export const EDITOR_SKIN_PALETTE = [
@@ -20,49 +22,6 @@ export const EDITOR_SKIN_PALETTE = [
   '#a87c60',
   '#765445',
 ];
-export function reviewPose(build: Pose['build'], direction: Direction, frame: number): Pose {
-  const p = pose(build, direction, frame);
-  const factor = { slim: 1, average: 1.16, sturdy: 1.32 }[build];
-  const side = p.side,
-    walking = frame >= 2,
-    phase = Math.max(0, frame - 2) % 4;
-  p.bob = frame === 1 ? 1 : 0;
-  p.head = { x: 48, y: 34 + p.bob };
-  p.torsoWidth = 2 * Math.round(((side ? 22 : 26) * factor) / 2);
-  p.hipWidth = p.torsoWidth;
-  p.torso = { x: 48, y: 72 + p.bob };
-  p.pelvis = { x: 48, y: 86 + p.bob };
-  const mirror = (x: number) => (direction === 'west' ? 96 - x : x);
-  p.arms = [-1, 1].map((sign, i): Limb => {
-    const swing = walking ? [5, 0, -5, 0][(phase + i * 2) % 4]! : 0;
-    const x = 48 + (side ? sign * 2 : sign * (p.torsoWidth / 2 - 1));
-    const root = { x: mirror(x), y: 64 + p.bob };
-    const end = {
-      x: mirror(x + (side ? -swing : sign * 4)),
-      y: 84 + p.bob + (side ? 0 : swing / 3),
-    };
-    return {
-      root,
-      joint: { x: (root.x + end.x) / 2, y: (root.y + end.y) / 2 },
-      end,
-      width: 2 * Math.round((8 * factor) / 2),
-    };
-  });
-  p.legs = [-1, 1].map((sign, i): Limb => {
-    const phaseIndex = (phase + i * 2) % 4;
-    const stride = walking && side ? [8, -2, -8, 5][phaseIndex]! : 0;
-    const lift = walking ? [0, 0, 2, 7][phaseIndex]! : 0;
-    const x = 48 + (side ? sign * 2 : sign * Math.round(7 * factor));
-    // Idle hip/legs never move. The extended torso covers the breathing seam.
-    const root = { x: mirror(x), y: 86 };
-    const end = { x: mirror(x + stride), y: 108 - lift };
-    const knee = { x: mirror(x + stride / 2 + (lift ? 2 : 0)), y: 97 - lift / 2 };
-    return { root, joint: knee, end, width: 2 * Math.round((10 * factor) / 2) };
-  });
-  p.hands = p.arms.map((a) => a.end);
-  p.feet = p.legs.map((l) => l.end);
-  return p;
-}
 // Exact two-pixel inward contour; all geometry is sampled on the native grid.
 function shape(
   ctx: CanvasRenderingContext2D,
@@ -106,28 +65,6 @@ function rounded(
     color,
   );
 }
-function limb(ctx: CanvasRenderingContext2D, l: Limb, color: string, roundRoot = false) {
-  const points = [l.root, l.joint, l.end],
-    radius = l.width / 2;
-  shape(
-    ctx,
-    (x, y) => {
-      if (roundRoot && Math.hypot(x - l.root.x, y - l.root.y) <= radius) return true;
-      for (let i = 0; i < 2; i++) {
-        const a = points[i]!,
-          b = points[i + 1]!,
-          dx = b.x - a.x,
-          dy = b.y - a.y,
-          len = Math.hypot(dx, dy);
-        const t = ((x - a.x) * dx + (y - a.y) * dy) / (len * len);
-        if (t >= 0 && t <= 1 && Math.abs(((x - a.x) * dy - (y - a.y) * dx) / len) < radius)
-          return true;
-      }
-      return Math.hypot(x - l.joint.x, y - l.joint.y) < radius;
-    },
-    color,
-  );
-}
 function hairContour(c: HTMLCanvasElement) {
   const ctx = c.getContext('2d')!,
     d = ctx.getImageData(0, 0, 96, 128),
@@ -155,148 +92,332 @@ function canvas() {
   c.height = 128;
   return c;
 }
-export async function loadEditorReview(config: AvatarConfig, signal: AbortSignal) {
+interface Texture {
+  image: HTMLCanvasElement;
+  x: number;
+  y: number;
+}
+export interface EditorRig {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    direction: Direction,
+    animation: 'static' | 'idle' | 'walk',
+    seconds: number,
+  ): void;
+  readonly textureCount: number;
+}
+function texture(source: HTMLCanvasElement, pivot: { x: number; y: number }): Texture {
+  const ctx = source.getContext('2d')!,
+    data = ctx.getImageData(0, 0, 96, 128).data;
+  let x0 = 96,
+    y0 = 128,
+    x1 = -1,
+    y1 = -1;
+  for (let y = 0; y < 128; y++)
+    for (let x = 0; x < 96; x++)
+      if (data[(y * 96 + x) * 4 + 3]) {
+        x0 = Math.min(x0, x);
+        y0 = Math.min(y0, y);
+        x1 = Math.max(x1, x);
+        y1 = Math.max(y1, y);
+      }
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, x1 - x0 + 1);
+  c.height = Math.max(1, y1 - y0 + 1);
+  if (x1 >= 0)
+    c.getContext('2d')!.drawImage(source, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
+  return { image: c, x: pivot.x - x0, y: pivot.y - y0 };
+}
+function drawTexture(
+  ctx: CanvasRenderingContext2D,
+  t: Texture,
+  x: number,
+  y: number,
+  rotation = 0,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.drawImage(t.image, -t.x, -t.y);
+  ctx.restore();
+}
+/** Prepare immutable local textures once. Animation only translates/rotates these images. */
+export async function createEditorRig(
+  config: AvatarConfig,
+  signal: AbortSignal,
+): Promise<EditorRig> {
   const [atlas, parts] = await Promise.all([loadHairAtlas(signal), loadParts(config, signal)]);
   signal.throwIfAborted();
-  const choices = constructorChoices(config),
-    hair = tintHair(atlas, config.palette.hair);
-  const sheet = document.createElement('canvas');
-  sheet.width = 576;
-  sheet.height = 512;
-  const ctx = sheet.getContext('2d')!;
-  ctx.imageSmoothingEnabled = false;
-  for (const [row, dir] of DIRECTIONS.entries()) {
-    const neutral = reviewPose(choices.build, dir, 0);
-    const hairLayers = (['back', 'front'] as const).map((pass) => {
-      const c = canvas(),
-        cx = c.getContext('2d')!;
-      if (
-        choices.gender === 'female' &&
-        !parts.some((p) => p.descriptor.selection?.field === 'hair')
-      )
-        legacyHair(cx, neutral, hair, choices.hair.female, pass);
-      return hairContour(c);
+  const c = constructorChoices(config),
+    hair = tintHair(atlas, config.palette.hair),
+    skin = config.palette.skin;
+  const has = (f: string) => parts.some((p) => p.descriptor.selection?.field === f);
+  const paint = (ctx: CanvasRenderingContext2D, p: Pose, parent: string, pass = 'front') =>
+    parts
+      .filter((x) => x.descriptor.parent === parent && x.descriptor.pass === pass)
+      .forEach((x) => attachPart(ctx, p, x));
+  const hairCanvas = (dir: Direction, pass: 'back' | 'front') => {
+    const out = canvas();
+    if (c.gender === 'female' && !has('hair'))
+      legacyHair(out.getContext('2d')!, reviewPose(c.build, dir, 0), hair, c.hair.female, pass);
+    return hairContour(out);
+  };
+  const hairTop = (images: HTMLCanvasElement[]) =>
+    Math.min(
+      14,
+      ...images.map((img) => {
+        const d = img.getContext('2d')!.getImageData(0, 0, 96, 128).data;
+        for (let y = 0; y < 128; y++)
+          for (let x = 0; x < 96; x++) if (d[(y * 96 + x) * 4 + 3]) return y;
+        return 14;
+      }),
+    );
+  const frontTop = hairTop([hairCanvas('south', 'back'), hairCanvas('south', 'front')]);
+  const prepared = new Map<
+    Direction,
+    {
+      torso: Texture;
+      head: Texture;
+      back: Texture;
+      arms: Texture[];
+      hands: Texture[];
+      upper: Texture[];
+      lower: Texture[];
+      knees: Texture[];
+      feet: Texture[];
+    }
+  >();
+  for (const dir of ['north', 'east', 'south'] as const) {
+    const p = reviewPose(c.build, dir, 0),
+      side = p.side;
+    const make = (
+      pivot: { x: number; y: number },
+      draw: (ctx: CanvasRenderingContext2D) => void,
+    ) => {
+      const out = canvas();
+      draw(out.getContext('2d')!);
+      return texture(out, pivot);
+    };
+    const hs = [hairCanvas(dir, 'back'), hairCanvas(dir, 'front')],
+      hairY = dir === 'north' ? frontTop - hairTop(hs) : 0;
+    const back = make(p.head, (ctx) => {
+      ctx.drawImage(hs[0]!, 0, hairY);
+      paint(ctx, p, 'head', 'back');
     });
-    for (let frame = 0; frame < 6; frame++) {
-      ctx.save();
-      ctx.translate(frame * 96, row * 128);
-      const p = reviewPose(choices.build, dir, frame),
-        skin = config.palette.skin;
-      const has = (f: string) => parts.some((p) => p.descriptor.selection?.field === f);
-      const paint = (parent: string) =>
-        parts
-          .filter((x) => x.descriptor.parent === parent && x.descriptor.pass === 'front')
-          .forEach((x) => attachPart(ctx, p, x));
-      ctx.drawImage(hairLayers[0]!, 0, p.bob);
-      parts.filter((x) => x.descriptor.pass === 'back').forEach((x) => attachPart(ctx, p, x));
-      const drawArm = (i: number) => {
-        const a = p.arms[i]!,
-          end = a.end;
-        limb(ctx, a, skin, true);
-        if (!has('top'))
-          limb(
-            ctx,
-            {
-              ...a,
-              end: {
-                x: a.root.x + (end.x - a.root.x) * 0.65,
-                y: a.root.y + (end.y - a.root.y) * 0.65,
-              },
-              joint: {
-                x: a.root.x + (end.x - a.root.x) * 0.325,
-                y: a.root.y + (end.y - a.root.y) * 0.325,
-              },
-            },
-            config.palette.outfit,
-            true,
-          );
-        paint(i === 0 ? 'armLeft' : 'armRight');
-        // Palm and thumb form one silhouette, without an internal joint outline.
-        const thumb = p.side ? (dir === 'east' ? 1 : -1) : i === 0 ? 1 : -1;
-        shape(
-          ctx,
-          (x, y) => {
-            const dx = (x - end.x) * thumb,
-              dy = y - end.y;
-            const palm =
-              dx >= -4 &&
-              dx <= 4 &&
-              dy >= -2 &&
-              dy <= 9 &&
-              Math.hypot(Math.max(0, Math.abs(dx) - 2), Math.max(0, Math.abs(dy - 3.5) - 3.5)) <= 2;
-            return palm || ((dx - 3) / 3) ** 2 + ((dy - 2) / 3) ** 2 <= 1;
-          },
-          skin,
-        );
-        paint(i === 0 ? 'handLeft' : 'handRight');
-      };
-      if (p.side) drawArm(0);
-      for (let i = 0; i < 2; i++) {
-        const far = p.side && i === 0;
-        const legColor = far ? mix(choices.colors.bottom, '#352b35', 0.14) : choices.colors.bottom;
-        limb(ctx, p.legs[i]!, legColor);
-        paint(i === 0 ? 'legLeft' : 'legRight');
-        const foot = p.feet[i]!;
-        // Compact boots: 14 native pixels in profile, 12 from front/back.
-        rounded(
-          ctx,
-          foot.x - (p.side ? (dir === 'west' ? 9 : 5) : 6),
-          foot.y - 2,
-          p.side ? 14 : 12,
-          7,
-          2,
-          far ? mix(config.palette.shoes, '#352b35', 0.14) : config.palette.shoes,
-        );
-        paint(i === 0 ? 'footLeft' : 'footRight');
-      }
-      const left = 48 - p.torsoWidth / 2;
-      rounded(ctx, left, 58 + p.bob, p.torsoWidth, 34, 5, skin);
-      if (!has('top')) rounded(ctx, left, 58 + p.bob, p.torsoWidth, 34, 5, config.palette.outfit);
-      // Neck merges with the torso, without a separate pelvis/waist stripe.
-      ctx.fillStyle = skin;
-      ctx.fillRect(44, 50 + p.bob, 8, 12);
-      ctx.fillStyle = OUTLINE;
-      ctx.fillRect(44, 50 + p.bob, 2, 8);
-      ctx.fillRect(50, 50 + p.bob, 2, 8);
-      paint('pelvis');
-      paint('torso');
-      if (!p.side) drawArm(0);
-      drawArm(1);
-      const hy = p.head.y;
-      // Ears touch the head silhouette from outside; no overlay over the face.
-      if (!p.side) {
-        shape(ctx, (x, y) => ((x - 25) / 5) ** 2 + ((y - hy - 4) / 7) ** 2 <= 1, skin);
-        shape(ctx, (x, y) => ((x - 71) / 5) ** 2 + ((y - hy - 4) / 7) ** 2 <= 1, skin);
-      }
-      rounded(ctx, 28, hy - 20, 40, 40, 10, skin);
+    const head = make(p.head, (ctx) => {
+      if (!side)
+        for (const x of [26, 70])
+          shape(ctx, (px, py) => ((px - x) / 3.5) ** 2 + ((py - 38) / 5) ** 2 <= 1, skin);
+      rounded(ctx, 28, 14, 40, 40, 10, skin);
       face(ctx, p, config, parts);
-      ctx.drawImage(hairLayers[1]!, 0, p.bob);
-      if (choices.gender === 'male' && !has('hair')) {
-        rounded(ctx, 28, hy - 21, 40, 13, 5, config.palette.hair);
-        if (dir === 'north') rounded(ctx, 28, hy - 21, 40, 37, 8, config.palette.hair);
+      ctx.drawImage(hs[1]!, 0, hairY);
+      if (c.gender === 'male' && !has('hair')) {
+        rounded(ctx, 28, 13, 40, 13, 5, config.palette.hair);
+        if (dir === 'north') rounded(ctx, 28, 13, 40, 37, 8, config.palette.hair);
         if (config.parts.hair === 'bob-01') {
-          if (dir !== 'west') rounded(ctx, 26, hy - 12, 6, 32, 2, config.palette.hair);
-          if (dir !== 'east') rounded(ctx, 64, hy - 12, 6, 32, 2, config.palette.hair);
+          if (dir !== 'east') rounded(ctx, 26, 22, 6, 32, 2, config.palette.hair);
+          rounded(ctx, 64, 22, 6, 32, 2, config.palette.hair);
         }
         if (config.parts.hair === 'curls-01')
           for (const x of [33, 43, 53, 63])
             shape(
               ctx,
-              (px, py) => ((px - x) / 7) ** 2 + ((py - hy + 19) / 6) ** 2 <= 1,
+              (px, py) => ((px - x) / 7) ** 2 + ((py - 15) / 6) ** 2 <= 1,
               config.palette.hair,
             );
       }
-      if (p.side) {
-        const ex = dir === 'east' ? 25 : 71;
-        shape(ctx, (x, y) => ((x - ex) / 5) ** 2 + ((y - hy - 4) / 7) ** 2 <= 1, skin);
-      }
-      paint('head');
+      // One small near ear, on the side plane; never a second ear on the rear silhouette.
+      if (side) shape(ctx, (x, y) => ((x - 41) / 3.5) ** 2 + ((y - 38) / 4.5) ** 2 <= 1, skin);
+      paint(ctx, p, 'head');
       if (config.parts.accessory === 'headphones-01' && !has('special')) {
-        if (dir !== 'east') rounded(ctx, 22, hy - 4, 7, 15, 3, choices.colors.special);
-        if (dir !== 'west') rounded(ctx, 67, hy - 4, 7, 15, 3, choices.colors.special);
+        if (!side) rounded(ctx, 22, 30, 7, 15, 3, c.colors.special);
+        rounded(ctx, side ? 38 : 67, 30, 7, 15, 3, c.colors.special);
       }
+    });
+    const torso = make({ x: 48, y: 84 }, (ctx) => {
+      rounded(ctx, 48 - p.torsoWidth / 2, 58, p.torsoWidth, 34, 5, skin);
+      if (!has('top'))
+        rounded(ctx, 48 - p.torsoWidth / 2, 58, p.torsoWidth, 34, 5, config.palette.outfit);
+      ctx.fillStyle = skin;
+      ctx.fillRect(44, 50, 8, 12);
+      ctx.fillStyle = OUTLINE;
+      ctx.fillRect(44, 50, 2, 8);
+      ctx.fillRect(50, 50, 2, 8);
+      paint(ctx, p, 'pelvis');
+      paint(ctx, p, 'torso', 'back');
+      paint(ctx, p, 'torso');
+    });
+    const arms: Texture[] = [],
+      hands: Texture[] = [],
+      upper: Texture[] = [],
+      lower: Texture[] = [],
+      knees: Texture[] = [],
+      feet: Texture[] = [];
+    for (let i = 0; i < 2; i++) {
+      const armParent = i === 0 ? 'armLeft' : 'armRight',
+        handParent = i === 0 ? 'handLeft' : 'handRight';
+      const armP = {
+        ...p,
+        arms: p.arms.map(() => ({
+          root: { x: 48, y: 64 },
+          joint: { x: 48, y: 74 },
+          end: { x: 48, y: 84 },
+          width: p.arms[i]!.width,
+        })),
+        hands: [
+          { x: 48, y: 84 },
+          { x: 48, y: 84 },
+        ],
+      };
+      const width = p.arms[i]!.width,
+        left = 48 - width / 2;
+      arms.push(
+        make({ x: 48, y: 64 }, (ctx) => {
+          // Parallel sides, a circular shoulder cap, and a straight 20px bone.
+          shape(
+            ctx,
+            (x, y) =>
+              (x >= left && x < left + width && y >= 64 && y <= 84) ||
+              Math.hypot(x - 48, y - 64) < width / 2,
+            skin,
+          );
+          if (!has('top'))
+            shape(
+              ctx,
+              (x, y) =>
+                (x >= left && x < left + width && y >= 64 && y <= 77) ||
+                Math.hypot(x - 48, y - 64) < width / 2,
+              config.palette.outfit,
+            );
+          paint(ctx, armP, armParent, 'back');
+          paint(ctx, armP, armParent);
+        }),
+      );
+      hands.push(
+        make({ x: 48, y: 84 }, (ctx) => {
+          const thumb = side ? 1 : i === 0 ? 1 : -1;
+          shape(
+            ctx,
+            (x, y) => {
+              const dx = (x - 48) * thumb,
+                dy = y - 84;
+              const palm =
+                dx >= -4 &&
+                dx <= 4 &&
+                dy >= -2 &&
+                dy <= 9 &&
+                Math.hypot(Math.max(0, Math.abs(dx) - 2), Math.max(0, Math.abs(dy - 3.5) - 3.5)) <=
+                  2;
+              return palm || ((dx - 3) / 3) ** 2 + ((dy - 2) / 3) ** 2 <= 1;
+            },
+            skin,
+          );
+          ctx.fillStyle = skin;
+          ctx.fillRect(46, 81, 4, 5);
+          paint(ctx, armP, handParent);
+        }),
+      );
+      const x = p.legs[i]!.root.x,
+        w = p.legs[i]!.width,
+        far = side && i === 0;
+      const color = far ? mix(c.colors.bottom, OUTLINE, 0.14) : c.colors.bottom;
+      const leg = canvas(),
+        lc = leg.getContext('2d')!;
+      rounded(lc, x - w / 2, 82, w, 28, Math.min(4, w / 2), skin);
+      if (!has('bottom')) rounded(lc, x - w / 2, 82, w, 28, Math.min(4, w / 2), color);
+      paint(lc, p, i === 0 ? 'legLeft' : 'legRight', 'back');
+      paint(lc, p, i === 0 ? 'legLeft' : 'legRight');
+      // Overlapping pre-cut rigid segments, plus a cached joint cap: no frame-time deformation.
+      upper.push(make({ x, y: 84 }, (ctx) => ctx.drawImage(leg, 0, 0, 96, 99, 0, 0, 96, 99)));
+      lower.push(make({ x, y: 96 }, (ctx) => ctx.drawImage(leg, 0, 94, 96, 34, 0, 94, 96, 34)));
+      knees.push(
+        make({ x, y: 96 }, (ctx) => {
+          ctx.drawImage(leg, x - w / 2 + 2, 94, w - 4, 4, x - w / 2 + 2, 94, w - 4, 4);
+        }),
+      );
+      feet.push(
+        make({ x, y: 108 }, (ctx) => {
+          rounded(
+            ctx,
+            x - (side ? 5 : 6),
+            106,
+            side ? 14 : 12,
+            7,
+            2,
+            far ? mix(config.palette.shoes, OUTLINE, 0.14) : config.palette.shoes,
+          );
+          paint(ctx, p, i === 0 ? 'footLeft' : 'footRight');
+        }),
+      );
+    }
+    prepared.set(dir, { torso, head, back, arms, hands, upper, lower, knees, feet });
+  }
+  return {
+    textureCount: 3 * 15,
+    draw(ctx, direction, animation, seconds) {
+      const assets = prepared.get(direction === 'west' ? 'east' : direction)!;
+      const m = editorMotion(c.build, direction, animation, seconds),
+        side = direction === 'east' || direction === 'west';
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      if (direction === 'west') {
+        ctx.translate(96, 0);
+        ctx.scale(-1, 1);
+      }
+      const body = (draw: () => void) => {
+        ctx.save();
+        ctx.translate(m.body.x, m.body.y);
+        ctx.rotate(m.body.rotation);
+        draw();
+        ctx.restore();
+      };
+      const arm = (i: number) => {
+        const a = m.arms[i]!,
+          h = m.hands[i]!;
+        ctx.save();
+        ctx.translate(a.x, a.y);
+        ctx.rotate(a.rotation);
+        drawTexture(ctx, assets.arms[i]!, 0, 0);
+        drawTexture(ctx, assets.hands[i]!, h.x, h.y);
+        ctx.restore();
+      };
+      body(() => drawTexture(ctx, assets.back, 0, -50));
+      if (side) body(() => arm(0));
+      for (let i = 0; i < 2; i++) {
+        const l = m.legs[i]!;
+        drawTexture(ctx, assets.lower[i]!, 48 + l.knee.x, l.knee.y, l.knee.rotation);
+        drawTexture(ctx, assets.upper[i]!, 48 + l.hip.x, l.hip.y, l.hip.rotation);
+        drawTexture(ctx, assets.knees[i]!, 48 + l.knee.x, l.knee.y, l.hip.rotation);
+        drawTexture(ctx, assets.feet[i]!, 48 + l.ankle.x, l.ankle.y, l.ankle.rotation);
+      }
+      body(() => {
+        drawTexture(ctx, assets.torso, 0, 0);
+        if (!side) arm(0);
+        arm(1);
+        drawTexture(ctx, assets.head, 0, -50);
+      });
+      ctx.restore();
+    },
+  };
+}
+/** Static inspection only; the visible editor animates the cached rig directly. */
+export async function loadEditorReview(config: AvatarConfig, signal: AbortSignal) {
+  const rig = await createEditorRig(config, signal),
+    sheet = document.createElement('canvas');
+  sheet.width = 576;
+  sheet.height = 512;
+  const ctx = sheet.getContext('2d')!;
+  for (const [row, direction] of DIRECTIONS.entries())
+    for (let frame = 0; frame < 6; frame++) {
+      ctx.save();
+      ctx.translate(frame * 96, row * 128);
+      rig.draw(
+        ctx,
+        direction,
+        frame >= 2 ? 'walk' : frame === 1 ? 'idle' : 'static',
+        frame >= 2 ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 1.5 : 0,
+      );
       ctx.restore();
     }
-  }
   return sheet;
 }

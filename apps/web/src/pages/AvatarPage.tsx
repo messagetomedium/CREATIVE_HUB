@@ -3,6 +3,7 @@ import type { AvatarConfig, AvatarCustomization, Direction } from '@creative-fac
 import { useAccount } from '../account/AccountProvider';
 import { safeAccountError } from '../account/service';
 import { avatarCatalog } from '../avatar/catalog';
+import { turnPreview } from '../avatar/editorMotion';
 import { EDITOR_SKIN_PALETTE } from '../avatar/editorReview';
 import { AvatarPreview } from '../avatar/AvatarPreview';
 import { ConstructorIcon, type ConstructorIconName } from '../avatar/ConstructorIcon';
@@ -24,7 +25,6 @@ import hairAtlasUrl from '../../../../content/avatars/modular/hair-indexed.png?u
 import { Notice } from '../components';
 import { importedChoice, importedThumbnail } from '../avatar/imported';
 
-const directions: Direction[] = ['north', 'east', 'south', 'west'];
 function EditorSection({
   number,
   title,
@@ -144,8 +144,7 @@ export function AvatarPage() {
     change({ ...config, palette: { ...config.palette, [key]: value } });
   const extraColor = (key: keyof AvatarCustomization['colors'], value: string) =>
     customize({ colors: { ...c.colors, [key]: value } });
-  const rotate = (offset: number) =>
-    setDirection(directions[(directions.indexOf(direction) + offset + 4) % 4]!);
+  const rotate = (turn: 'left' | 'right') => setDirection((value) => turnPreview(value, turn));
   async function save(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
@@ -426,7 +425,7 @@ export function AvatarPage() {
                 type="button"
                 aria-label="Повернуть влево"
                 title="Повернуть влево"
-                onClick={() => rotate(1)}
+                onClick={() => rotate('left')}
               >
                 <ConstructorIcon name="left" />
               </button>
@@ -452,7 +451,7 @@ export function AvatarPage() {
                 type="button"
                 aria-label="Повернуть вправо"
                 title="Повернуть вправо"
-                onClick={() => rotate(-1)}
+                onClick={() => rotate('right')}
               >
                 <ConstructorIcon name="right" />
               </button>

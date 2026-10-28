@@ -29,3 +29,27 @@ test('editor stance is symmetric with a fuller profile and a forward plant/backw
   expect(frames[3]!.y).toBeLessThan(frames[2]!.y);
   expect(EDITOR_SKIN_PALETTE).toHaveLength(12);
 });
+
+test('continuous editor rig rotates fixed length arms and legs and follows a smooth weight arc', async () => {
+  const { editorMotion, WALK_SECONDS, turnPreview } = await import('./editorMotion');
+  expect(turnPreview('south', 'left')).toBe('east');
+  expect(turnPreview('south', 'right')).toBe('west');
+  for (const dir of ['east', 'west', 'south', 'north'] as const)
+    for (let i = 0; i <= 120; i++) {
+      const m = editorMotion('average', dir, 'walk', (i * WALK_SECONDS) / 120);
+      for (const l of m.legs) {
+        expect(Math.hypot(l.knee.x - l.hip.x, l.knee.y - l.hip.y)).toBeCloseTo(12, 6);
+        expect(Math.hypot(l.ankle.x - l.knee.x, l.ankle.y - l.knee.y)).toBeCloseTo(12, 6);
+      }
+      if (dir === 'east') expect(m.arms[1]!.x).toBeLessThan(0);
+    }
+  const down = editorMotion('average', 'east', 'walk', WALK_SECONDS / 8),
+    up = editorMotion('average', 'east', 'walk', (3 * WALK_SECONDS) / 8);
+  expect(down.body.y).toBeGreaterThan(84);
+  expect(up.body.y).toBeLessThan(84);
+  const contact = editorMotion('average', 'east', 'walk', 0).legs[0]!.ankle;
+  const passing = editorMotion('average', 'east', 'walk', WALK_SECONDS / 4).legs[0]!.ankle;
+  expect(contact.y).toBeCloseTo(108);
+  expect(passing.y).toBeCloseTo(108);
+  expect(passing.x).toBeLessThan(contact.x);
+});

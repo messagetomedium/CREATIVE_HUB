@@ -570,3 +570,84 @@ test('editor approval body has two pixel contours, rigid breathing hair and equa
   expect(result.edge[1]).toEqual(result.edge[0]);
   expect(result.edge[2]).not.toEqual(result.edge[0]);
 });
+
+test('live editor rig only moves cached textures and keeps front/back height equal', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  const result = await page.evaluate(async () => {
+    const { createEditorRig, loadEditorReview } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const config = updateConstructor(avatarCatalog.defaultAvatar, {
+      gender: 'female',
+      hair: { female: 1, male: 1 },
+      special: null,
+    });
+    const rig = await createEditorRig(config, new AbortController().signal);
+    const c = document.createElement('canvas');
+    c.width = 96;
+    c.height = 128;
+    const ctx = c.getContext('2d')!;
+    let rasterCalls = 0;
+    const images = new Set<CanvasImageSource>();
+    const original = ctx.drawImage.bind(ctx);
+    ctx.drawImage = ((...args: Parameters<CanvasRenderingContext2D['drawImage']>) => {
+      images.add(args[0]);
+      return original(...args);
+    }) as typeof ctx.drawImage;
+    ctx.fillRect = () => {
+      rasterCalls++;
+    };
+    ctx.putImageData = () => {
+      rasterCalls++;
+    };
+    for (let i = 0; i < 120; i++) {
+      ctx.clearRect(0, 0, 96, 128);
+      rig.draw(ctx, 'east', 'walk', i / 60);
+    }
+    const sourceCount = images.size;
+    for (let i = 120; i < 240; i++) {
+      ctx.clearRect(0, 0, 96, 128);
+      rig.draw(ctx, 'east', 'walk', i / 60);
+    }
+    const sameSources = images.size === sourceCount;
+    const heights = [];
+    for (const slot of [1, 2, 3, 4]) {
+      const sheet = await loadEditorReview(
+        updateConstructor(config, { hair: { female: slot, male: 1 } }),
+        new AbortController().signal,
+      );
+      const s = sheet.getContext('2d')!;
+      heights.push(
+        [0, 2].map((row) => {
+          const data = s.getImageData(0, row * 128, 96, 128).data;
+          let top = 128,
+            bottom = 0;
+          for (let y = 0; y < 128; y++)
+            for (let x = 0; x < 96; x++)
+              if (data[(y * 96 + x) * 4 + 3]) {
+                top = Math.min(top, y);
+                bottom = Math.max(bottom, y);
+              }
+          return bottom - top;
+        }),
+      );
+    }
+    return {
+      rasterCalls,
+      sameSources,
+      sourceCount,
+      heights,
+      transform: ctx.getTransform().isIdentity,
+    };
+  });
+  expect(result.rasterCalls).toBe(0);
+  expect(result.sameSources).toBe(true);
+  expect(result.sourceCount).toBeGreaterThan(8);
+  expect(result.transform).toBe(true);
+  for (const [back, front] of result.heights) expect(back).toBe(front);
+});
