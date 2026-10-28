@@ -41,8 +41,8 @@ try {
       walls: createWallSheet(art).toDataURL('image/png').split(',')[1],
       layout: {
         avatar: {
-          frameWidth: 48,
-          frameHeight: 64,
+          frameWidth: avatarCatalog.sprite.frameWidth,
+          frameHeight: avatarCatalog.sprite.frameHeight,
           columns: 6,
           rows: 4,
           anchor: avatarCatalog.sprite.anchor,
@@ -64,7 +64,7 @@ try {
     path.join(output, 'layout.json'),
     await format(JSON.stringify(exported.layout), { parser: 'json' }),
   );
-  console.log('Reference sheets exported: avatar 288×256, props 640×384, walls 128×64.');
+  console.log('Reference sheets exported: avatar 576×512, props 640×384, walls 128×64.');
 } finally {
   await browser.close();
 }

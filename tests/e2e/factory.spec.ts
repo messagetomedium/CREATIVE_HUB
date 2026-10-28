@@ -57,7 +57,7 @@ test('upright feet anchor, shared textures and real occlusion in front of/behind
   expect(first.rendering.projection).toBe('three-quarter');
   expect(first.rendering.origin).toEqual({ x: 0.5, y: 0.875 });
   expect(first.rendering.textures).toEqual([
-    { key: 'avatar', width: 288, height: 256 },
+    { key: 'avatar', width: 576, height: 512 },
     { key: 'props', width: 640, height: 384 },
     { key: 'walls', width: 128, height: 64 },
   ]);

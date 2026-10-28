@@ -39,12 +39,12 @@ describe('replaceable 3/4 art contracts', () => {
       wallFrame(false, false),
     ]).toEqual([0, 1, 2, 3]);
   });
-  test('avatar sheets have four upright rows, 48×64 frames and common feet anchor', () => {
+  test('avatar sheets have four upright rows, 96×128 frames and common feet anchor', () => {
     const catalog = AvatarCatalogSchema.parse(avatarSource);
     expect(catalog.sprite).toMatchObject({
-      frameWidth: 48,
-      frameHeight: 64,
-      anchor: { x: 24, y: 56 },
+      frameWidth: 96,
+      frameHeight: 128,
+      anchor: { x: 48, y: 112 },
     });
     expect(catalog.defaultAvatar.catalogVersion).toBe(1);
     expect(

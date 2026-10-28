@@ -68,8 +68,8 @@
       "kind": "procedural",
       "id": "factory-worker-blockout-v2"
     },
-    "frameWidth": 48,
-    "frameHeight": 64,
+    "frameWidth": 96,
+    "frameHeight": 128,
     "animations": {
       "north": {
         "idle": [0, 1],
@@ -89,8 +89,8 @@
       }
     },
     "anchor": {
-      "x": 24,
-      "y": 56
+      "x": 48,
+      "y": 112
     }
   }
 }

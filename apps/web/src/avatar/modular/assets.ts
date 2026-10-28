@@ -43,7 +43,7 @@ export async function loadParts(
           original.height = image.height;
           original.getContext('2d')!.drawImage(image, 0, 0);
           pixelsCache.set(d.source, original);
-          if (pixelsCache.size > 32) pixelsCache.delete(pixelsCache.keys().next().value!);
+          if (pixelsCache.size > 16) pixelsCache.delete(pixelsCache.keys().next().value!);
         } finally {
           image.close();
         }
@@ -95,9 +95,48 @@ export async function loadHairAtlas(signal: AbortSignal) {
         if (image.width !== 128 || image.height !== 128)
           throw new Error('Неверный размер каталога причёсок');
         const c = document.createElement('canvas');
-        c.width = 128;
-        c.height = 128;
-        c.getContext('2d')!.drawImage(image, 0, 0);
+        c.width = 256;
+        c.height = 256;
+        const ctx = c.getContext('2d')!;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(image, 0, 0, 256, 256);
+        // Compatibility copy only: retain the legacy design, reduce its outer
+        // doubled contour to one native pixel. Artistic originals stay unchanged.
+        const pixels = ctx.getImageData(0, 0, 256, 256),
+          original = new Uint8ClampedArray(pixels.data);
+        const opaque = (x: number, y: number) =>
+          x >= 0 && x < 256 && y >= 0 && y < 256 && original[(y * 256 + x) * 4 + 3] === 255;
+        for (let y = 1; y < 255; y++)
+          for (let x = 1; x < 255; x++) {
+            const at = (y * 256 + x) * 4;
+            if (
+              original[at] !== 32 ||
+              !opaque(x, y) ||
+              !opaque(x - 1, y) ||
+              !opaque(x + 1, y) ||
+              !opaque(x, y - 1) ||
+              !opaque(x, y + 1)
+            )
+              continue;
+            if (opaque(x - 2, y) && opaque(x + 2, y) && opaque(x, y - 2) && opaque(x, y + 2))
+              continue;
+            let value = 80;
+            outer: for (let r = 1; r <= 3; r++)
+              for (const [dx, dy] of [
+                [r, 0],
+                [-r, 0],
+                [0, r],
+                [0, -r],
+              ]) {
+                const q = ((y + dy!) * 256 + x + dx!) * 4;
+                if (opaque(x + dx!, y + dy!) && original[q]! > 32) {
+                  value = original[q]!;
+                  break outer;
+                }
+              }
+            pixels.data[at] = pixels.data[at + 1] = pixels.data[at + 2] = value;
+          }
+        ctx.putImageData(pixels, 0, 0);
         atlas = c;
         return c;
       } finally {

@@ -10,6 +10,7 @@ export function makeAvatar(
   const { frameWidth: w, frameHeight: h } = catalog.sprite;
   const texture = scene.textures.addCanvas('avatar', surface);
   if (!texture) throw new Error('Не удалось создать атлас персонажа');
+  texture.setFilter(1); // NEAREST: native one-pixel artwork, independent of other canvas draws.
   for (let row = 0; row < 4; row++)
     for (let frame = 0; frame < 6; frame++)
       texture.add(row * 6 + frame, 0, frame * w, row * h, w, h);

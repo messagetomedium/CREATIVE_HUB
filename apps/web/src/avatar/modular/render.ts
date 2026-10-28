@@ -1,9 +1,11 @@
 import type { AvatarConfig, AvatarCatalog } from '@creative-factory/contracts';
 import { constructorChoices, appearanceKey } from '../editor';
-import { DIRECTIONS, pose, type Point, type Limb, type Pose } from './rig';
+import { DIRECTIONS, FRAME, CACHE_LIMIT, pose, type Point, type Pose } from './rig';
 import { shades, mix, colorMask } from './materials';
 import type { ModularPart } from './parts';
 import { hairPlacement } from './hair';
+import { FACE_ANCHORS, parentPoint } from './rig';
+import { box, polygon, oval, limbShape } from './raster';
 export interface PartImage {
   descriptor: ModularPart & { selection?: { field: string; slot?: number } };
   image: HTMLCanvasElement;
@@ -13,340 +15,197 @@ export interface AssemblyOptions {
   parts?: PartImage[];
   bodyOnly?: boolean;
 }
-// Native-pixel raster operations: no floating-point Canvas rotations or antialiased outlines.
-function polygon(ctx: CanvasRenderingContext2D, points: Point[], color: string, outline: string) {
-  const inside = (x: number, y: number) => {
-    let yes = false;
-    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-      const a = points[i]!,
-        b = points[j]!;
-      if (a.y > y !== b.y > y && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) yes = !yes;
-    }
-    return yes;
-  };
-  const minX = Math.min(...points.map((p) => p.x)) - 1,
-    maxX = Math.max(...points.map((p) => p.x)) + 1,
-    minY = Math.min(...points.map((p) => p.y)) - 1,
-    maxY = Math.max(...points.map((p) => p.y)) + 1;
-  for (let y = minY; y <= maxY; y++)
-    for (let x = minX; x <= maxX; x++)
-      if (inside(x + 0.5, y + 0.5)) {
-        ctx.fillStyle =
-          inside(x - 0.5, y + 0.5) &&
-          inside(x + 1.5, y + 0.5) &&
-          inside(x + 0.5, y - 0.5) &&
-          inside(x + 0.5, y + 1.5)
-            ? color
-            : outline;
-        ctx.fillRect(x, y, 1, 1);
-      }
+export { parentPoint } from './rig';
+export function renderNeck(ctx: CanvasRenderingContext2D, p: Pose, pal: string[]) {
+  box(ctx, 44, 51 + p.bob, 8, 12, pal[3]!);
+  box(ctx, 44, 51 + p.bob, 1, 8, pal[0]!);
+  box(ctx, 51, 51 + p.bob, 1, 8, pal[0]!);
 }
-function segment(
-  ctx: CanvasRenderingContext2D,
-  a: Point,
-  b: Point,
-  width: number,
-  color: string,
-  outline: string,
-) {
-  const dx = b.x - a.x,
-    dy = b.y - a.y,
-    length = Math.max(1, Math.hypot(dx, dy)),
-    nx = Math.round(((dy / length) * (width + 2)) / 2),
-    ny = Math.round(((-dx / length) * (width + 2)) / 2);
+function torso(ctx: CanvasRenderingContext2D, p: Pose, pal: string[], clothes = false) {
+  const w = p.torsoWidth + (clothes ? 2 : 0),
+    waist = (p.side ? Math.round(p.shape.waist * 0.65) : p.shape.waist) + (clothes ? 2 : 0),
+    hip = p.hipWidth;
   polygon(
     ctx,
     [
-      { x: a.x + nx, y: a.y + ny },
-      { x: b.x + nx, y: b.y + ny + 1 },
-      { x: b.x - nx, y: b.y - ny + 1 },
-      { x: a.x - nx, y: a.y - ny },
-    ],
-    color,
-    outline,
+      [-w / 2 + 3, 58],
+      [w / 2 - 3, 58],
+      [w / 2, 61],
+      [waist / 2, 76],
+      [hip / 2, clothes ? 83 : 88],
+      [-hip / 2, clothes ? 83 : 88],
+      [-waist / 2, 76],
+      [-w / 2, 61],
+    ].map(([x, y]) => ({ x: 48 + x!, y: y! + p.bob })),
+    pal[3]!,
+    pal[0]!,
   );
+  if (!clothes) {
+    renderNeck(ctx, p, pal);
+  } else if (p.direction !== 'north') box(ctx, 48, 63 + p.bob, 1, 14, pal[1]!);
 }
-function box(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, c: string) {
-  ctx.fillStyle = c;
-  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
-}
-function oval(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  rx: number,
-  ry: number,
-  color: string,
-  outline: string,
-) {
-  const pts = [
-    [-rx + 3, -ry],
-    [rx - 3, -ry],
-    [rx, -ry + 4],
-    [rx, ry - 4],
-    [rx - 4, ry],
-    [-rx + 4, ry],
-    [-rx, ry - 4],
-    [-rx, -ry + 4],
-  ].map(([dx, dy]) => ({ x: x + dx!, y: y + dy! }));
-  polygon(ctx, pts, color, outline);
-}
-function limb(
-  ctx: CanvasRenderingContext2D,
-  l: Limb,
-  skin: string[],
-  cloth: string[] | null,
-  kind: 'arm' | 'leg',
-  shoes: string[] | null,
-  far = false,
-  drawSkin = true,
-) {
-  const col = far ? skin[2]! : skin[3]!,
-    line = skin[0]!;
-  if (drawSkin) segment(ctx, l.root, l.end, l.width, col, line);
-  if (cloth) {
-    const end =
-      kind === 'arm'
-        ? { x: Math.round((l.joint.x + l.end.x) / 2), y: Math.round((l.joint.y + l.end.y) / 2) }
-        : l.end;
-    segment(ctx, l.root, end, l.width + 1, cloth[far ? 2 : 3]!, cloth[0]!);
+function head(ctx: CanvasRenderingContext2D, p: Pose, pal: string[], ears = true) {
+  oval(ctx, 48, p.head.y, 20, 20, pal[3]!, pal[0]!);
+  box(ctx, 38, p.head.y - 16, 14, 1, pal[4]!);
+  if (ears && !p.side && p.direction !== 'north') {
+    box(ctx, 26, p.head.y, 4, 9, pal[2]!);
+    box(ctx, 66, p.head.y, 4, 9, pal[2]!);
   }
-  if (kind === 'leg' && (drawSkin || shoes)) {
-    box(ctx, l.end.x - 3, l.end.y - 1, 6, 3, line);
-    box(ctx, l.end.x - 2, l.end.y, 4, 1, shoes?.[3] ?? col);
-  }
+  if (ears && p.side) ear(ctx, p, pal);
 }
-function bodyTorso(
-  ctx: CanvasRenderingContext2D,
-  p: Pose,
-  skin: string[],
-  top: string[] | null,
-  bottom: string[] | null,
-  drawSkin = true,
-) {
-  const y = p.bob,
-    waist = p.side ? Math.round(p.shape.waist * 0.65) : p.shape.waist;
-  if (drawSkin)
-    polygon(
-      ctx,
-      [
-        { x: 24 - p.torsoWidth / 2, y: 29 + y },
-        { x: 24 + p.torsoWidth / 2, y: 29 + y },
-        { x: 24 + waist / 2, y: 38 + y },
-        { x: 24 + p.hipWidth / 2, y: 44 + y },
-        { x: 24 - p.hipWidth / 2, y: 44 + y },
-        { x: 24 - waist / 2, y: 38 + y },
-      ].map((a) => ({ x: Math.round(a.x), y: a.y })),
-      skin[3]!,
-      skin[0]!,
-    );
-  if (bottom)
-    polygon(
-      ctx,
-      [
-        { x: 24 - p.hipWidth / 2, y: 40 + y },
-        { x: 24 + p.hipWidth / 2, y: 40 + y },
-        { x: 24 + p.hipWidth / 2, y: 44 + y },
-        { x: 24 - p.hipWidth / 2, y: 44 + y },
-      ],
-      bottom[3]!,
-      bottom[0]!,
-    );
-  if (top) {
-    polygon(
-      ctx,
-      [
-        { x: 24 - p.torsoWidth / 2 - 1, y: 29 + y },
-        { x: 24 + p.torsoWidth / 2 + 1, y: 29 + y },
-        { x: 24 + waist / 2 + 1, y: 41 + y },
-        { x: 24 - waist / 2 - 1, y: 41 + y },
-      ].map((a) => ({ x: Math.round(a.x), y: a.y })),
-      top[3]!,
-      top[0]!,
-    );
-    if (p.direction !== 'north') box(ctx, 24, 31 + y, 1, 8, top[1]!);
-  }
-  if (drawSkin) box(ctx, 22, 26 + y, 4, 5, skin[2]!);
-}
-function profileEar(ctx: CanvasRenderingContext2D, p: Pose, skin: string[]) {
+function ear(ctx: CanvasRenderingContext2D, p: Pose, pal: string[]) {
   if (!p.side) return;
-  const x = p.direction === 'east' ? 21 : 24,
-    y = p.head.y + 1;
-  box(ctx, x, y, 3, 5, skin[0]!);
-  box(ctx, x + (p.direction === 'east' ? 1 : 0), y + 1, 2, 3, skin[3]!);
+  const x = p.direction === 'east' ? 42 : 48,
+    y = p.head.y + 2;
+  polygon(
+    ctx,
+    [
+      { x, y },
+      { x: x + 5, y: y + 1 },
+      { x: x + 5, y: y + 8 },
+      { x: x + 1, y: y + 9 },
+      { x, y: y + 7 },
+    ],
+    pal[3]!,
+    pal[0]!,
+  );
+  box(ctx, x + (p.direction === 'east' ? 2 : 1), y + 3, 2, 3, pal[2]!);
 }
-function headSkin(ctx: CanvasRenderingContext2D, p: Pose, skin: string[]) {
-  const y = p.head.y - 17;
-  oval(ctx, 24, p.head.y, 10, 10, skin[3]!, skin[0]!);
-  if (!p.side && p.direction !== 'north') {
-    box(ctx, 13, 17 + y, 2, 5, skin[2]!);
-    box(ctx, 33, 17 + y, 2, 5, skin[2]!);
-  }
-  box(ctx, 19, 9 + y, 8, 1, skin[4]!);
+function hand(ctx: CanvasRenderingContext2D, p: Pose, index: number, pal: string[]) {
+  const a = p.arms[index]!,
+    root = a.end,
+    dx = a.end.x - a.root.x,
+    dy = a.end.y - a.root.y,
+    len = Math.hypot(dx, dy),
+    ux = dy / len,
+    uy = -dx / len,
+    vx = dx / len,
+    vy = dy / len;
+  const thumb = p.side ? (p.direction === 'east' ? 1 : -1) : index === 0 ? 1 : -1;
+  const points = [
+    [-3, -2],
+    [3, -2],
+    [3, 1],
+    [5, 2],
+    [5, 5],
+    [3, 5],
+    [3, 8],
+    [-3, 8],
+    [-4, 5],
+  ].map(([rawX, y]) => {
+    const x = rawX! * thumb;
+    return { x: Math.round(root.x + x * ux + y! * vx), y: Math.round(root.y + x * uy + y! * vy) };
+  });
+  polygon(ctx, points, pal[3]!, pal[0]!);
 }
-/** Canonical source surfaces, also used by the artist-template exporter. */
+function foot(ctx: CanvasRenderingContext2D, p: Pose, index: number, pal: string[], shoe = false) {
+  const pt = p.feet[index]!,
+    east = p.direction === 'east',
+    west = p.direction === 'west';
+  let points: Point[];
+  if (p.side) {
+    const min = shoe ? -7 : -5,
+      max = shoe ? 15 : 10;
+    points = [
+      [min, -2],
+      [max - 3, -2],
+      [max, 1],
+      [max, 4],
+      [min, 4],
+    ].map(([x, y]) => ({ x: pt.x + x! * (west ? -1 : 1), y: pt.y + y! }));
+  } else
+    points = [
+      [-5, -2],
+      [4, -2],
+      [6, 1],
+      [6, 4],
+      [-6, 4],
+      [-6, 0],
+    ].map(([x, y]) => ({ x: pt.x + x!, y: pt.y + y! }));
+  polygon(ctx, points, pal[3]!, pal[0]!);
+  if (shoe)
+    box(ctx, pt.x + (p.side ? (east ? -6 : -14) : -5), pt.y + 2, p.side ? 20 : 10, 1, pal[1]!);
+}
 export function renderBaseModule(
   ctx: CanvasRenderingContext2D,
   p: Pose,
   parent: string,
-  skin: string[],
+  pal: string[],
 ) {
-  if (parent === 'head') {
-    headSkin(ctx, p, skin);
-    profileEar(ctx, p, skin);
-  } else if (parent === 'torso') bodyTorso(ctx, p, skin, null, null);
-  else if (parent.startsWith('arm'))
-    limb(ctx, p.arms[parent === 'armLeft' ? 0 : 1]!, skin, null, 'arm', null);
-  else if (parent.startsWith('leg'))
-    limb(ctx, p.legs[parent === 'legLeft' ? 0 : 1]!, skin, null, 'leg', null);
-}
-function face(
-  ctx: CanvasRenderingContext2D,
-  p: Pose,
-  config: AvatarConfig,
-  skin: string[],
-  eyes = true,
-  mouth = true,
-  skipEffects: number[] = [],
-  drawSkin = true,
-) {
-  const y = p.head.y - 17,
-    c = constructorChoices(config),
-    back = p.direction === 'north',
-    side = p.side;
-  if (drawSkin) headSkin(ctx, p, skin);
-  if (!back) {
-    const eyeHeight = c.eyes === 1 ? 4 : 3;
-    if (eyes && side) box(ctx, p.direction === 'west' ? 17 : 29, 16 + y, 2, eyeHeight, skin[0]!);
-    else if (eyes) {
-      box(ctx, 19, 16 + y, 2, eyeHeight, skin[0]!);
-      box(ctx, 27, 16 + y, 2, eyeHeight, skin[0]!);
-    }
-    if (mouth)
-      box(
-        ctx,
-        side ? (p.direction === 'west' ? 15 : 31) : 23,
-        23 + y,
-        2,
-        1,
-        mix(config.palette.skin, '#a05a54', 0.5),
-      );
-    for (const id of c.faceFeatures.filter((id) => !skipEffects.includes(id))) {
-      const pigment = id === 1 || id === 2 ? '#503628' : id === 4 ? '#5e5d73' : '#b5625a';
-      ctx.globalAlpha = id === 1 ? 0.55 : 0.25;
-      ctx.fillStyle = mix(config.palette.skin, pigment, 0.5);
-      if (id === 1) {
-        for (const x of [17, 20, 27, 30]) ctx.fillRect(x, 21 + y, 1, 1);
-      } else if (id === 2) ctx.fillRect(side ? 29 : 29, 22 + y, 1, 1);
-      else {
-        ctx.fillRect(side ? (p.direction === 'west' ? 16 : 28) : 16, 21 + y, 4, 2);
-        if (!side) ctx.fillRect(28, 21 + y, 4, 2);
-      }
-      ctx.globalAlpha = 1;
-    }
-  }
-}
-function fallbackHair(ctx: CanvasRenderingContext2D, p: Pose, color: string, style: string) {
-  const pal = shades(color),
-    y = p.head.y - 17;
-  box(ctx, 15, 7 + y, 18, 5, pal[0]!);
-  box(ctx, 16, 8 + y, 16, 4, pal[3]!);
-  if (p.direction === 'north') box(ctx, 15, 12 + y, 18, 10, pal[3]!);
-  if (style === 'bob-01') {
-    if (p.direction !== 'west') box(ctx, 13, 11 + y, 3, 17, pal[0]!);
-    if (p.direction !== 'east') box(ctx, 32, 11 + y, 3, 17, pal[0]!);
-  }
-  if (style === 'curls-01') {
-    for (const x of [14, 19, 24, 29]) {
-      box(ctx, x, 5 + y, 5, 5, pal[0]!);
-      box(ctx, x + 1, 6 + y, 3, 3, pal[3]!);
-    }
-  }
-}
-function hairPass(
-  ctx: CanvasRenderingContext2D,
-  p: Pose,
-  hair: HTMLCanvasElement,
-  slot: number,
-  pass: 'back' | 'front',
-) {
-  if (slot > 4) return;
-  const { row, mirror, anchor, scaleY } = hairPlacement(slot, p.direction);
-  const sx = (slot - 1) * 32,
-    y = p.head.y - 17;
-  ctx.save();
-  if (mirror) {
-    ctx.translate(48, 0);
-    ctx.scale(-1, 1);
-  }
-  ctx.beginPath();
-  if (p.side) {
-    // A true profile: rear hair mass and crown, with the forward half of the face open.
-    ctx.rect(0, 0, 48, 14 + y);
-    ctx.rect(0, 14 + y, 25, 50);
-  } else if (pass === 'back' || p.direction === 'north') ctx.rect(0, 0, 48, 64);
+  if (parent === 'head') head(ctx, p, pal);
+  else if (parent === 'torso') torso(ctx, p, pal);
   else {
-    ctx.rect(0, 0, 48, 15 + y);
-    ctx.rect(0, 15 + y, 16, 49);
-    ctx.rect(32, 15 + y, 16, 49);
+    const i = parent.endsWith('Left') ? 0 : 1;
+    if (parent.startsWith('arm')) limbShape(ctx, p.arms[i]!, pal[3]!, pal[0]!);
+    else if (parent.startsWith('leg')) limbShape(ctx, p.legs[i]!, pal[3]!, pal[0]!);
+    else if (parent.startsWith('hand')) hand(ctx, p, i, pal);
+    else if (parent.startsWith('foot')) foot(ctx, p, i, pal);
   }
-  ctx.clip();
-  if (p.direction === 'north' && pass === 'front') {
-    const pixel = hair.getContext('2d')!.getImageData(sx + 16, 16, 1, 1).data;
-    const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
-    oval(ctx, p.head.x, p.head.y, 10, 10, color, '#352b35');
-  }
-  // Ignore stray pixels on the left edge of the generated source cell.
-  ctx.drawImage(
-    hair,
-    sx + 3,
-    row * 32,
-    29,
-    32,
-    p.head.x - anchor.x + 3,
-    Math.round(p.head.y - anchor.y * scaleY),
-    29,
-    Math.round(32 * scaleY),
-  );
-  ctx.restore();
 }
-function attachedLimb(
+function sampleLimb(
   ctx: CanvasRenderingContext2D,
   p: Pose,
   part: PartImage,
-  sourceFrame: number,
+  frame: number,
   off: Point,
 ) {
   const d = part.descriptor,
     arm = d.parent.startsWith('arm'),
-    l = arm ? p.arms[d.parent === 'armLeft' ? 0 : 1]! : p.legs[d.parent === 'legLeft' ? 0 : 1]!;
-  const pixels = part.image
+    l = arm
+      ? p.arms[d.parent.endsWith('Left') ? 0 : 1]!
+      : p.legs[d.parent.endsWith('Left') ? 0 : 1]!,
+    points = [l.root, l.joint, l.end];
+  const data = part.image
     .getContext('2d')!
-    .getImageData(0, sourceFrame * d.frameHeight, d.frameWidth, d.frameHeight).data;
-  const dx = l.end.x - l.root.x,
-    dy = l.end.y - l.root.y,
-    length = Math.max(1, Math.hypot(dx, dy)),
-    ux = dy / length,
-    uy = -dx / length,
-    vx = dx / length,
-    vy = dy / length,
-    reference = d.referenceWidth?.[p.side ? 'side' : 'front'] ?? d.frameWidth - 2,
-    scaleX = (l.width + (d.referenceWidth ? 0 : 2)) / reference,
-    mirror = Boolean(d.mirrorX) !== (d.mirrorWest && p.direction === 'west'),
-    radius = d.frameWidth * scaleX + d.frameHeight;
-  // One rigid arm including the hand; legs are translated intact. Sampling in
-  // destination pixel space avoids antialiased rotations and resampling seams.
+    .getImageData(0, frame * d.frameHeight, d.frameWidth, d.frameHeight).data;
+  const lengths = points
+      .slice(0, 2)
+      .map((a, i) => Math.hypot(points[i + 1]!.x - a.x, points[i + 1]!.y - a.y)),
+    total = lengths[0]! + lengths[1]!,
+    canonical = arm ? 20 : 24;
+  const reference = d.referenceWidth?.[p.side ? 'side' : 'front'] ?? l.width,
+    scale = l.width / reference,
+    mirror =
+      (Boolean(d.mirrorX) !== (d.mirrorWest && p.direction === 'west')) !==
+      (d.pairMirror && !p.side);
+  const radius = d.frameWidth * scale + d.frameHeight;
   for (let y = Math.floor(l.root.y - radius); y <= l.root.y + radius; y++)
     for (let x = Math.floor(l.root.x - radius); x <= l.root.x + radius; x++) {
-      const px = x - l.root.x - off.x,
-        py = y - l.root.y - off.y;
-      let sx = Math.floor(d.anchor.x + ((px * ux + py * uy) / scaleX) * (mirror ? -1 : 1));
-      const sy = Math.floor(d.anchor.y + px * vx + py * vy);
+      const px = x + 0.5 - off.x,
+        py = y + 0.5 - off.y;
+      let best = { distance: Infinity, normal: 0, travel: 0 };
+      for (let i = 0; i < 2; i++) {
+        const a = points[i]!,
+          b = points[i + 1]!,
+          dx = b.x - a.x,
+          dy = b.y - a.y,
+          len = lengths[i]!,
+          raw = ((px - a.x) * dx + (py - a.y) * dy) / (len * len),
+          t = Math.max(
+            i === 0 ? -d.anchor.y / canonical : 0,
+            Math.min(i === 1 ? 1 + (d.frameHeight - d.anchor.y - canonical) / canonical : 1, raw),
+          ),
+          distance = Math.hypot(px - a.x - t * dx, py - a.y - t * dy);
+        if (distance < best.distance)
+          best = {
+            distance,
+            normal: ((px - a.x) * dy - (py - a.y) * dx) / len,
+            travel: (i === 0 ? 0 : lengths[0]!) + t * len,
+          };
+      }
+      const progress = Math.max(0, Math.min(1, best.travel / total));
+      const localScale =
+        l.tipWidth === undefined
+          ? scale
+          : (l.width + (l.tipWidth - l.width) * progress) /
+            (reference + (l.tipWidth - reference) * progress);
+      const sx = Math.floor(d.anchor.x + ((mirror ? -1 : 1) * best.normal) / localScale),
+        sy = Math.floor(d.anchor.y + (best.travel / total) * canonical);
       if (sx < 0 || sx >= d.frameWidth || sy < 0 || sy >= d.frameHeight) continue;
       const at = (sy * d.frameWidth + sx) * 4,
-        alpha = pixels[at + 3]!;
-      if (!alpha) continue;
-      ctx.fillStyle = `rgba(${pixels[at]},${pixels[at + 1]},${pixels[at + 2]},${alpha / 255})`;
+        a = data[at + 3]!;
+      if (!a) continue;
+      ctx.fillStyle = `rgba(${data[at]},${data[at + 1]},${data[at + 2]},${a / 255})`;
       ctx.fillRect(x, y, 1, 1);
     }
 }
@@ -354,103 +213,164 @@ export function attachPart(ctx: CanvasRenderingContext2D, p: Pose, part: PartIma
   const d = part.descriptor;
   if (d.sync === 'static') p = pose(p.build, p.direction, 0);
   const row = DIRECTIONS.indexOf(p.direction),
-    override = d.overrides.find((o) => o.direction === p.direction && o.phase === p.frame);
-  const parent: Point =
-    d.parent === 'head'
-      ? p.head
-      : d.parent === 'torso'
-        ? p.torso
-        : d.parent === 'pelvis'
-          ? p.pelvis
-          : d.parent === 'armLeft'
-            ? p.arms[0]!.root
-            : d.parent === 'armRight'
-              ? p.arms[1]!.root
-              : d.parent === 'legLeft'
-                ? p.legs[0]!.root
-                : d.parent === 'legRight'
-                  ? p.legs[1]!.root
-                  : d.parent === 'handLeft'
-                    ? p.arms[0]!.end
-                    : d.parent === 'handRight'
-                      ? p.arms[1]!.end
-                      : d.parent === 'footLeft'
-                        ? p.legs[0]!.end
-                        : p.legs[1]!.end;
-  const width =
-    d.fit === 'torso'
-      ? (d.frameWidth * p.torsoWidth) /
-        (d.referenceWidth?.[p.side ? 'side' : 'front'] ?? d.frameWidth)
-      : d.fit === 'pelvis'
-        ? (d.frameWidth * p.hipWidth) /
-          (d.referenceWidth?.[p.side ? 'side' : 'front'] ?? d.frameWidth)
-        : d.fit === 'limb'
-          ? p.shape.arm + 2
-          : d.frameWidth;
+    override = d.overrides.find((o) => o.direction === p.direction && o.phase === p.frame),
+    frame = override?.sourceFrame ?? (d.mirrorWest && row === 3 ? 1 : row),
+    parent = parentPoint(p, d.parent),
+    off = override?.offset ?? d.offset;
   const extra =
     d.secondary?.mode === 'keyframes'
-      ? d.secondary.offsets[
-          Math.floor(
-            ((p.frame % d.secondary.period) / d.secondary.period) * d.secondary.offsets.length,
-          )
-        ]
+      ? d.secondary.offsets[p.frame % d.secondary.offsets.length]
       : undefined;
-  const off = override?.offset ?? d.offset,
-    frame = override?.sourceFrame ?? (d.mirrorWest && row === 3 ? 1 : row);
-  if (d.fit === 'limb' && ['armLeft', 'armRight', 'legLeft', 'legRight'].includes(d.parent)) {
-    attachedLimb(ctx, p, part, frame, { x: off.x + (extra?.x ?? 0), y: off.y + (extra?.y ?? 0) });
+  const offset = { x: off.x + (extra?.x ?? 0), y: off.y + (extra?.y ?? 0) };
+  if (d.fit === 'limb') {
+    sampleLimb(ctx, p, part, frame, offset);
     return;
   }
+  ctx.save();
   ctx.imageSmoothingEnabled = false;
+  const mirror =
+    (Boolean(d.mirrorX) !== (d.mirrorWest && p.direction === 'west')) !== (d.pairMirror && !p.side);
+  if (mirror) {
+    ctx.translate(parent.x * 2, 0);
+    ctx.scale(-1, 1);
+  }
   if (d.fit === 'torso' && d.referenceWidth) {
     const neutral = pose('average', p.direction, 0);
-    const waist = (shape: Pose) =>
-      shape.side ? Math.round(shape.shape.waist * 0.65) : shape.shape.waist;
-    const localWidth = (shape: Pose, y: number) => {
-      if (y < 29) return 4;
-      if (y < 38) return shape.torsoWidth + ((waist(shape) - shape.torsoWidth) * (y - 29)) / 9;
-      return waist(shape) + (shape.hipWidth - waist(shape)) * Math.min(1, (y - 38) / 6);
+    const localWidth = (q: Pose, y: number) => {
+      const waist = q.side ? Math.round(q.shape.waist * 0.65) : q.shape.waist;
+      if (y < 58) return 8;
+      if (y < 76) return q.torsoWidth + ((waist - q.torsoWidth) * (y - 58)) / 18;
+      return waist + (q.hipWidth - waist) * Math.min(1, (y - 76) / 12);
     };
-    ctx.save();
-    if (Boolean(d.mirrorX) !== (d.mirrorWest && p.direction === 'west')) {
-      ctx.translate(parent.x * 2, 0);
-      ctx.scale(-1, 1);
-    }
     for (let y = 0; y < d.frameHeight; y++) {
-      const canonicalY = 35 + y - d.anchor.y;
-      const scale = localWidth(p, canonicalY) / localWidth(neutral, canonicalY);
+      const canonical = (d.parent === 'pelvis' ? 84 : 70) + y - d.anchor.y,
+        scale = localWidth(p, canonical) / localWidth(neutral, canonical);
       ctx.drawImage(
         part.image,
         0,
         frame * d.frameHeight + y,
         d.frameWidth,
         1,
-        Math.round(parent.x - d.anchor.x * scale + off.x + (extra?.x ?? 0)),
-        Math.round(parent.y - d.anchor.y + y + off.y + (extra?.y ?? 0)),
+        Math.round(parent.x - d.anchor.x * scale + offset.x),
+        Math.round(parent.y - d.anchor.y + y + offset.y),
         Math.round(d.frameWidth * scale),
         1,
       );
     }
+  } else if (d.parent.startsWith('hand')) {
+    // Hands/gloves inherit the wrist rotation, with fixed size across body builds.
     ctx.restore();
+    const i = d.parent.endsWith('Left') ? 0 : 1,
+      l = p.arms[i]!,
+      dx = l.end.x - l.root.x,
+      dy = l.end.y - l.root.y,
+      len = Math.hypot(dx, dy),
+      data = part.image
+        .getContext('2d')!
+        .getImageData(0, frame * d.frameHeight, d.frameWidth, d.frameHeight).data,
+      r = d.frameWidth + d.frameHeight;
+    for (let y = parent.y - r; y <= parent.y + r; y++)
+      for (let x = parent.x - r; x <= parent.x + r; x++) {
+        const px = x + 0.5 - parent.x - offset.x,
+          py = y + 0.5 - parent.y - offset.y,
+          sx = Math.floor(d.anchor.x + ((mirror ? -1 : 1) * (px * dy - py * dx)) / len),
+          sy = Math.floor(d.anchor.y + (px * dx + py * dy) / len);
+        if (sx < 0 || sx >= d.frameWidth || sy < 0 || sy >= d.frameHeight) continue;
+        const at = (sy * d.frameWidth + sx) * 4,
+          a = data[at + 3]!;
+        if (a) {
+          ctx.fillStyle = `rgba(${data[at]},${data[at + 1]},${data[at + 2]},${a / 255})`;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
     return;
+  } else {
+    const scale =
+      d.fit === 'pelvis'
+        ? p.hipWidth / (d.referenceWidth?.[p.side ? 'side' : 'front'] ?? p.hipWidth)
+        : 1;
+    ctx.drawImage(
+      part.image,
+      0,
+      frame * d.frameHeight,
+      d.frameWidth,
+      d.frameHeight,
+      Math.round(parent.x - d.anchor.x * scale + offset.x),
+      Math.round(parent.y - d.anchor.y + offset.y),
+      Math.round(d.frameWidth * scale),
+      d.frameHeight,
+    );
   }
+  ctx.restore();
+}
+function legacyHair(
+  ctx: CanvasRenderingContext2D,
+  p: Pose,
+  hair: HTMLCanvasElement,
+  slot: number,
+  pass: 'back' | 'front',
+) {
+  if (slot > 4) return;
+  const { row, mirror, anchor, scaleY } = hairPlacement(slot, p.direction),
+    sx = (slot - 1) * 64,
+    y = p.head.y - 34;
   ctx.save();
-  if (Boolean(d.mirrorX) !== (d.mirrorWest && p.direction === 'west')) {
-    ctx.translate(parent.x * 2, 0);
+  if (mirror) {
+    ctx.translate(96, 0);
     ctx.scale(-1, 1);
   }
+  ctx.beginPath();
+  if (p.side) {
+    ctx.rect(0, 0, 96, 28 + y);
+    ctx.rect(0, 28 + y, 50, 100);
+  } else if (pass === 'back' || p.direction === 'north') ctx.rect(0, 0, 96, 128);
+  else {
+    ctx.rect(0, 0, 96, 30 + y);
+    ctx.rect(0, 30 + y, 32, 98);
+    ctx.rect(64, 30 + y, 32, 98);
+  }
+  ctx.clip();
+  if (p.direction === 'north' && pass === 'front') {
+    const c = hair.getContext('2d')!.getImageData(sx + 32, 32, 1, 1).data;
+    oval(ctx, 48, p.head.y, 20, 20, `rgb(${c[0]},${c[1]},${c[2]})`, '#352b35');
+  }
   ctx.drawImage(
-    part.image,
-    0,
-    frame * d.frameHeight,
-    d.frameWidth,
-    d.frameHeight,
-    Math.round(parent.x - (d.anchor.x * width) / d.frameWidth + off.x + (extra?.x ?? 0)),
-    Math.round(parent.y - d.anchor.y + off.y + (extra?.y ?? 0)),
-    width,
-    d.frameHeight,
+    hair,
+    sx + 6,
+    row * 64,
+    58,
+    64,
+    p.head.x - anchor.x * 2 + 6,
+    Math.round(p.head.y - anchor.y * 2 * scaleY),
+    58,
+    Math.round(64 * scaleY),
   );
   ctx.restore();
+}
+function face(ctx: CanvasRenderingContext2D, p: Pose, c: AvatarConfig, parts: PartImage[]) {
+  if (p.direction === 'north') return;
+  const y = p.head.y - 34,
+    choices = constructorChoices(c),
+    has = (f: string) => parts.some((x) => x.descriptor.selection?.field === f);
+  if (!has('eyes'))
+    for (const pt of FACE_ANCHORS[p.direction].eyes)
+      box(ctx, p.head.x + pt.x, p.head.y + pt.y, 4, choices.eyes === 1 ? 8 : 6, '#352b35');
+  if (!has('mouth'))
+    for (const pt of FACE_ANCHORS[p.direction].mouth)
+      box(ctx, p.head.x + pt.x, p.head.y + pt.y, 3, 1, mix(c.palette.skin, '#a05a54', 0.5));
+  for (const id of choices.faceFeatures.filter(
+    (id) =>
+      !parts.some(
+        (x) =>
+          x.descriptor.selection?.field === 'faceFeatures' && x.descriptor.selection.slot === id,
+      ),
+  )) {
+    ctx.globalAlpha = id === 1 ? 0.55 : 0.25;
+    const color = mix(c.palette.skin, id <= 2 ? '#503628' : id === 4 ? '#5e5d73' : '#b5625a', 0.5);
+    for (const x of p.side ? [p.direction === 'east' ? 57 : 34] : [34, 56])
+      box(ctx, x, 42 + y, id === 1 ? 1 : 5, id === 1 ? 1 : 3, color);
+    ctx.globalAlpha = 1;
+  }
 }
 export function renderFrame(
   ctx: CanvasRenderingContext2D,
@@ -459,158 +379,122 @@ export function renderFrame(
   options: AssemblyOptions = {},
 ) {
   const c = constructorChoices(config),
+    parts = options.parts ?? [],
     skin = shades(config.palette.skin),
-    top = options.bodyOnly ? null : shades(config.palette.outfit),
+    top = shades(config.palette.outfit),
     bottom = shades(options.bodyOnly ? '#292732' : c.colors.bottom),
-    shoes = options.bodyOnly ? null : shades(config.palette.shoes);
-  const imported = (field: string, parent?: string) =>
-    options.parts?.some(
-      (x) => x.descriptor.selection?.field === field && (!parent || x.descriptor.parent === parent),
-    ) ?? false;
-  const h = c.hair[c.gender],
-    hasHair = !options.bodyOnly && !imported('hair');
-  const jointParts = (parent: string) =>
-    options.parts
-      ?.filter(
-        (x) =>
-          x.descriptor.parent === parent &&
-          x.descriptor.fit === 'limb' &&
-          x.descriptor.selection?.field !== 'base',
-      )
-      .forEach((part) => attachPart(ctx, p, part));
-  const basePart = (parent: string) => {
-    const parts =
-      options.parts?.filter(
-        (x) => x.descriptor.selection?.field === 'base' && x.descriptor.parent === parent,
-      ) ?? [];
-    parts.forEach((part) => attachPart(ctx, p, part));
-    return parts.length > 0;
+    shoes = shades(config.palette.shoes);
+  const selected = (field: string) => parts.some((x) => x.descriptor.selection?.field === field);
+  const list = (parent: string, pass: 'back' | 'front' = 'front') =>
+    parts.filter((x) => x.descriptor.parent === parent && x.descriptor.pass === pass);
+  const paint = (parent: string, filter: (x: PartImage) => boolean = () => true) =>
+    list(parent)
+      .filter(filter)
+      .forEach((x) => attachPart(ctx, p, x));
+  const feature = (x: PartImage) =>
+    ['bodyFeatures', 'base'].includes(x.descriptor.selection?.field ?? '');
+  const wear = (x: PartImage) => !feature(x);
+  const base = (parent: string) => {
+    if (!list(parent).some((x) => x.descriptor.hideBase)) renderBaseModule(ctx, p, parent, skin);
+    paint(parent, feature);
   };
-  if (hasHair && options.hair && c.gender === 'female') hairPass(ctx, p, options.hair, h, 'back');
-  options.parts
-    ?.filter(
-      (x) =>
-        x.descriptor.pass === 'back' &&
-        x.descriptor.fit !== 'limb' &&
-        x.descriptor.selection?.field !== 'base',
-    )
-    .forEach((part) => attachPart(ctx, p, part));
-  if (p.side) {
-    const hasBase = basePart('armLeft');
-    limb(
-      ctx,
-      p.arms[0]!,
-      skin,
-      imported('top', 'armLeft') ? null : top,
-      'arm',
-      null,
-      true,
-      !hasBase,
-    );
-    jointParts('armLeft');
+  const hasHair = !options.bodyOnly && !selected('hair'),
+    slot = c.hair[c.gender];
+  if (hasHair && options.hair && c.gender === 'female')
+    legacyHair(ctx, p, options.hair, slot, 'back');
+  parts.filter((x) => x.descriptor.pass === 'back').forEach((x) => attachPart(ctx, p, x));
+  const arm = (i: number) => {
+    const parent = i === 0 ? 'armLeft' : 'armRight',
+      hp = i === 0 ? 'handLeft' : 'handRight';
+    base(parent);
+    if (!options.bodyOnly && !selected('top')) {
+      const l = p.arms[i]!,
+        end = {
+          x: Math.round(l.root.x + (l.end.x - l.root.x) * 0.75),
+          y: Math.round(l.root.y + (l.end.y - l.root.y) * 0.75),
+        };
+      limbShape(
+        ctx,
+        {
+          ...l,
+          end,
+          joint: { x: Math.round((l.root.x + end.x) / 2), y: Math.round((l.root.y + end.y) / 2) },
+          width: l.width + 1,
+        },
+        top[3]!,
+        top[0]!,
+      );
+    }
+    paint(parent, wear);
+    base(hp);
+    paint(hp, wear);
+  };
+  if (p.side) arm(0);
+  for (let i = 0; i < 2; i++) {
+    const parent = i === 0 ? 'legLeft' : 'legRight',
+      fp = i === 0 ? 'footLeft' : 'footRight';
+    base(parent);
+    if (!options.bodyOnly && !selected('bottom'))
+      limbShape(ctx, { ...p.legs[i]!, width: p.legs[i]!.width + 1 }, bottom[3]!, bottom[0]!);
+    paint(parent, wear);
+    base(fp);
+    if (!options.bodyOnly && !selected('footwear')) foot(ctx, p, i, shoes, true);
+    paint(fp, wear);
   }
-  const leftLegBase = basePart('legLeft');
-  limb(
-    ctx,
-    p.legs[0]!,
-    skin,
-    options.bodyOnly || imported('bottom', 'legLeft') ? null : bottom,
-    'leg',
-    imported('footwear', 'footLeft') ? null : shoes,
-    true,
-    !leftLegBase,
-  );
-  jointParts('legLeft');
-  const rightLegBase = basePart('legRight');
-  limb(
-    ctx,
-    p.legs[1]!,
-    skin,
-    options.bodyOnly || imported('bottom', 'legRight') ? null : bottom,
-    'leg',
-    imported('footwear', 'footRight') ? null : shoes,
-    false,
-    !rightLegBase,
-  );
-  jointParts('legRight');
-  const torsoBase = basePart('torso');
-  bodyTorso(
-    ctx,
-    p,
-    skin,
-    imported('top', 'torso') ? null : top,
-    imported('bottom', 'pelvis') ? null : bottom,
-    !torsoBase,
-  );
-  if (!p.side) {
-    const hasBase = basePart('armLeft');
-    limb(
+  base('torso');
+  if (!options.bodyOnly && !selected('top')) torso(ctx, p, top, true);
+  if (options.bodyOnly || !selected('bottom'))
+    polygon(
       ctx,
-      p.arms[0]!,
-      skin,
-      imported('top', 'armLeft') ? null : top,
-      'arm',
-      null,
-      false,
-      !hasBase,
+      [
+        { x: 48 - p.hipWidth / 2, y: 80 + p.bob },
+        { x: 48 + p.hipWidth / 2, y: 80 + p.bob },
+        { x: 48 + p.hipWidth / 2, y: 88 + p.bob },
+        { x: 48 - p.hipWidth / 2, y: 88 + p.bob },
+      ],
+      bottom[3]!,
+      bottom[0]!,
     );
-    jointParts('armLeft');
-  }
-  const rightArmBase = basePart('armRight');
-  limb(
-    ctx,
-    p.arms[1]!,
-    skin,
-    imported('top', 'armRight') ? null : top,
-    'arm',
-    null,
-    false,
-    !rightArmBase,
-  );
-  jointParts('armRight');
-  const headBase = basePart('head');
-  face(
-    ctx,
-    p,
-    config,
-    skin,
-    !options.bodyOnly && !options.parts?.some((x) => x.descriptor.selection?.field === 'eyes'),
-    !options.bodyOnly && !options.parts?.some((x) => x.descriptor.selection?.field === 'mouth'),
-    options.parts
-      ?.filter((x) => x.descriptor.selection?.field === 'faceFeatures')
-      .map((x) => x.descriptor.selection?.slot ?? 0) ?? [],
-    !headBase,
-  );
+  paint('pelvis');
+  paint('torso', wear);
+  if (!p.side) arm(0);
+  arm(1);
+  base('head');
+  if (!options.bodyOnly) face(ctx, p, config, parts);
   if (hasHair) {
-    if (options.hair && c.gender === 'female') hairPass(ctx, p, options.hair, h, 'front');
-    else fallbackHair(ctx, p, config.palette.hair, config.parts.hair);
+    if (options.hair && c.gender === 'female') legacyHair(ctx, p, options.hair, slot, 'front');
+    else {
+      const h = shades(config.palette.hair);
+      box(ctx, 30, p.head.y - 20, 36, 8, h[0]!);
+      box(ctx, 31, p.head.y - 19, 34, 7, h[3]!);
+      if (p.direction === 'north') box(ctx, 30, p.head.y - 10, 36, 20, h[3]!);
+      if (config.parts.hair === 'bob-01') {
+        if (p.direction !== 'west') box(ctx, 26, p.head.y - 12, 5, 32, h[0]!);
+        if (p.direction !== 'east') box(ctx, 64, p.head.y - 12, 5, 32, h[0]!);
+      }
+      if (config.parts.hair === 'curls-01')
+        for (const x of [30, 39, 48, 57]) oval(ctx, x, p.head.y - 18, 6, 5, h[3]!, h[0]!);
+    }
   }
-  if (!headBase) profileEar(ctx, p, skin);
-  options.parts
-    ?.filter(
-      (x) =>
-        x.descriptor.pass === 'front' &&
-        x.descriptor.fit !== 'limb' &&
-        x.descriptor.selection?.field !== 'base',
-    )
-    .forEach((part) => attachPart(ctx, p, part));
-  if (!options.bodyOnly && config.parts.accessory === 'headphones-01') {
-    const ap = shades(c.colors.special);
-    if (p.direction !== 'east') box(ctx, 12, p.head.y - 2, 3, 7, ap[0]!);
-    if (p.direction !== 'west') box(ctx, 33, p.head.y - 2, 3, 7, ap[0]!);
+  if (p.side) ear(ctx, p, skin);
+  paint('head', wear);
+  if (!options.bodyOnly && config.parts.accessory === 'headphones-01' && !selected('special')) {
+    const pal = shades(c.colors.special);
+    if (p.direction !== 'east') box(ctx, 24, p.head.y - 4, 5, 14, pal[0]!);
+    if (p.direction !== 'west') box(ctx, 66, p.head.y - 4, 5, 14, pal[0]!);
   }
 }
 export function assemble(config: AvatarConfig, options: AssemblyOptions = {}) {
   const sheet = document.createElement('canvas');
-  sheet.width = 288;
-  sheet.height = 256;
+  sheet.width = FRAME.width * 6;
+  sheet.height = FRAME.height * 4;
   const ctx = sheet.getContext('2d');
   if (!ctx) throw new Error('Canvas 2D недоступен');
   ctx.imageSmoothingEnabled = false;
   for (const [row, dir] of DIRECTIONS.entries())
     for (let f = 0; f < 6; f++) {
       ctx.save();
-      ctx.translate(f * 48, row * 64);
+      ctx.translate(f * FRAME.width, row * FRAME.height);
       renderFrame(ctx, config, pose(constructorChoices(config).build, dir, f), options);
       ctx.restore();
     }
@@ -623,15 +507,16 @@ export const assemblyStats = () => ({
   builds,
   hits,
   entries: cache.size,
-  rgbaBytes: cache.size * 288 * 256 * 4,
+  rgbaBytes: cache.size * FRAME.width * 6 * FRAME.height * 4 * 4,
+  limit: CACHE_LIMIT,
 });
 export function cachedAssembly(
   config: AvatarConfig,
   hair: HTMLCanvasElement | undefined | (() => HTMLCanvasElement),
   parts: PartImage[] = [],
 ) {
-  const key = appearanceKey(config);
-  const found = cache.get(key);
+  const key = appearanceKey(config) + parts.map((p) => p.descriptor.source).join('|'),
+    found = cache.get(key);
   if (found) {
     cache.delete(key);
     cache.set(key, found);
@@ -641,22 +526,22 @@ export function cachedAssembly(
   const sheet = assemble(config, { hair: typeof hair === 'function' ? hair() : hair, parts });
   cache.set(key, sheet);
   builds++;
-  if (cache.size > 8) cache.delete(cache.keys().next().value!);
+  if (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
   return sheet;
 }
 export function tintHair(source: HTMLCanvasElement, color: string) {
   const canvas = document.createElement('canvas');
   canvas.width = source.width;
   canvas.height = source.height;
-  const ctx = canvas.getContext('2d')!;
-  ctx.putImageData(
-    colorMask(source.getContext('2d')!.getImageData(0, 0, source.width, source.height), color),
-    0,
-    0,
-  );
+  canvas
+    .getContext('2d')!
+    .putImageData(
+      colorMask(source.getContext('2d')!.getImageData(0, 0, source.width, source.height), color),
+      0,
+      0,
+    );
   return canvas;
 }
-// Legacy tool compatibility: still produces one A24, never changes Phaser rendering.
 export function proceduralSheet(_catalog: AvatarCatalog, config: AvatarConfig) {
   return assemble(config);
 }

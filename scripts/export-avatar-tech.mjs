@@ -1,328 +1,250 @@
 import { chromium } from '@playwright/test';
 import { existsSync } from 'node:fs';
-import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { format } from 'prettier';
 const base = new URL(process.argv[2] ?? 'http://127.0.0.1:5173');
 if (!['localhost', '127.0.0.1'].includes(base.hostname)) throw new Error('Use local Vite');
-const output = fileURLToPath(new URL('../TECH_DOCS/ПЕРСОНАЖ/', import.meta.url));
-await mkdir(output, { recursive: true });
 const browser = await chromium.launch({
   executablePath:
     process.env.CHROMIUM_PATH ??
     (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined),
 });
 try {
-  const p = await browser.newPage();
-  await p.goto(base.href);
-  const pack = await p.evaluate(async () => {
-    const { assemble, renderBaseModule } = await import('/src/avatar/modular/render.ts');
-    const { pose, DIRECTIONS, BODY_SHAPES } = await import('/src/avatar/modular/rig.ts');
-    const { SOURCE_TEMPLATES, templateDescriptor } =
+  const page = await browser.newPage();
+  await page.goto(base.href);
+  await rm('TECH_DOCS/CHARACTER/TEMPLATES', { recursive: true, force: true });
+  const pack = await page.evaluate(async () => {
+    const { SOURCE_TEMPLATES, VIEW_MODES, templateModes, templateFolder } =
       await import('/src/avatar/modular/templates.ts');
-    const { INDEX_LEVELS } = await import('/src/avatar/modular/materials.ts');
-    const { loadAvatarSheet, assemblyStats } = await import('/src/avatar/art.ts');
+    const { pose, FRAME, BODY_SHAPES, RIG_VERSION, DIRECTIONS, ANIMATION_FPS, FACE_ANCHORS } =
+      await import('/src/avatar/modular/rig.ts');
+    const { hairLayer, LOWER_LAYOUT, lowerLegSourceX } =
+      await import('/src/avatar/modular/layout.ts');
+    const { renderBaseModule, renderNeck, assemble, parentPoint } =
+      await import('/src/avatar/modular/render.ts');
     const { avatarCatalog } = await import('/src/avatar/catalog.ts');
-    const { updateConstructor, AVATAR_PALETTES } = await import('/src/avatar/editor.ts');
-    const images = {},
-      rigs = [],
-      templates = [],
-      parts = [],
-      surfaces = new Map();
-    const save = (name, c) => (images[name] = c.toDataURL('image/png').split(',')[1]);
+    const { updateConstructor } = await import('/src/avatar/editor.ts');
+    const { loadAvatarSheet } = await import('/src/avatar/art.ts');
+    const files = {},
+      records = [];
     const make = (w, h) => {
       const c = document.createElement('canvas');
       c.width = w;
       c.height = h;
       return c;
     };
+    const save = (name, c) => (files[name] = c.toDataURL('image/png').split(',')[1]);
+    const pal = ['#202020', '#505050', '#808080', '#b8b8b8', '#f0f0f0'];
+    for (const t of SOURCE_TEMPLATES)
+      for (const mode of templateModes(t)) {
+        const views = VIEW_MODES[mode];
+        const c = make(t.width, t.height * views.length),
+          ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        for (const [row, dir] of views.entries()) {
+          const p = pose('average', dir, 0),
+            parent = parentPoint(p, t.parent);
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, row * t.height, t.width, t.height);
+          ctx.clip();
+          ctx.translate(t.anchor.x - parent.x, row * t.height + t.anchor.y - parent.y);
+          ctx.globalAlpha = 0.08;
+          for (let py = 0; py < t.height; py++)
+            for (let px = 0; px < t.width; px++)
+              if ((px + py) % 2 === 0) {
+                ctx.fillStyle = '#7495a9';
+                ctx.fillRect(parent.x - t.anchor.x + px, parent.y - t.anchor.y + py, 1, 1);
+              }
+          ctx.globalAlpha = 0.14;
+          const headOnly = ['eyes', 'mouth', 'details'].includes(t.id);
+          for (const name of [
+            'legLeft',
+            'legRight',
+            'footLeft',
+            'footRight',
+            'torso',
+            'armLeft',
+            'armRight',
+            'handLeft',
+            'handRight',
+            'head',
+          ])
+            if (
+              (!headOnly || name === 'head') &&
+              (t.id !== 'shoe' || ['legLeft', 'footLeft'].includes(name))
+            )
+              renderBaseModule(ctx, p, name, pal);
+          if (headOnly) renderNeck(ctx, p, pal);
+          ctx.globalAlpha = 0.58;
+          if (/^(pants|shorts|skirt)-/.test(t.id)) {
+            for (const module of ['torso', ...(p.side ? ['legRight'] : ['legLeft', 'legRight'])])
+              renderBaseModule(ctx, p, module, pal);
+          } else renderBaseModule(ctx, p, t.parent, pal);
+          if (t.parent === 'head') {
+            ctx.globalAlpha = 0.35;
+            ctx.fillStyle = '#7495a9';
+            for (const pt of FACE_ANCHORS[dir].eyes)
+              ctx.fillRect(p.head.x + pt.x, p.head.y + pt.y, 4, 8);
+            for (const pt of FACE_ANCHORS[dir].mouth)
+              ctx.fillRect(p.head.x + pt.x, p.head.y + pt.y, 3, 1);
+          }
+          ctx.restore();
+          if (t.id.startsWith('hair-')) {
+            for (let py = 1; py < t.height - 1; py++)
+              for (let px = 1; px < t.width - 1; px++) {
+                ctx.fillStyle = hairLayer(px, py, dir) === 'front' ? '#d34b8420' : '#258b9130';
+                ctx.fillRect(px, row * t.height + py, 1, 1);
+              }
+          }
+          if (/^(pants|shorts|skirt)-/.test(t.id)) {
+            const high = t.id.endsWith('-high'),
+              max = t.id.startsWith('shorts') ? LOWER_LAYOUT.shortHem : LOWER_LAYOUT.maxHem;
+            ctx.fillStyle = '#d34b8430';
+            ctx.fillRect(
+              1,
+              row * t.height + 1,
+              t.width - 2,
+              (high ? LOWER_LAYOUT.bandTop : LOWER_LAYOUT.bandBottom) - 1,
+            );
+            for (const boundary of [
+              high ? LOWER_LAYOUT.bandTop : LOWER_LAYOUT.bandBottom,
+              LOWER_LAYOUT.bandBottom,
+              LOWER_LAYOUT.legSplit,
+              max,
+            ]) {
+              ctx.fillStyle = '#258b91';
+              ctx.fillRect(1, row * t.height + boundary, t.width - 2, 1);
+            }
+            if (!t.id.startsWith('skirt'))
+              for (const index of p.side ? [1] : [0, 1]) {
+                const centre = lowerLegSourceX(dir, index);
+                ctx.strokeStyle = '#258b91';
+                ctx.strokeRect(
+                  centre - 15.5,
+                  row * t.height + LOWER_LAYOUT.legSplit + 0.5,
+                  31,
+                  max - LOWER_LAYOUT.legSplit - 1,
+                );
+              }
+          }
+          // All markers are on the hidden TEMPLATE layer, never in EMPTY/the delivered artwork.
+          for (let x = 0; x < t.width; x += 4) {
+            ctx.fillStyle = '#7495a91c';
+            ctx.fillRect(x, row * t.height, 1, t.height);
+          }
+          for (let y = 0; y < t.height; y += 4) {
+            ctx.fillStyle = '#7495a91c';
+            ctx.fillRect(0, row * t.height + y, t.width, 1);
+          }
+          ctx.strokeStyle = '#258b91';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(1.5, row * t.height + 1.5, t.width - 3, t.height - 3);
+          ctx.fillStyle = '#d34b84';
+          ctx.fillRect(t.anchor.x - 2, row * t.height + t.anchor.y, 5, 1);
+          ctx.fillRect(t.anchor.x, row * t.height + t.anchor.y - 2, 1, 5);
+          ctx.fillStyle = '#258b9199';
+          ctx.fillRect(2, row * t.height + t.anchor.y, t.width - 4, 1);
+          ctx.fillStyle = '#443b42';
+          ctx.font = '6px monospace';
+          ctx.fillText(dir[0].toUpperCase(), 3, row * t.height + 7);
+        }
+        const directory = `TECH_DOCS/CHARACTER/TEMPLATES/${templateFolder(t)}`;
+        const stem = `${directory}/${t.id.replaceAll('-', '_')}_${mode}`;
+        save(stem + '_TEMPLATE.png', c);
+        save(stem + '_EMPTY.png', make(c.width, c.height));
+        records.push({
+          id: t.id,
+          category: t.category,
+          mode,
+          views,
+          width: t.width,
+          height: t.height,
+          anchor: t.anchor,
+          parent: t.parent,
+          template: stem + '_TEMPLATE.png',
+          empty: stem + '_EMPTY.png',
+        });
+      }
+    const palette = make(300, 70),
+      pc = palette.getContext('2d');
+    pc.font = '12px monospace';
+    pal.forEach((color, i) => {
+      pc.fillStyle = color;
+      pc.fillRect(i * 60, 0, 60, 40);
+      pc.fillStyle = '#352b35';
+      pc.fillText(color, i * 60 + 2, 60);
+    });
+    save('TECH_DOCS/CHARACTER/COLORS.png', palette);
     const config = updateConstructor(avatarCatalog.defaultAvatar, {
       gender: 'female',
-      age: 'adult',
       hair: { male: 1, female: 1 },
+      special: null,
     });
-    const palette = INDEX_LEVELS.map((v) => `rgb(${v},${v},${v})`);
-    for (const t of SOURCE_TEMPLATES) {
-      const source = make(t.width, t.height * 3),
-        ctx = source.getContext('2d');
-      for (let row = 0; row < 3; row++) {
-        const p = pose('average', DIRECTIONS[row], 0);
-        const parent =
-          t.parent === 'head'
-            ? p.head
-            : t.parent === 'torso'
-              ? p.torso
-              : t.parent === 'pelvis'
-                ? p.pelvis
-                : t.parent.startsWith('arm')
-                  ? p.arms[0].root
-                  : t.parent.startsWith('leg')
-                    ? p.legs[0].root
-                    : t.parent.startsWith('foot')
-                      ? p.legs[0].end
-                      : p.arms[1].end;
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, row * t.height, t.width, t.height);
-        ctx.clip();
-        ctx.translate(t.anchor.x - parent.x, row * t.height + t.anchor.y - parent.y);
-        const module = ['face', 'hair', 'hat', 'jewelry'].includes(t.id)
-          ? 'head'
-          : t.id === 'top' || t.id === 'bottom'
-            ? 'torso'
-            : t.id === 'item'
-              ? 'armRight'
-              : t.id === 'sleeve'
-                ? 'armLeft'
-                : t.id === 'pant' || t.id === 'shoe'
-                  ? 'legLeft'
-                  : t.parent;
-        renderBaseModule(ctx, p, module, palette);
-        ctx.restore();
-      }
-      const underlay = `ПОДЛОЖКА_${t.label}_V3.png`,
-        blank = `ПУСТОЙ_${t.label}_V3.png`,
-        guideName = `СХЕМА_${t.label}.png`;
-      save(underlay, source);
-      save(blank, make(t.width, t.height * 3));
-      surfaces.set(t.id, source);
-      const guide = make(840, 430),
-        gc = guide.getContext('2d');
-      gc.imageSmoothingEnabled = false;
-      gc.fillStyle = '#faf6ef';
-      gc.fillRect(0, 0, guide.width, guide.height);
-      gc.fillStyle = '#443b42';
-      gc.font = 'bold 19px sans-serif';
-      gc.fillText(
-        `${t.label}: клетка ${t.width}×${t.height}, PNG ${t.width}×${t.height * 3}, опора (${t.anchor.x},${t.anchor.y})`,
-        18,
-        30,
-      );
-      for (let row = 0; row < 3; row++) {
-        const scale = Math.min(7, Math.floor(220 / Math.max(t.width, t.height))),
-          x = 28 + row * 275,
-          y = 85;
-        gc.font = '18px sans-serif';
-        gc.fillStyle = '#443b42';
-        gc.fillText(['N · СПИНА', 'E · ВПРАВО', 'S · ЛИЦО'][row], x, 64);
-        for (let cy = 0; cy < t.height; cy++)
-          for (let cx = 0; cx < t.width; cx++) {
-            gc.fillStyle = (cx + cy) % 2 ? '#e5ddd2' : '#f5eee4';
-            gc.fillRect(x + cx * scale, y + cy * scale, scale, scale);
-          }
-        gc.globalAlpha = 0.65;
-        gc.drawImage(
-          source,
-          0,
-          row * t.height,
-          t.width,
-          t.height,
-          x,
-          y,
-          t.width * scale,
-          t.height * scale,
-        );
-        gc.globalAlpha = 1;
-        gc.strokeStyle = '#c24e65';
-        gc.lineWidth = 1;
-        gc.beginPath();
-        gc.moveTo(x + t.anchor.x * scale, y);
-        gc.lineTo(x + t.anchor.x * scale, y + t.height * scale);
-        gc.moveTo(x, y + t.anchor.y * scale);
-        gc.lineTo(x + t.width * scale, y + t.anchor.y * scale);
-        gc.stroke();
-        gc.fillStyle = '#c24e65';
-        gc.fillRect(x + t.anchor.x * scale - 2, y + t.anchor.y * scale - 2, 5, 5);
-      }
-      gc.fillStyle = '#443b42';
-      gc.font = '16px sans-serif';
-      gc.fillText(
-        'Рисовать на ПУСТОМ PNG. Подложку и красные направляющие не включать в готовый слой.',
-        18,
-        350,
-      );
-      gc.fillText(
-        'Один рисунок на ракурс. W зеркалится из E. Не рисовать фазы, цвета и комплекции.',
-        18,
-        382,
-      );
-      save(guideName, guide);
-      const descriptor = templateDescriptor(t);
-      templates.push({
-        ...t,
-        rows: ['north', 'east', 'south'],
-        underlay,
-        blank,
-        guide: guideName,
-        descriptor,
-      });
-      if (t.field === 'base') {
-        parts.push(descriptor);
-        if (t.id === 'arm' || t.id === 'leg')
-          parts.push({
-            ...descriptor,
-            id: descriptor.id + '-right',
-            parent: t.id === 'arm' ? 'armRight' : 'legRight',
-          });
-      }
-    }
-    // This round-trip proof uses the exact source-sized kit supplied to artists.
-    const imported = parts.map((d) => ({
-      descriptor: d,
-      image: surfaces.get(
-        d.parent === 'head'
-          ? 'head'
-          : d.parent === 'torso'
-            ? 'torso'
-            : d.parent.startsWith('arm')
-              ? 'arm'
-              : 'leg',
-      ),
-    }));
-    save('ПРОВЕРКА_ИМПОРТА_ТЕЛА_A24.png', assemble(config, { bodyOnly: true, parts: imported }));
-    for (const build of ['slim', 'average', 'sturdy']) {
+    for (const build of ['slim', 'average', 'sturdy'])
       save(
-        `ТЕЛО_${build}_A24.png`,
+        `.cache/character-review/body-${build}-A24.png`,
         assemble(updateConstructor(config, { build }), { bodyOnly: true }),
       );
-      rigs.push({
-        build,
-        poses: DIRECTIONS.flatMap((dir) =>
-          Array.from({ length: 6 }, (_, f) => pose(build, dir, f)),
-        ),
-      });
-    }
-    const overview = make(1100, 740),
-      oc = overview.getContext('2d');
-    oc.fillStyle = '#faf6ef';
-    oc.fillRect(0, 0, 1100, 740);
-    oc.imageSmoothingEnabled = false;
-    oc.font = 'bold 23px sans-serif';
-    oc.fillStyle = '#443b42';
-    oc.fillText('4 исходника тела × 3 ракурса = 12 рисунков', 24, 36);
-    for (const [i, t] of SOURCE_TEMPLATES.slice(0, 4).entries()) {
-      const img = surfaces.get(t.id),
-        x = 24 + i * 270;
-      oc.font = '17px sans-serif';
-      oc.fillText(t.label, x, 76);
-      oc.fillText(`${t.width}×${t.height * 3} PNG`, x, 103);
-      oc.drawImage(img, 0, 0, t.width, t.height * 3, x, 120, t.width * 5, t.height * 15);
-    }
-    oc.font = '18px sans-serif';
-    oc.fillText('Рука включает кисть. Нога включает стопу. Шея и таз входят в корпус.', 24, 650);
-    oc.fillText('Повторные конечности, W, телосложения и 24 кадра собирает код.', 24, 690);
-    save('НАБОР_ТЕЛА_ОБЗОР.png', overview);
-    const guide = make(1040, 520),
-      gc = guide.getContext('2d');
-    gc.imageSmoothingEnabled = false;
-    gc.fillStyle = '#fbf8f4';
-    gc.fillRect(0, 0, 1040, 520);
-    gc.fillStyle = '#65554f';
-    gc.font = 'bold 24px sans-serif';
-    gc.fillText('Голова 20×20 · опора (24,56) · ноги ближе к центру', 24, 38);
-    for (const [i, build] of ['slim', 'average', 'sturdy'].entries()) {
-      const a = assemble(updateConstructor(config, { build }), { bodyOnly: true });
-      gc.drawImage(a, 0, 128, 48, 64, 30 + i * 330, 70, 240, 320);
-      gc.font = '18px sans-serif';
-      gc.fillText(build, 30 + i * 330, 430);
-    }
-    save('ПРОПОРЦИИ_ТЕЛА.png', guide);
-    for (let h = 1; h <= 4; h++)
+    for (let i = 1; i <= 4; i++)
       save(
-        `ПРИЧЕСКА_${h}_СБОРКА_A24.png`,
+        `.cache/character-review/hair-${i}-A24.png`,
         await loadAvatarSheet(
           avatarCatalog,
-          updateConstructor(config, { hair: { male: 1, female: h } }),
+          updateConstructor(config, { hair: { male: 1, female: i } }),
           new AbortController().signal,
         ),
       );
-    const indices = make(100, 20),
-      ic = indices.getContext('2d');
-    palette.forEach((v, i) => {
-      ic.fillStyle = v;
-      ic.fillRect(i * 20, 0, 20, 20);
-    });
-    save('ИНДЕКСЫ_МАСКИ.png', indices);
-    const start = performance.now();
-    for (let i = 0; i < 50; i++) {
-      const c = updateConstructor(config, {
-        build: ['slim', 'average', 'sturdy'][i % 3],
-        hair: { male: 1, female: (i % 4) + 1 },
-      });
-      c.palette.hair = AVATAR_PALETTES.hair[i % 12];
-      c.palette.outfit = AVATAR_PALETTES.outfit[Math.floor(i / 12)];
-      await loadAvatarSheet(avatarCatalog, c, new AbortController().signal);
+    const overview = make(1152, 720),
+      oc = overview.getContext('2d');
+    oc.fillStyle = '#f5efe5';
+    oc.fillRect(0, 0, 1152, 720);
+    oc.imageSmoothingEnabled = false;
+    for (const [i, build] of ['slim', 'average', 'sturdy'].entries()) {
+      const a = assemble(updateConstructor(config, { build }), { bodyOnly: true });
+      oc.drawImage(a, 0, 256, 96, 128, 30 + i * 380, 25, 288, 384);
+      oc.fillStyle = '#352b35';
+      oc.font = '20px sans-serif';
+      oc.fillText(build, 30 + i * 380, 450);
+      oc.font = '16px sans-serif';
+      oc.fillText(
+        'arm ' + BODY_SHAPES[build].arm + ' / leg ' + BODY_SHAPES[build].leg,
+        30 + i * 380,
+        482,
+      );
     }
-    const elapsed = performance.now() - start,
-      repeat = performance.now();
-    for (let i = 0; i < 100; i++)
-      await loadAvatarSheet(avatarCatalog, config, new AbortController().signal);
+    save('.cache/character-review/proportions.png', overview);
     return {
-      images,
-      templates,
-      parts,
-      rig: {
-        version: 'modular-adult-v2',
-        frame: { width: 48, height: 64, anchor: { x: 24, y: 56 } },
-        head: { width: 20, height: 20, center: { x: 24, y: 17 } },
-        directions: DIRECTIONS,
-        phases: ['idle0', 'idle1', 'walk0', 'walk1', 'walk2', 'walk3'],
-        fps: { idle: 2, walk: 9 },
+      files,
+      manifest: {
+        version: RIG_VERSION,
+        frame: FRAME,
+        fps: ANIMATION_FPS,
         bodyShapes: BODY_SHAPES,
-        rigs,
-        palettes: AVATAR_PALETTES,
+        templates: records,
       },
-      metrics: {
-        distinctAssemblies: 50,
-        totalMs: elapsed,
-        averageMs: elapsed / 50,
-        repeat100Ms: performance.now() - repeat,
-        cache: assemblyStats(),
-        scope: 'Local headless Chromium CPU texture assembly. Not FPS or total browser RAM.',
-      },
+      rig: DIRECTIONS.flatMap((dir) =>
+        ['slim', 'average', 'sturdy'].flatMap((build) =>
+          Array.from({ length: 6 }, (_, f) => pose(build, dir, f)),
+        ),
+      ),
     };
   });
-  for (const [name, data] of Object.entries(pack.images))
-    await writeFile(path.join(output, name), Buffer.from(data, 'base64'));
-  for (const [name, value] of [
-    ['РИГ.json', pack.rig],
-    ['ШАБЛОНЫ.json', pack.templates],
-    ['КОМПЛЕКТ_ТЕЛА.json', pack.parts],
-    ['ЗАМЕРЫ.json', pack.metrics],
-  ])
-    await writeFile(
-      path.join(output, name),
-      await format(JSON.stringify(value), { parser: 'json' }),
-    );
+  for (const [file, bytes] of Object.entries(pack.files)) {
+    await mkdir(path.dirname(file), { recursive: true });
+    await writeFile(file, Buffer.from(bytes, 'base64'));
+  }
   await writeFile(
-    path.join(output, 'ПРИЧЕСКИ_ИНДЕКСЫ.png'),
-    await readFile(
-      fileURLToPath(new URL('../content/avatars/modular/hair-indexed.png', import.meta.url)),
-    ),
+    'content/avatars/modular/template-manifest.json',
+    await format(JSON.stringify(pack.manifest), { parser: 'json' }),
   );
-  await writeFile(
-    path.join(output, 'manifest.json'),
-    await format(
-      JSON.stringify({
-        version: 'modular-adult-v2',
-        outputs: Object.keys(pack.images),
-        artistSources: 'ШАБЛОНЫ.json',
-        bodyKit: 'КОМПЛЕКТ_ТЕЛА.json',
-        original: 'ПРИЧЕСКИ_ИСХОДНИК.png',
-        note: 'Artist sources are static V3. A24 outputs are automatic engineering previews.',
-      }),
-      { parser: 'json' },
-    ),
-  );
+  await writeFile('.cache/character-review/rig.json', JSON.stringify(pack.rig, null, 2) + '\n');
   console.log(
-    'Built',
-    Object.keys(pack.images).length,
-    'PNGs,',
-    pack.templates.length,
-    'static V3 templates and a matching importable four-source body kit.',
+    '2× character templates generated:',
+    pack.manifest.templates.length,
+    'pairs. A24/rig reviews are in .cache/character-review only.',
   );
-  console.log(JSON.stringify(pack.metrics));
 } finally {
   await browser.close();
 }

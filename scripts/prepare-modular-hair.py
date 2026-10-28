@@ -1,7 +1,7 @@
 """Explicit technical normalization of the generated original (never overwrites it)."""
 from pathlib import Path
 from PIL import Image
-im=Image.open('TECH_DOCS/ПЕРСОНАЖ/ПРИЧЕСКИ_ИСХОДНИК.png').convert('RGBA')
+im=Image.open('content/art/source/hair-test-original.png').convert('RGBA')
 # Generated 4×4 grid, views N/E/S/W. Preserve authored asymmetry, nearest-neighbour only.
 out=im.resize((128,128),Image.Resampling.NEAREST)
 levels=[32,80,128,184,240]

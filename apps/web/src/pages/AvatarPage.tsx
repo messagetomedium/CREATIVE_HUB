@@ -21,6 +21,7 @@ import {
 import { useUnsavedChanges } from '../router';
 import hairAtlasUrl from '../../../../content/avatars/modular/hair-indexed.png?url&no-inline';
 import { Notice } from '../components';
+import { importedChoice, importedThumbnail } from '../avatar/imported';
 
 const directions: Direction[] = ['north', 'east', 'south', 'west'];
 const directionLabels: Record<Direction, string> = {
@@ -186,6 +187,17 @@ export function AvatarPage() {
       choose={(value) => extraColor(key, value)}
     />
   );
+  const importedPreview = (key: string, id: number) => {
+    const item = importedChoice(key, id, c.gender);
+    return item ? (
+      <img
+        src={importedThumbnail(item.thumbnail)}
+        alt=""
+        aria-hidden="true"
+        style={{ width: 32, height: 32, objectFit: 'contain', imageRendering: 'pixelated' }}
+      />
+    ) : undefined;
+  };
   const slots = (
     key: 'mouth' | 'eyes' | 'top' | 'bottom' | 'footwear' | 'hat' | 'jewelry' | 'special',
     label: string,
@@ -197,6 +209,7 @@ export function AvatarPage() {
       options={SLOTS.map((id) => ({
         id,
         name: `Вариант ${id}`,
+        preview: importedPreview(key, id),
         selected: c[key] === id,
         choose: () =>
           customize({
@@ -213,6 +226,7 @@ export function AvatarPage() {
         (id) => ({
           id,
           name: key === 'faceFeatures' ? FACE_FEATURES[id - 1]! : `Вариант ${id}`,
+          preview: importedPreview(key, id),
           selected: c[key].includes(id),
           choose: () =>
             customize({
@@ -338,9 +352,13 @@ export function AvatarPage() {
                           id,
                           name: `${c.gender === 'male' ? 'Мужская' : 'Женская'} ${id}`,
                           selected: c.hair[c.gender] === id,
-                          disabled: c.gender === 'female' && id > 4,
+                          disabled:
+                            c.gender === 'female' &&
+                            id > 4 &&
+                            !importedChoice('hair', id, c.gender),
                           preview:
-                            c.gender === 'female' && id <= 4 ? (
+                            importedPreview('hair', id) ??
+                            (c.gender === 'female' && id <= 4 ? (
                               <span
                                 aria-hidden="true"
                                 style={{
@@ -352,7 +370,7 @@ export function AvatarPage() {
                                   imageRendering: 'pixelated',
                                 }}
                               />
-                            ) : undefined,
+                            ) : undefined),
                           choose: () => customize({ hair: { ...c.hair, [c.gender]: id } }),
                         }))}
                       />

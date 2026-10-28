@@ -11,7 +11,7 @@ test('all 72 poses keep the same head geometry, grounded anchor and integer join
       for (let f = 0; f < 6; f++) {
         const p = pose(build, dir, f);
         expect(p.head).toEqual(pose('average', dir, f).head);
-        expect(p.anchor).toEqual({ x: 24, y: 56 });
+        expect(p.anchor).toEqual({ x: 48, y: 112 });
         for (const l of [...p.arms, ...p.legs])
           for (const q of [l.root, l.joint, l.end])
             expect([Number.isInteger(q.x), Number.isInteger(q.y)]).toEqual([true, true]);
@@ -82,47 +82,40 @@ test('skin overlay normalization retains subtle alpha instead of dropping blush'
   expect([...d.data.slice(0, 3)]).toEqual([192, 128, 112]);
 });
 
-test('whole arms swing, legs only translate and sturdy feet remain close under the hips', () => {
-  for (const dir of DIRECTIONS)
-    for (let frame = 0; frame < 6; frame++) {
-      const p = pose('sturdy', dir, frame),
-        neutral = pose('sturdy', dir, 0);
-      p.legs.forEach((l, i) => {
-        expect(l.root.x).toBe(l.end.x);
-        expect(l.joint.x).toBe(l.end.x);
-        expect(l.end.x).toBe(neutral.legs[i]!.end.x);
-        expect(l.end.y - l.root.y).toBe(12);
-      });
-      for (const arm of p.arms) {
-        expect(Math.abs(arm.joint.x - (arm.root.x + arm.end.x) / 2)).toBeLessThanOrEqual(0.5);
-        expect(arm.end.y - arm.root.y).toBe(12);
+test('body factors increase every limb width and attachment spacing without shoulder animation', () => {
+  const builds = ['slim', 'average', 'sturdy'] as const;
+  for (const field of ['arm', 'leg', 'shoulders', 'waist', 'hips', 'spacing'] as const) {
+    expect(BODY_SHAPES.slim[field]).toBeLessThan(BODY_SHAPES.average[field]);
+    expect(BODY_SHAPES.average[field]).toBeLessThan(BODY_SHAPES.sturdy[field]);
+  }
+  for (const build of builds)
+    for (const dir of DIRECTIONS)
+      for (let frame = 0; frame < 6; frame++) {
+        const p = pose(build, dir, frame),
+          neutral = pose(build, dir, 0);
+        p.arms.forEach((arm, i) => {
+          expect(arm.root.x).toBe(neutral.arms[i]!.root.x);
+          expect(arm.root.y - p.torso.y).toBe(neutral.arms[i]!.root.y - neutral.torso.y);
+          expect(p.hands[i]).toEqual(arm.end);
+        });
+        p.legs.forEach((leg, i) => expect(p.feet[i]).toEqual(leg.end));
       }
-    }
-  const sturdy = pose('sturdy', 'south', 0);
-  expect(sturdy.legs[1]!.end.x - sturdy.legs[0]!.end.x).toBe(10);
+  expect(pose('average', 'east', 2).feet[0]!.x).not.toBe(pose('average', 'east', 4).feet[0]!.x);
   const a = pose('average', 'south', 0),
     b = pose('average', 'south', 1);
-  expect(b.torso).toEqual(a.torso);
-  expect(b.neck).toEqual(a.neck);
-  expect(b.head.y).toBe(a.head.y - 1);
+  expect(b.neck.y - a.neck.y).toBe(b.head.y - a.head.y);
 });
 
-test('artist kit has four static V3 modules, shared pivots and no separate hand or neck', async () => {
-  const { SOURCE_TEMPLATES, templateDescriptor } = await import('./templates');
-  const base = SOURCE_TEMPLATES.filter((t) => t.field === 'base');
-  expect(base.map((t) => t.id)).toEqual(['head', 'torso', 'arm', 'leg']);
+test('artist templates use native 2× pivots, explicit modes, separate gloves and fixed footwear', async () => {
+  const { SOURCE_TEMPLATES, templateDescriptor, VIEW_MODES } = await import('./templates');
+  expect(SOURCE_TEMPLATES.some((t) => t.field === 'base')).toBe(false);
+  expect(SOURCE_TEMPLATES.find((t) => t.id === 'glove')!.parent).toBe('handLeft');
+  expect(SOURCE_TEMPLATES.find((t) => t.id === 'shoe')!.width).toBe(40);
+  expect(VIEW_MODES.front).toEqual(['south']);
   for (const t of SOURCE_TEMPLATES) {
     const d = templateDescriptor(t);
-    expect(d.mirrorWest).toBe(true);
     expect(d.anchor).toEqual(t.anchor);
+    expect(d.frameWidth).toBe(t.width);
     expect(d.selection.slot).toBe(1);
-  }
-  const { hairPlacement } = await import('./hair');
-  for (let slot = 1; slot <= 4; slot++) {
-    const east = hairPlacement(slot, 'east'),
-      west = hairPlacement(slot, 'west');
-    expect(west.anchor).toEqual(east.anchor);
-    expect(west.row).toBe(east.row);
-    expect(west.mirror).toBe(true);
   }
 });

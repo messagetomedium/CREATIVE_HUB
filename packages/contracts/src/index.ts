@@ -154,36 +154,50 @@ export const AvatarCatalogSchema = z.object({
   version: z.literal(1),
   defaultAvatar: AvatarConfigSchema,
   parts: z.record(z.string(), z.array(z.object({ id: z.string(), label: z.string() }))),
-  sprite: z.object({
-    source: z.discriminatedUnion('kind', [
-      z.object({ kind: z.literal('procedural'), id: z.literal('factory-worker-blockout-v2') }),
-      z.object({
-        kind: z.literal('spritesheet'),
-        url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
-      }),
-      z.object({
-        kind: z.literal('layered-sheets'),
-        layers: z
-          .array(
-            z.object({
-              part: z.enum(['body', 'shoes', 'outfit', 'hair', 'accessory']),
-              partId: z.string(),
-              bodyId: z.string().optional(),
-              url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
-              tint: z.enum(['skin', 'hair', 'outfit', 'shoes']).nullable(),
-            }),
-          )
-          .min(1),
-      }),
-    ]),
-    frameWidth: z.literal(48),
-    frameHeight: z.literal(64),
-    anchor: z.object({ x: z.literal(24), y: z.literal(56) }),
-    animations: z.record(
-      DirectionSchema,
-      z.object({ idle: z.array(z.number().int()).min(1), walk: z.array(z.number().int()).min(2) }),
+  sprite: z
+    .object({
+      source: z.discriminatedUnion('kind', [
+        z.object({ kind: z.literal('procedural'), id: z.literal('factory-worker-blockout-v2') }),
+        z.object({
+          kind: z.literal('spritesheet'),
+          url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
+        }),
+        z.object({
+          kind: z.literal('layered-sheets'),
+          layers: z
+            .array(
+              z.object({
+                part: z.enum(['body', 'shoes', 'outfit', 'hair', 'accessory']),
+                partId: z.string(),
+                bodyId: z.string().optional(),
+                url: z.string().regex(/^\/content\/[a-zA-Z0-9._-]+\.png$/),
+                tint: z.enum(['skin', 'hair', 'outfit', 'shoes']).nullable(),
+              }),
+            )
+            .min(1),
+        }),
+      ]),
+      frameWidth: z.union([z.literal(48), z.literal(96)]),
+      frameHeight: z.union([z.literal(64), z.literal(128)]),
+      anchor: z.union([
+        z.object({ x: z.literal(24), y: z.literal(56) }),
+        z.object({ x: z.literal(48), y: z.literal(112) }),
+      ]),
+      animations: z.record(
+        DirectionSchema,
+        z.object({
+          idle: z.array(z.number().int()).min(1),
+          walk: z.array(z.number().int()).min(2),
+        }),
+      ),
+    })
+    .refine(
+      (s) =>
+        s.frameHeight === (s.frameWidth * 4) / 3 &&
+        s.anchor.x === s.frameWidth / 2 &&
+        s.anchor.y === (s.frameHeight * 7) / 8,
+      'Несовместимая геометрия персонажа',
     ),
-  }),
 });
 export type AvatarCatalog = z.infer<typeof AvatarCatalogSchema>;
 export const ManifestSchema = z.object({

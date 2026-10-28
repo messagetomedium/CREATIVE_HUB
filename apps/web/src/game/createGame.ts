@@ -14,7 +14,8 @@ export async function createGame(
   const selected = avatar ?? content.avatars.defaultAvatar;
   const sheet = await loadAvatarSheet(content.avatars, selected, signal);
   signal.throwIfAborted();
-  const scene = new FactoryScene(content, bridge, selected, sheet);
+  const pixelRatio = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  const scene = new FactoryScene(content, bridge, selected, sheet, pixelRatio);
   const game = new Phaser.Game({
     // The current orthogonal scene needs no shaders. Canvas also avoids software-WebGL
     // framebuffer failures on viewport resize in headless/cloud Chromium.
@@ -22,8 +23,30 @@ export async function createGame(
     parent,
     backgroundColor: '#e0e4da',
     scene: [scene],
-    scale: { mode: Phaser.Scale.RESIZE, width: parent.clientWidth, height: parent.clientHeight },
-    render: { antialias: true, roundPixels: true },
+    scale: {
+      mode: Phaser.Scale.NONE,
+      width: parent.clientWidth * pixelRatio,
+      height: parent.clientHeight * pixelRatio,
+      zoom: 1 / pixelRatio,
+    },
+    callbacks: {
+      postBoot: (instance: Phaser.Game) => {
+        const resize = () => {
+          const w = parent.clientWidth,
+            h = parent.clientHeight;
+          if (w <= 0 || h <= 0) return;
+          if (instance.scale.width !== w * pixelRatio || instance.scale.height !== h * pixelRatio)
+            instance.scale.resize(w * pixelRatio, h * pixelRatio);
+          instance.canvas.style.width = w + 'px';
+          instance.canvas.style.height = h + 'px';
+        };
+        const observer = new ResizeObserver(resize);
+        observer.observe(parent);
+        resize();
+        instance.events.once(Phaser.Core.Events.DESTROY, () => observer.disconnect());
+      },
+    },
+    render: { antialias: false, pixelArt: true, roundPixels: true },
     input: { keyboard: false },
     audio: { noAudio: true },
     banner: false,

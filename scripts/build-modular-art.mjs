@@ -31,7 +31,7 @@ try {
   }
   if (!ready) throw new Error('Art preview startup timed out');
   await run(['scripts/export-avatar-tech.mjs', 'http://127.0.0.1:5199']);
-  await run(['scripts/pack-artist-kit.mjs']);
+  await run(['node_modules/tsx/dist/cli.mjs', 'scripts/character/update-guide.ts']);
 } finally {
   server.kill('SIGTERM');
 }

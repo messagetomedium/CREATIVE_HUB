@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, readdir, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { AvatarCatalogSchema, SceneArtSchema, findPropArt } from '@creative-factory/contracts';
 import { compileMap } from './compile.js';
@@ -59,7 +59,11 @@ const sources = [
 const modularParts = (await readJson('content/avatars/modular/parts.json')) as {
   source?: string;
 }[];
+const imports = (await readJson('content/avatars/modular/import-manifest.json')) as {
+  items: { thumbnail: string }[];
+};
 const imageUrls = [
+  ...imports.items.map((i) => i.thumbnail),
   ...modularParts.flatMap((p) => (p.source ? [p.source] : [])),
   ...sources.flatMap((s) =>
     s.kind === 'spritesheet'
@@ -69,6 +73,12 @@ const imageUrls = [
         : [],
   ),
 ];
+for (const name of await readdir(destination))
+  if (
+    /^character-(?:thumb-)?[a-f0-9]{20}\.png$/.test(name) &&
+    !imageUrls.includes('/content/' + name)
+  )
+    await rm(`${destination}/${name}`);
 for (const url of imageUrls) {
   if (!/^\/content\/[A-Za-z0-9][A-Za-z0-9._-]*\.png$/.test(url) || url.includes('..'))
     throw new Error('Недопустимый путь PNG');

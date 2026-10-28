@@ -22,7 +22,8 @@
     "packages/**/*.ts",
     "tests/**/*.ts",
     "supabase/tests/**/*.ts",
-    "*.config.ts"
+    "*.config.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "**/dist", "**/.cache"]
 }

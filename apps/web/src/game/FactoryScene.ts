@@ -1,3 +1,4 @@
+import { ANIMATION_FPS } from '../avatar/modular/rig';
 import Phaser from 'phaser';
 import type { AvatarConfig, PlayerState, Workshop } from '@creative-factory/contracts';
 import { feetDepth, SHADOW_DEPTH, wallFrame } from '@creative-factory/contracts';
@@ -29,6 +30,7 @@ export class FactoryScene extends Phaser.Scene {
     private bridge: GameBridge,
     private avatar: AvatarConfig = content.avatars.defaultAvatar,
     private avatarSheet: HTMLCanvasElement,
+    private pixelRatio = 1,
   ) {
     super('factory');
     this.state = initialPlayer(content.world);
@@ -118,7 +120,7 @@ export class FactoryScene extends Phaser.Scene {
           this.anims.create({
             key: `${direction}-${mode}`,
             frames: this.anims.generateFrameNumbers('avatar', { frames: animation[mode] }),
-            frameRate: mode === 'idle' ? 2 : 9,
+            frameRate: ANIMATION_FPS[mode],
             repeat: -1,
           });
       }
@@ -135,6 +137,7 @@ export class FactoryScene extends Phaser.Scene {
           avatars.sprite.anchor.x / avatars.sprite.frameWidth,
           avatars.sprite.anchor.y / avatars.sprite.frameHeight,
         )
+        .setScale(48 / avatars.sprite.frameWidth)
         .setDepth(feetDepth(this.state.y));
       this.keyboard = new KeyboardInput(this.game.canvas);
       this.cameras.main
@@ -291,7 +294,7 @@ export class FactoryScene extends Phaser.Scene {
     } else {
       // At normal desktop sizes this is 1:1. Tiny viewports never reveal space outside the world.
       const zoom = Math.max(
-        1,
+        this.pixelRatio,
         this.scale.width / (world.width * 32),
         this.scale.height / (world.height * 32),
       );
@@ -336,7 +339,13 @@ export class FactoryScene extends Phaser.Scene {
       animation: this.player?.anims.currentAnim?.key,
       frame: this.player?.frame.name,
       rendering: {
+        pixelRatio: this.pixelRatio,
+        avatarFilter: this.player?.texture.source[0]?.scaleMode,
         projection: this.content.sceneArt.projection,
+        worldSize: this.player
+          ? { width: this.player.displayWidth, height: this.player.displayHeight }
+          : undefined,
+        sourceResolution: this.player?.texture.getSourceImage().width,
         origin: this.player ? { x: this.player.originX, y: this.player.originY } : undefined,
         playerDepth: this.player?.depth,
         playerRenderY: this.player?.y,

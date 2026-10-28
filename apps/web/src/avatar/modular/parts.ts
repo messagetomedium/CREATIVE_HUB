@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { DirectionSchema } from '@creative-factory/contracts';
 const PointSchema = z
-  .object({ x: z.number().int().min(-64).max(64), y: z.number().int().min(-64).max(64) })
+  .object({ x: z.number().int().min(-128).max(128), y: z.number().int().min(-128).max(128) })
   .strict();
 export const PartSchema = z
   .object({
@@ -35,17 +35,19 @@ export const PartSchema = z
       .string()
       .regex(/^\/content\/[A-Za-z0-9._-]+\.png$/)
       .optional(),
-    frameWidth: z.number().int().min(1).max(48),
-    frameHeight: z.number().int().min(1).max(64),
+    frameWidth: z.number().int().min(1).max(96),
+    frameHeight: z.number().int().min(1).max(128),
     anchor: PointSchema,
     offset: PointSchema,
     fit: z.enum(['head', 'torso', 'pelvis', 'limb', 'fixed']),
     mirrorWest: z.boolean().default(false),
     mirrorX: z.boolean().default(false),
+    pairMirror: z.boolean().default(false),
     referenceWidth: z
-      .object({ front: z.number().int().min(1).max(48), side: z.number().int().min(1).max(48) })
+      .object({ front: z.number().int().min(1).max(96), side: z.number().int().min(1).max(96) })
       .strict()
       .optional(),
+    hideBase: z.boolean().default(false),
     sync: z.enum(['head', 'limb', 'body', 'static']),
     overrides: z
       .array(
