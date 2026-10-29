@@ -878,3 +878,61 @@ test('four authored asymmetrical views survive editor turns and profile walking 
   });
   expect(counts).toEqual([11, 9, 11, 9]);
 });
+
+test('rear palms render behind sleeves and the one-pixel arm gap has a rollback preset', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const { createEditorRig } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const config = updateConstructor(avatarCatalog.defaultAvatar, {
+      build: 'average',
+      gender: 'male',
+      special: null,
+    });
+    const rig = await createEditorRig(config, new AbortController().signal);
+    const attached = await createEditorRig(config, new AbortController().signal, {
+      armPlacement: 'attached',
+    });
+    const c = document.createElement('canvas');
+    c.width = 96;
+    c.height = 128;
+    const ctx = c.getContext('2d')!;
+    const draws: { w: number; h: number }[] = [];
+    const original = ctx.drawImage.bind(ctx);
+    ctx.drawImage = ((...args: Parameters<typeof ctx.drawImage>) => {
+      const image = args[0] as HTMLCanvasElement;
+      draws.push({ w: image.width, h: image.height });
+      return original(...args);
+    }) as typeof ctx.drawImage;
+    const orders = [];
+    for (const dir of ['south', 'north'] as const) {
+      draws.length = 0;
+      ctx.clearRect(0, 0, 96, 128);
+      rig.draw(ctx, dir, 'static', 0);
+      orders.push({
+        hands: draws.flatMap((d, i) => (d.w === 10 && d.h === 10 ? [i] : [])),
+        arms: draws.flatMap((d, i) => (d.w === 10 && d.h === 28 ? [i] : [])),
+      });
+    }
+    ctx.clearRect(0, 0, 96, 128);
+    rig.draw(ctx, 'south', 'static', 0);
+    const gap = ctx.getImageData(63, 72, 1, 1).data[3],
+      shoulder = ctx.getImageData(63, 61, 1, 1).data[3];
+    ctx.clearRect(0, 0, 96, 128);
+    attached.draw(ctx, 'south', 'static', 0);
+    const oldGap = ctx.getImageData(63, 72, 1, 1).data[3];
+    return { orders, gap, shoulder, oldGap };
+  });
+  expect(result.orders[0]!.hands).toHaveLength(2);
+  expect(result.orders[1]!.hands).toHaveLength(2);
+  expect(Math.max(...result.orders[1]!.hands)).toBeLessThan(Math.min(...result.orders[1]!.arms));
+  expect(Math.min(...result.orders[0]!.hands)).toBeGreaterThan(Math.min(...result.orders[0]!.arms));
+  expect(result.gap).toBe(0);
+  expect(result.shoulder).toBe(255);
+  expect(result.oldGap).toBe(255);
+});

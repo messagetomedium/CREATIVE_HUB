@@ -5,7 +5,16 @@ import { loadHairAtlas, loadParts } from './modular/assets';
 import { tintHair, face, attachPart } from './modular/render';
 import { DIRECTIONS, type Pose } from './modular/rig';
 import { drawEditorHair } from './editorHair';
-import { editorMotion, reviewPose, WALK_SECONDS, EDITOR_ARM_LENGTH } from './editorMotion';
+import {
+  editorMotion,
+  reviewPose,
+  WALK_SECONDS,
+  EDITOR_ARM_LENGTH,
+  EDITOR_LEG_LENGTH,
+  editorShoeLayout,
+  EDITOR_ARM_PLACEMENT,
+  type ArmPlacement,
+} from './editorMotion';
 export { reviewPose } from './editorMotion';
 import { OUTLINE, mix } from './modular/materials';
 
@@ -72,12 +81,26 @@ function torsoShape(
   width: number,
   color: string,
   shoulderWidth = width,
+  side = false,
+  connectors = false,
 ) {
+  if (side) {
+    rounded(ctx, 48 - width / 2, 58, width, 34, 5, color);
+    return;
+  }
   const left = 48 - width / 2,
     right = 48 + width / 2;
   shape(
     ctx,
     (x, y) => {
+      if (
+        connectors &&
+        y >= 59 &&
+        y < 65 &&
+        Math.abs(x - 48) >= shoulderWidth / 2 - 2 &&
+        Math.abs(x - 48) < width / 2 + 3
+      )
+        return true;
       const half =
         (shoulderWidth + (width - shoulderWidth) * Math.min(1, Math.max(0, (y - 58) / 26))) / 2;
       if (x < 48 - half || x >= 48 + half || y < 58 || y >= 92) return false;
@@ -109,6 +132,26 @@ function armShape(
       if (y >= 58 + r) return true;
       const outer = side || (index === 0 ? x < 48 : x > 48);
       return !outer || (x - 48) ** 2 + (y - (58 + r)) ** 2 <= r * r;
+    },
+    color,
+  );
+}
+/** Flat at the attachment, rounded only on the outside; same 7×10 mask in every view. */
+function earShape(
+  ctx: CanvasRenderingContext2D,
+  left: number,
+  outer: 'left' | 'right',
+  color: string,
+) {
+  shape(
+    ctx,
+    (x, y) => {
+      if (x < left || x >= left + 7 || y < 33 || y >= 43) return false;
+      const roundedSide = outer === 'left' ? x < left + 3 : x > left + 4;
+      if (!roundedSide || (y >= 36 && y <= 40)) return true;
+      const cx = outer === 'left' ? left + 3 : left + 4,
+        cy = y < 36 ? 36 : 40;
+      return (x - cx) ** 2 + (y - cy) ** 2 <= 9;
     },
     color,
   );
@@ -183,9 +226,11 @@ function drawTexture(ctx: CanvasRenderingContext2D, t: Texture, x: number, y: nu
 export async function createEditorRig(
   config: AvatarConfig,
   signal: AbortSignal,
+  options: { armPlacement?: ArmPlacement } = {},
 ): Promise<EditorRig> {
   const [atlas, parts] = await Promise.all([loadHairAtlas(signal), loadParts(config, signal)]);
   signal.throwIfAborted();
+  const armPlacement = options.armPlacement ?? EDITOR_ARM_PLACEMENT;
   const c = constructorChoices(config),
     hair = tintHair(atlas, config.palette.hair),
     skin = config.palette.skin;
@@ -199,7 +244,7 @@ export async function createEditorRig(
     if (c.gender === 'female' && !has('hair'))
       drawEditorHair(
         out.getContext('2d')!,
-        reviewPose(c.build, dir, 0, c.gender),
+        reviewPose(c.build, dir, 0, c.gender, armPlacement),
         hair,
         c.hair.female,
         pass,
@@ -219,7 +264,7 @@ export async function createEditorRig(
     }
   >();
   for (const dir of DIRECTIONS) {
-    const p = reviewPose(c.build, dir, 0, c.gender),
+    const p = reviewPose(c.build, dir, 0, c.gender, armPlacement),
       side = p.side;
     const make = (
       pivot: { x: number; y: number },
@@ -235,9 +280,10 @@ export async function createEditorRig(
       paint(ctx, p, 'head', 'back');
     });
     const head = make(p.head, (ctx) => {
-      if (!side)
-        for (const x of [24.5, 71.5])
-          shape(ctx, (px, py) => ((px - x) / 3.5) ** 2 + ((py - 38) / 5) ** 2 <= 1, skin);
+      if (!side) {
+        earShape(ctx, 21, 'left', skin);
+        earShape(ctx, 68, 'right', skin);
+      }
       rounded(ctx, 28, 14, 40, 40, 10, skin);
       face(ctx, p, config, parts);
       ctx.drawImage(hs[1]!, 0, 0);
@@ -257,12 +303,7 @@ export async function createEditorRig(
             );
       }
       // One small near ear, on the side plane; never a second ear on the rear silhouette.
-      if (side)
-        shape(
-          ctx,
-          (x, y) => ((x - (dir === 'west' ? 54.5 : 41.5)) / 3.5) ** 2 + ((y - 38) / 5) ** 2 <= 1,
-          skin,
-        );
+      if (side) earShape(ctx, dir === 'west' ? 51 : 38, dir === 'west' ? 'right' : 'left', skin);
       paint(ctx, p, 'head');
       if (config.parts.accessory === 'headphones-01' && !has('special')) {
         if (!side) rounded(ctx, 22, 30, 7, 15, 3, c.colors.special);
@@ -270,8 +311,16 @@ export async function createEditorRig(
       }
     });
     const torso = make({ x: 48, y: 84 }, (ctx) => {
-      torsoShape(ctx, p.hipWidth, skin, p.torsoWidth);
-      if (!has('top')) torsoShape(ctx, p.hipWidth, config.palette.outfit, p.torsoWidth);
+      torsoShape(ctx, p.hipWidth, skin, p.torsoWidth, side, armPlacement === 'separated');
+      if (!has('top'))
+        torsoShape(
+          ctx,
+          p.hipWidth,
+          config.palette.outfit,
+          p.torsoWidth,
+          side,
+          armPlacement === 'separated',
+        );
       ctx.fillStyle = skin;
       ctx.fillRect(44, 50, 8, 12);
       ctx.fillStyle = OUTLINE;
@@ -328,19 +377,23 @@ export async function createEditorRig(
       const color = far ? mix(c.colors.bottom, OUTLINE, 0.14) : c.colors.bottom;
       const leg = canvas(),
         lc = leg.getContext('2d')!;
-      rounded(lc, x - w / 2, 82, w, 28, Math.min(4, w / 2), skin);
-      if (!has('bottom')) rounded(lc, x - w / 2, 82, w, 28, Math.min(4, w / 2), color);
+      const legShape = (px: number, py: number) =>
+        px >= x - w / 2 && px < x + w / 2 && py >= 82 && py < 84 + EDITOR_LEG_LENGTH;
+      shape(lc, legShape, skin);
+      if (!has('bottom')) shape(lc, legShape, color);
       paint(lc, p, i === 0 ? 'legLeft' : 'legRight', 'back');
       paint(lc, p, i === 0 ? 'legLeft' : 'legRight');
       legs.push(texture(leg, { x, y: 84 }));
+      const footY = 84 + EDITOR_LEG_LENGTH,
+        shoe = editorShoeLayout(c.build, dir, i);
       feet.push(
-        make({ x, y: 108 }, (ctx) => {
+        make({ x, y: footY }, (ctx) => {
           rounded(
             ctx,
-            x - (side ? (dir === 'west' ? 9 : 5) : 6),
-            106,
-            side ? 14 : 12,
-            7,
+            x + shoe.left,
+            footY + shoe.top,
+            shoe.width,
+            shoe.height,
             2,
             far ? mix(config.palette.shoes, OUTLINE, 0.14) : config.palette.shoes,
           );
@@ -354,7 +407,7 @@ export async function createEditorRig(
     textureCount: 4 * 11,
     draw(ctx, direction, animation, seconds) {
       const assets = prepared.get(direction)!;
-      const m = editorMotion(c.build, direction, animation, seconds, c.gender),
+      const m = editorMotion(c.build, direction, animation, seconds, c.gender, armPlacement),
         side = direction === 'east' || direction === 'west';
       ctx.save();
       ctx.imageSmoothingEnabled = false;
@@ -364,16 +417,19 @@ export async function createEditorRig(
         draw();
         ctx.restore();
       };
-      const arm = (i: number) => {
+      const arm = (i: number, handOnly = false) => {
         const a = m.arms[i]!,
           h = m.hands[i]!;
         ctx.save();
         ctx.translate(a.x, a.y);
-        drawTexture(ctx, assets.arms[i]!, 0, 0);
-        drawTexture(ctx, assets.hands[i]!, h.x, h.y);
+        if (handOnly) drawTexture(ctx, assets.hands[i]!, h.x, h.y);
+        else {
+          drawTexture(ctx, assets.arms[i]!, 0, 0);
+          if (direction !== 'north') drawTexture(ctx, assets.hands[i]!, h.x, h.y);
+        }
         ctx.restore();
       };
-      body(() => drawTexture(ctx, assets.back, 0, -50));
+      body(() => drawTexture(ctx, assets.back, m.head.x, m.head.y));
       const near = direction === 'west' ? 0 : 1,
         far = 1 - near;
       if (side && animation !== 'walk') body(() => arm(far));
@@ -383,18 +439,26 @@ export async function createEditorRig(
         drawTexture(ctx, assets.feet[i]!, 48 + l.ankle.x, l.ankle.y);
       }
       body(() => {
+        if (direction === 'north') {
+          arm(0, true);
+          arm(1, true);
+        }
         drawTexture(ctx, assets.torso, 0, 0);
         if (!side) arm(0);
         arm(side ? near : 1);
-        drawTexture(ctx, assets.head, 0, -50);
+        drawTexture(ctx, assets.head, m.head.x, m.head.y);
       });
       ctx.restore();
     },
   };
 }
 /** Bake once per appearance change. Both the player and inspector use this exact sheet. */
-export async function loadEditorReview(config: AvatarConfig, signal: AbortSignal) {
-  const rig = await createEditorRig(config, signal),
+export async function loadEditorReview(
+  config: AvatarConfig,
+  signal: AbortSignal,
+  options: { armPlacement?: ArmPlacement } = {},
+) {
+  const rig = await createEditorRig(config, signal, options),
     sheet = document.createElement('canvas');
   sheet.width = 576;
   sheet.height = 512;

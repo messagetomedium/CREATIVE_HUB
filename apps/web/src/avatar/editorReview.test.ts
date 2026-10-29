@@ -53,7 +53,7 @@ test('editor uses two held idle frames, four integer walking frames and viewer-r
       for (const l of m.legs) {
         expect(l.hip.x).toBe(l.knee.x);
         expect(l.knee.x).toBe(l.ankle.x);
-        expect(l.ankle.y - l.hip.y).toBe(24);
+        expect(l.ankle.y - l.hip.y).toBe(26);
       }
     }
     expect(poses.size).toBeLessThanOrEqual(4);
@@ -72,7 +72,7 @@ test('wider arm seams, overlapping fists and narrow profile feet stay attached i
   for (const build of ['very-slim', 'slim', 'average', 'sturdy'] as const) {
     const front = editorMotion(build, 'south', 'static', 0),
       dims = editorDimensions(build, false);
-    expect(Math.abs(front.arms[0]!.x) - dims.armWidth / 2).toBe(dims.torsoWidth / 2 - 1);
+    expect(Math.abs(front.arms[0]!.x) - dims.armWidth / 2).toBe(dims.torsoWidth / 2 + 1);
     for (const dir of ['south', 'north', 'east', 'west'] as const)
       for (let i = 0; i < 4; i++) {
         const p = editorMotion(build, dir, 'walk', i / 8);
@@ -80,7 +80,7 @@ test('wider arm seams, overlapping fists and narrow profile feet stay attached i
           expect(hand.y + 4 - 5).toBeLessThan(EDITOR_ARM_LENGTH); // circle overlaps the end of the arm
           expect(Math.abs(hand.x)).toBeLessThanOrEqual(1);
         }
-        expect(reviewPose(build, dir, i + 2).head.y - 34).toBe(p.body.y - 84);
+        expect(reviewPose(build, dir, i + 2).head.y - 34).toBe(p.body.y - 84 + p.head.y + 50);
         if ((build === 'slim' || build === 'very-slim') && (dir === 'east' || dir === 'west')) {
           const half = editorDimensions(build, true).torsoWidth / 2;
           for (const l of p.legs) {
@@ -94,7 +94,8 @@ test('wider arm seams, overlapping fists and narrow profile feet stay attached i
   const thin = reviewPose('very-slim', 'south', 0),
     slim = reviewPose('slim', 'south', 0);
   expect(thin.torsoWidth).toBeLessThan(slim.torsoWidth);
-  expect(thin.arms[0]!.width).toBeLessThan(slim.arms[0]!.width);
+  expect(thin.arms[0]!.width).toBe(slim.arms[0]!.width);
+  expect(thin.arms[0]!.width).toBe(8);
   expect(thin.legs[0]!.width).toBeLessThan(slim.legs[0]!.width);
   expect(thin.head).toEqual(slim.head);
   expect(pose('very-slim', 'south', 0)).toEqual(pose('slim', 'south', 0));
@@ -109,7 +110,8 @@ test('female shoulders narrow without changing the base, arms lengthen and thin 
       const m = editorDimensions(build, side, 'male'),
         f = editorDimensions(build, side, 'female');
       expect(f.torsoWidth).toBe(m.torsoWidth);
-      expect(f.shoulderWidth).toBeLessThan(m.shoulderWidth);
+      if (side) expect(f.shoulderWidth).toBe(m.shoulderWidth);
+      else expect(f.shoulderWidth).toBeLessThan(m.shoulderWidth);
       expect(m.shoulderWidth).toBe(m.torsoWidth);
       expect(f.armWidth).toBe(m.armWidth);
       if (side && (build === 'very-slim' || build === 'slim')) {
@@ -130,5 +132,50 @@ test('female shoulders narrow without changing the base, arms lengthen and thin 
     );
     expect(views.map((v) => v.row)).toEqual([0, 1, 2, 3]);
     expect(new Set(views.map((v) => v.scaleY)).size).toBe(1);
+  }
+});
+
+test('whole legs lift higher in the forward recovery for both facing directions and heels meet calves', async () => {
+  const { editorMotion, editorDimensions, editorShoeLayout, EDITOR_LEG_LENGTH } =
+    await import('./editorMotion');
+  for (const build of ['very-slim', 'slim', 'average', 'sturdy'] as const) {
+    for (const dir of ['east', 'west'] as const) {
+      const facing = dir === 'east' ? 1 : -1;
+      const frames = [0, 1, 2, 3].map((i) => editorMotion(build, dir, 'walk', i / 8));
+      for (let leg = 0; leg < 2; leg++) {
+        const order = [0, 1, 2, 3].map((step) => frames[(step - leg * 2 + 4) % 4]!.legs[leg]!);
+        const x = order.map((p) => facing * p.ankle.x);
+        expect(x[0]).toBeGreaterThan(x[1]!);
+        expect(x[1]).toBeGreaterThan(x[2]!);
+        expect(x[3]).toBeGreaterThan(x[2]!);
+        expect(x[0]).toBeGreaterThan(x[3]!);
+        expect(order[0]!.hip.y - order[3]!.hip.y).toBe(6);
+        expect(order[0]!.hip.y - order[2]!.hip.y).toBe(2);
+        const heel = Math.max(5, editorDimensions(build, true).legWidth / 2),
+          shoe = editorShoeLayout(build, dir, leg);
+        expect(dir === 'east' ? shoe.left : shoe.left + shoe.width).toBe(
+          dir === 'east' ? -heel : heel,
+        );
+        expect(order[0]!.ankle.y - order[0]!.hip.y).toBe(EDITOR_LEG_LENGTH);
+      }
+      expect(frames[1]!.head.y).toBe(-51);
+      expect(frames[0]!.head.y).toBe(-50);
+    }
+    const m = editorDimensions(build, false, 'male', 'north'),
+      f = editorDimensions(build, false, 'female', 'north');
+    expect(f.shoulderWidth).toBe(m.shoulderWidth);
+    for (const dir of ['south', 'north'] as const)
+      for (let i = 0; i < 2; i++) {
+        const p = editorMotion(build, dir, 'static', 0),
+          shoe = editorShoeLayout(build, dir, i),
+          width = editorDimensions(build, false).legWidth;
+        if (width >= 12)
+          expect(p.legs[i]!.hip.x < 0 ? shoe.left : shoe.left + shoe.width).toBe(
+            p.legs[i]!.hip.x < 0 ? -width / 2 : width / 2,
+          );
+      }
+    const attached = editorMotion(build, 'south', 'static', 0, 'male', 'attached');
+    const separated = editorMotion(build, 'south', 'static', 0, 'male', 'separated');
+    expect(Math.abs(separated.arms[0]!.x) - Math.abs(attached.arms[0]!.x)).toBe(2);
   }
 });
