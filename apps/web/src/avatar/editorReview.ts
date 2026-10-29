@@ -143,16 +143,17 @@ function armShape(
         if ((x + 0.5 - 48) ** 2 + (y + 0.5 - (bottom - r)) ** 2 <= r * r) ctx.fillRect(x, y, 1, 1);
   }
 }
-/** Flat at the attachment, rounded only on the outside; same 7×10 mask in every view. */
+/** Flat at the attachment, rounded only on the outside; same 6×10 mask in every view. */
 function earShape(
   ctx: CanvasRenderingContext2D,
   left: number,
   outer: 'left' | 'right',
   color: string,
 ) {
+  const width = 6;
   ctx.save();
   ctx.beginPath();
-  ctx.rect(left, 33, 7, 10);
+  ctx.rect(left, 33, width, 10);
   ctx.clip();
   shape(
     ctx,
@@ -160,11 +161,11 @@ function earShape(
       // Extend only the hidden attachment before clipping. This opens the inner
       // edge without painting a skin strip over the ear's top/bottom contours.
       const minX = outer === 'left' ? left : left - 2,
-        maxX = outer === 'left' ? left + 9 : left + 7;
+        maxX = left + width + (outer === 'left' ? 2 : 0);
       if (x < minX || x >= maxX || y < 33 || y >= 43) return false;
-      const roundedSide = outer === 'left' ? x < left + 3 : x > left + 4;
+      const roundedSide = outer === 'left' ? x < left + 3 : x > left + width - 3;
       if (!roundedSide || (y >= 36 && y <= 40)) return true;
-      const cx = outer === 'left' ? left + 3 : left + 4,
+      const cx = outer === 'left' ? left + 3 : left + width - 3,
         cy = y < 36 ? 36 : 40;
       return (x - cx) ** 2 + (y - cy) ** 2 <= 9;
     },
@@ -297,7 +298,7 @@ export async function createEditorRig(
     });
     const head = make(p.head, (ctx) => {
       if (!side) {
-        earShape(ctx, 21, 'left', skin);
+        earShape(ctx, 22, 'left', skin);
         earShape(ctx, 68, 'right', skin);
       }
       // The ear's inner edge is open; the head supplies the single shared contour.
@@ -320,7 +321,7 @@ export async function createEditorRig(
             );
       }
       // One small near ear, on the side plane; never a second ear on the rear silhouette.
-      if (side) earShape(ctx, dir === 'west' ? 51 : 38, dir === 'west' ? 'right' : 'left', skin);
+      if (side) earShape(ctx, dir === 'west' ? 51 : 39, dir === 'west' ? 'right' : 'left', skin);
       paint(ctx, p, 'head');
       if (config.parts.accessory === 'headphones-01' && !has('special')) {
         if (!side) rounded(ctx, 22, 30, 7, 15, 3, c.colors.special);

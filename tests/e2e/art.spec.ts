@@ -731,8 +731,8 @@ test('editor plays baked pixel frames with pauses and equal front/profile ears',
     );
     const ctx = s.getContext('2d')!;
     return {
-      front: [...ctx.getImageData(21, 256 + 33, 7, 10).data],
-      side: [...ctx.getImageData(38, 128 + 33, 7, 10).data],
+      front: [...ctx.getImageData(22, 256 + 33, 6, 10).data],
+      side: [...ctx.getImageData(39, 128 + 33, 6, 10).data],
     };
   });
   // Profile corners contain head pixels; compare the actual ear silhouette only.
@@ -983,7 +983,9 @@ test('open wrists and ears keep one head contour and baked walking frames keep t
       ].flatMap(({ row, xs }) =>
         xs.flatMap((x) => [33, 34, 41, 42].map((y) => pixel(x, row * 128 + y))),
       ),
-      outside: pixel(21, 256 + 38),
+      outside: pixel(22, 256 + 38),
+      // Each ear loses exactly its inner column and moves one pixel towards the head.
+      removedEarColumns: [21, 74].map((x) => pixel(x, 256 + 38)[3]),
       head,
       heads,
     };
@@ -992,5 +994,6 @@ test('open wrists and ears keep one head contour and baked walking frames keep t
   for (const edge of result.headContour) expect(edge).toEqual([53, 43, 53, 255]);
   for (const edge of result.earAttachmentContours) expect(edge).toEqual([53, 43, 53, 255]);
   expect(result.outside).toEqual([53, 43, 53, 255]);
+  expect(result.removedEarColumns).toEqual([0, 0]);
   for (const head of result.heads) expect(head).toEqual(result.head);
 });
