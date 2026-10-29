@@ -5,7 +5,7 @@ export const EDITOR_ARM_LENGTH = 22;
 export const EDITOR_LEG_LENGTH = 26;
 export type ArmPlacement = 'attached' | 'separated';
 // Previous approved placement (9c6054f) is retained for a one-parameter rollback.
-export const EDITOR_ARM_PLACEMENT: ArmPlacement = 'separated';
+export const EDITOR_ARM_PLACEMENT: ArmPlacement = 'attached';
 export function editorDimensions(
   build: EditorBuild,
   side: boolean,
@@ -22,7 +22,21 @@ export function editorDimensions(
     spacing: Math.round(7 * factor),
   };
 }
-export const WALK_SECONDS = 4 / ANIMATION_FPS.walk;
+// Longer passing holds let the opposite foot stay planted; no interpolated poses.
+export const EDITOR_WALK_FRAME_MS = [125, 175, 125, 175] as const;
+export const WALK_SECONDS = EDITOR_WALK_FRAME_MS.reduce((sum, ms) => sum + ms, 0) / 1000;
+export function editorWalkPoseSeconds(phase: number) {
+  return EDITOR_WALK_FRAME_MS.slice(0, phase % 4).reduce((sum, ms) => sum + ms, 0) / 1000;
+}
+export function editorWalkPhase(seconds: number) {
+  const elapsed = Math.floor(Math.max(0, seconds) * 1000 + 1e-6) % (WALK_SECONDS * 1000);
+  let end = 0;
+  for (let phase = 0; phase < 4; phase++) {
+    end += EDITOR_WALK_FRAME_MS[phase]!;
+    if (elapsed < end) return phase;
+  }
+  return 0;
+}
 export type Joint = Point & { rotation: 0 };
 export interface EditorMotion {
   body: Joint;
@@ -42,7 +56,7 @@ export function editorMotion(
 ): EditorMotion {
   const side = direction === 'east' || direction === 'west';
   const walking = animation === 'walk';
-  const phase = Math.floor(Math.max(0, seconds) * ANIMATION_FPS.walk + 1e-8) % 4;
+  const phase = editorWalkPhase(seconds);
   const bob = walking
     ? [0, -1, 0, -1][phase]!
     : animation === 'idle'
@@ -72,15 +86,15 @@ export function editorMotion(
   const legs = [-1, 1].map((sign, i) => {
     const step = (phase + i * 2) % 4;
     const narrow = build === 'slim' || build === 'very-slim';
-    const baseX = side ? (narrow ? -2 + sign : sign * 2) : frontSign * sign * dims.spacing;
+    const baseX = side ? (narrow ? -1 + sign : sign * 2) : frontSign * sign * dims.spacing;
     // Keep the straight leg under the narrow torso while allowing forward toe reach.
-    const stride = narrow ? Math.max(0, width / 2 - 8) : 5;
+    const stride = narrow ? Math.max(0, width / 2 - 7) : 5;
     // Use spare space ahead of the leg, keeping the straight leg under the torso.
-    const reach = narrow ? Math.min(stride + 2, width / 2 - dims.legWidth / 2 + 1) : stride;
+    const reach = narrow ? Math.min(stride + 2, width / 2 - dims.legWidth / 2) : stride;
     const x = side
       ? facing * (baseX + (walking ? [reach, 0, -stride, Math.ceil(reach / 2)][step]! : 0))
       : baseX;
-    const y = 84 - (walking ? [0, 0, 2, 6][step]! : 0);
+    const y = 84 - (walking ? [0, 0, 0, 6][step]! : 0);
     // The entire straight leg is translated as one image; no knee segments or bends.
     return {
       hip: { x, y, rotation: 0 as const },
@@ -90,7 +104,7 @@ export function editorMotion(
   });
   return {
     body: { x: 48, y: 84 + bob, rotation: 0 },
-    head: { x: 0, y: -50 + (walking ? [0, -1, 0, -1][phase]! : 0), rotation: 0 },
+    head: { x: 0, y: -50 - (walking ? bob : 0), rotation: 0 },
     arms,
     hands,
     legs,
@@ -110,7 +124,7 @@ export function reviewPose(
     build,
     direction,
     walking ? 'walk' : frame === 1 ? 'idle' : 'static',
-    walking ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 0.5 : 0,
+    walking ? editorWalkPoseSeconds(frame - 2) : frame === 1 ? 0.5 : 0,
     gender,
     armPlacement,
   );
@@ -155,18 +169,10 @@ export const turnPreview = (direction: Direction, turn: 'left' | 'right'): Direc
 export function editorShoeLayout(build: EditorBuild, direction: Direction, index: number) {
   const side = direction === 'east' || direction === 'west',
     leg = editorDimensions(build, side).legWidth;
-  const heel = Math.max(5, leg / 2),
-    screenSign = (direction === 'north' ? -1 : 1) * (index === 0 ? -1 : 1);
+  const heel = Math.max(5, leg / 2);
+  void index;
   return {
-    left: side
-      ? direction === 'west'
-        ? heel - 14
-        : -heel
-      : leg >= 12
-        ? screenSign < 0
-          ? -leg / 2
-          : leg / 2 - 12
-        : -6,
+    left: side ? (direction === 'west' ? heel - 14 : -heel) : -6,
     width: side ? 14 : 12,
     height: 7,
     top: -2,

@@ -3,6 +3,7 @@ import type { AvatarConfig, Direction } from '@creative-factory/contracts';
 import { loadAvatarSheet } from './art';
 import { avatarCatalog } from './catalog';
 import { loadEditorReview } from './editorReview';
+import { editorWalkPhase } from './editorMotion';
 import { FRAME, ANIMATION_FPS } from './modular/rig';
 export function AvatarPreview({
   config,
@@ -62,10 +63,12 @@ export function AvatarPreview({
     const draw = (time: number) => {
       const frame =
         frames[
-          Math.floor(
-            Math.max(0, time - started) /
-              (animation === 'walk' ? 1000 / ANIMATION_FPS.walk : 1000 / ANIMATION_FPS.idle),
-          ) % frames.length
+          review && animation === 'walk'
+            ? editorWalkPhase(Math.max(0, time - started) / 1000)
+            : Math.floor(
+                Math.max(0, time - started) /
+                  (animation === 'walk' ? 1000 / ANIMATION_FPS.walk : 1000 / ANIMATION_FPS.idle),
+              ) % frames.length
         ]!;
       if (frame !== previous) {
         ctx.clearRect(0, 0, width, height);

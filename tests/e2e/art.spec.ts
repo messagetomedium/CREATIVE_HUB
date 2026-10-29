@@ -554,7 +554,7 @@ test('editor approval body has two pixel contours, rigid breathing hair and equa
       new AbortController().signal,
     );
     const mc = male.getContext('2d')!;
-    const edge = [28, 29, 30].map((x) => [...mc.getImageData(x, 256 + 34, 1, 1).data]);
+    const edge = [28, 29, 30].map((x) => [...mc.getImageData(x, 256 + 28, 1, 1).data]);
     return {
       headDifferences,
       legDifferences,
@@ -879,7 +879,7 @@ test('four authored asymmetrical views survive editor turns and profile walking 
   expect(counts).toEqual([11, 9, 11, 9]);
 });
 
-test('rear palms render behind sleeves and the one-pixel arm gap has a rollback preset', async ({
+test('rear palms render behind sleeves and attached arm placement is restored by default', async ({
   page,
 }) => {
   await page.goto('/');
@@ -895,8 +895,8 @@ test('rear palms render behind sleeves and the one-pixel arm gap has a rollback 
       special: null,
     });
     const rig = await createEditorRig(config, new AbortController().signal);
-    const attached = await createEditorRig(config, new AbortController().signal, {
-      armPlacement: 'attached',
+    const separated = await createEditorRig(config, new AbortController().signal, {
+      armPlacement: 'separated',
     });
     const c = document.createElement('canvas');
     c.width = 96;
@@ -924,7 +924,7 @@ test('rear palms render behind sleeves and the one-pixel arm gap has a rollback 
     const gap = ctx.getImageData(63, 72, 1, 1).data[3],
       shoulder = ctx.getImageData(63, 61, 1, 1).data[3];
     ctx.clearRect(0, 0, 96, 128);
-    attached.draw(ctx, 'south', 'static', 0);
+    separated.draw(ctx, 'south', 'static', 0);
     const oldGap = ctx.getImageData(63, 72, 1, 1).data[3];
     return { orders, gap, shoulder, oldGap };
   });
@@ -932,7 +932,51 @@ test('rear palms render behind sleeves and the one-pixel arm gap has a rollback 
   expect(result.orders[1]!.hands).toHaveLength(2);
   expect(Math.max(...result.orders[1]!.hands)).toBeLessThan(Math.min(...result.orders[1]!.arms));
   expect(Math.min(...result.orders[0]!.hands)).toBeGreaterThan(Math.min(...result.orders[0]!.arms));
-  expect(result.gap).toBe(0);
+  expect(result.gap).toBe(255);
   expect(result.shoulder).toBe(255);
-  expect(result.oldGap).toBe(255);
+  expect(result.oldGap).toBe(0);
+});
+
+test('wrist and ear joins are skin-colored and baked walking frames keep the head stationary', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const { loadEditorReview } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const config = updateConstructor(avatarCatalog.defaultAvatar, {
+      gender: 'male',
+      build: 'average',
+      hair: { male: 1, female: 1 },
+      special: null,
+    });
+    const sheet = await loadEditorReview(config, new AbortController().signal),
+      ctx = sheet.getContext('2d')!;
+    const pixel = (x: number, y: number) => [...ctx.getImageData(x, y, 1, 1).data];
+    const skin = [1, 3, 5].map((i) => parseInt(config.palette.skin.slice(i, i + 2), 16));
+    skin.push(255);
+    const head = [...ctx.getImageData(0, 256, 96, 50).data];
+    const heads = [2, 3, 4, 5].map((frame) => [...ctx.getImageData(frame * 96, 256, 96, 50).data]);
+    return {
+      skin,
+      joins: [
+        pixel(27, 256 + 38),
+        pixel(28, 256 + 38),
+        pixel(29, 256 + 38),
+        pixel(43, 128 + 38),
+        pixel(44, 128 + 38),
+        pixel(67, 256 + 82),
+        pixel(67, 85),
+      ],
+      outside: pixel(21, 256 + 38),
+      head,
+      heads,
+    };
+  });
+  for (const join of result.joins) expect(join).toEqual(result.skin);
+  expect(result.outside).toEqual([53, 43, 53, 255]);
+  for (const head of result.heads) expect(head).toEqual(result.head);
 });

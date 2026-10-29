@@ -8,7 +8,7 @@ import { drawEditorHair } from './editorHair';
 import {
   editorMotion,
   reviewPose,
-  WALK_SECONDS,
+  editorWalkPoseSeconds,
   EDITOR_ARM_LENGTH,
   EDITOR_LEG_LENGTH,
   editorShoeLayout,
@@ -135,6 +135,13 @@ function armShape(
     },
     color,
   );
+  if (!sleeve) {
+    // Open the lower attachment instead of outlining an internal wrist seam.
+    ctx.fillStyle = color;
+    for (let y = bottom - r; y < bottom; y++)
+      for (let x = left + 2; x < right - 2; x++)
+        if ((x + 0.5 - 48) ** 2 + (y + 0.5 - (bottom - r)) ** 2 <= r * r) ctx.fillRect(x, y, 1, 1);
+  }
 }
 /** Flat at the attachment, rounded only on the outside; same 7×10 mask in every view. */
 function earShape(
@@ -155,6 +162,8 @@ function earShape(
     },
     color,
   );
+  ctx.fillStyle = color;
+  ctx.fillRect(outer === 'left' ? left + 5 : left, 33, 2, 10);
 }
 function hairContour(c: HTMLCanvasElement) {
   const ctx = c.getContext('2d')!,
@@ -285,6 +294,12 @@ export async function createEditorRig(
         earShape(ctx, 68, 'right', skin);
       }
       rounded(ctx, 28, 14, 40, 40, 10, skin);
+      if (!side) {
+        // Also remove the head contour at the ear join, leaving hair on its own layer.
+        ctx.fillStyle = skin;
+        ctx.fillRect(28, 33, 2, 10);
+        ctx.fillRect(66, 33, 2, 10);
+      }
       face(ctx, p, config, parts);
       ctx.drawImage(hs[1]!, 0, 0);
       if (c.gender === 'male' && !has('hair')) {
@@ -368,6 +383,12 @@ export async function createEditorRig(
             (x, y) => ((x - 48) / 5) ** 2 + ((y - (68 + EDITOR_ARM_LENGTH)) / 5) ** 2 <= 1,
             skin,
           );
+          // Open the circle at the wrist too, keeping its outside outline intact.
+          ctx.fillStyle = skin;
+          for (let y = 63 + EDITOR_ARM_LENGTH; y < 68 + EDITOR_ARM_LENGTH; y++)
+            for (let x = 48 - width / 2 + 2; x < 48 + width / 2 - 2; x++)
+              if (((x + 0.5 - 48) / 5) ** 2 + ((y + 0.5 - (68 + EDITOR_ARM_LENGTH)) / 5) ** 2 <= 1)
+                ctx.fillRect(x, y, 1, 1);
           paint(ctx, armP, handParent);
         }),
       );
@@ -471,7 +492,7 @@ export async function loadEditorReview(
         ctx,
         direction,
         frame >= 2 ? 'walk' : frame === 1 ? 'idle' : 'static',
-        frame >= 2 ? ((frame - 2) * WALK_SECONDS) / 4 : frame === 1 ? 0.5 : 0,
+        frame >= 2 ? editorWalkPoseSeconds(frame - 2) : frame === 1 ? 0.5 : 0,
       );
       ctx.restore();
     }
