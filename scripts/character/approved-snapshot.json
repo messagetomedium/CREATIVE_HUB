@@ -1,0 +1,14 @@
+{
+  "approvedCommit": "01432c73feda86f822f8949ab9e91794e7cccfb5",
+  "approvedOn": "2026-10-29",
+  "sha256": {
+    "apps/web/src/avatar/editorMotion.ts": "bf716fd78d0eaef34a9580a202edd4c11bfa07f31c30ee3c52a2a9e303e05862",
+    "apps/web/src/avatar/editorReview.ts": "2e34fe35e7faf1bdd232155e1e3621f2721989089f56ff40b9e00512eaecaae6",
+    "apps/web/src/avatar/editorHair.ts": "4d40360e9bf95f8e256bccb361e6dcd837998fba69640f75c7fe4bb0710f144e",
+    "apps/web/src/avatar/AvatarPreview.tsx": "0d17631c5d98599e07ebf65806c266adcd6bd0eab402e65e0c4b78979d2d0736",
+    "apps/web/src/avatar/modular/rig.ts": "16ded83e48a51118ad25ae28289551e67fa25c23513fda8950056776b444f1f8",
+    "apps/web/src/avatar/modular/render.ts": "5219783338f57cef3c03df5fad8ed8c6f9449644f99281b3e4a5afc978a4dc22",
+    "apps/web/src/avatar/modular/materials.ts": "192f615e150d9559cc9d7904dd135b010f7710c664a459b5d1580af8e4557def",
+    "apps/web/src/avatar/editor.ts": "ece2ed7f1a40829b4b4ccc27877cdd0d3f1af6b12b01ccd1a9cbefe4d3b2b893"
+  }
+}

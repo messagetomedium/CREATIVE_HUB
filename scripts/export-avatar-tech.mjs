@@ -1,8 +1,19 @@
 import { chromium } from '@playwright/test';
 import { existsSync } from 'node:fs';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { format } from 'prettier';
+import snapshot from './character/approved-snapshot.json' with { type: 'json' };
+
+// Documentation export only. Reads the approved editor; never modifies app code/assets.
+for (const [file, hash] of Object.entries(snapshot.sha256)) {
+  const actual = createHash('sha256')
+    .update(await readFile(file))
+    .digest('hex');
+  if (actual !== hash)
+    throw new Error(`Approved editor changed: ${file}. Do not silently refreeze it.`);
+}
 const base = new URL(process.argv[2] ?? 'http://127.0.0.1:5173');
 if (!['localhost', '127.0.0.1'].includes(base.hostname)) throw new Error('Use local Vite');
 const browser = await chromium.launch({
@@ -12,238 +23,362 @@ const browser = await chromium.launch({
 });
 try {
   const page = await browser.newPage();
+  let registryIsolated = false;
+  // Isolate reference generation from future imported clothing without editing the registry.
+  await page.route('**/content/avatars/modular/parts.json*', (route) => {
+    registryIsolated = true;
+    return route.fulfill({ contentType: 'application/javascript', body: 'export default [];' });
+  });
   await page.goto(base.href);
-  await rm('TECH_DOCS/CHARACTER/TEMPLATES', { recursive: true, force: true });
-  const pack = await page.evaluate(async () => {
-    const { SOURCE_TEMPLATES, VIEW_MODES, templateModes, templateFolder } =
-      await import('/src/avatar/modular/templates.ts');
-    const { pose, FRAME, BODY_SHAPES, RIG_VERSION, DIRECTIONS, ANIMATION_FPS, FACE_ANCHORS } =
-      await import('/src/avatar/modular/rig.ts');
-    const { hairLayer, LOWER_LAYOUT, lowerLegSourceX } =
-      await import('/src/avatar/modular/layout.ts');
-    const { renderBaseModule, renderNeck, assemble, parentPoint } =
-      await import('/src/avatar/modular/render.ts');
-    const { avatarCatalog } = await import('/src/avatar/catalog.ts');
-    const { updateConstructor } = await import('/src/avatar/editor.ts');
-    const { loadAvatarSheet } = await import('/src/avatar/art.ts');
-    const files = {},
-      records = [];
-    const make = (w, h) => {
-      const c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      return c;
-    };
-    const save = (name, c) => (files[name] = c.toDataURL('image/png').split(',')[1]);
-    const pal = ['#202020', '#505050', '#808080', '#b8b8b8', '#f0f0f0'];
-    for (const t of SOURCE_TEMPLATES)
-      for (const mode of templateModes(t)) {
-        const views = VIEW_MODES[mode];
-        const c = make(t.width, t.height * views.length),
-          ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        for (const [row, dir] of views.entries()) {
-          const p = pose('average', dir, 0),
-            parent = parentPoint(p, t.parent);
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(0, row * t.height, t.width, t.height);
-          ctx.clip();
-          ctx.translate(t.anchor.x - parent.x, row * t.height + t.anchor.y - parent.y);
-          ctx.globalAlpha = 0.08;
-          for (let py = 0; py < t.height; py++)
-            for (let px = 0; px < t.width; px++)
-              if ((px + py) % 2 === 0) {
-                ctx.fillStyle = '#7495a9';
-                ctx.fillRect(parent.x - t.anchor.x + px, parent.y - t.anchor.y + py, 1, 1);
-              }
-          ctx.globalAlpha = 0.14;
-          const headOnly = ['eyes', 'mouth', 'details'].includes(t.id);
-          for (const name of [
-            'legLeft',
-            'legRight',
-            'footLeft',
-            'footRight',
-            'torso',
-            'armLeft',
-            'armRight',
-            'handLeft',
-            'handRight',
-            'head',
-          ])
-            if (
-              (!headOnly || name === 'head') &&
-              (t.id !== 'shoe' || ['legLeft', 'footLeft'].includes(name))
-            )
-              renderBaseModule(ctx, p, name, pal);
-          if (headOnly) renderNeck(ctx, p, pal);
-          ctx.globalAlpha = 0.58;
-          if (/^(pants|shorts|skirt)-/.test(t.id)) {
-            for (const module of ['torso', ...(p.side ? ['legRight'] : ['legLeft', 'legRight'])])
-              renderBaseModule(ctx, p, module, pal);
-          } else renderBaseModule(ctx, p, t.parent, pal);
-          if (t.parent === 'head') {
-            ctx.globalAlpha = 0.35;
-            ctx.fillStyle = '#7495a9';
-            for (const pt of FACE_ANCHORS[dir].eyes)
-              ctx.fillRect(p.head.x + pt.x, p.head.y + pt.y, 4, 8);
-            for (const pt of FACE_ANCHORS[dir].mouth)
-              ctx.fillRect(p.head.x + pt.x, p.head.y + pt.y, 3, 1);
-          }
-          ctx.restore();
-          if (t.id.startsWith('hair-')) {
-            for (let py = 1; py < t.height - 1; py++)
-              for (let px = 1; px < t.width - 1; px++) {
-                ctx.fillStyle = hairLayer(px, py, dir) === 'front' ? '#d34b8420' : '#258b9130';
-                ctx.fillRect(px, row * t.height + py, 1, 1);
-              }
-          }
-          if (/^(pants|shorts|skirt)-/.test(t.id)) {
-            const high = t.id.endsWith('-high'),
-              max = t.id.startsWith('shorts') ? LOWER_LAYOUT.shortHem : LOWER_LAYOUT.maxHem;
-            ctx.fillStyle = '#d34b8430';
-            ctx.fillRect(
-              1,
-              row * t.height + 1,
-              t.width - 2,
-              (high ? LOWER_LAYOUT.bandTop : LOWER_LAYOUT.bandBottom) - 1,
+  const pack = await page.evaluate(
+    async ({ contractUrl }) => {
+      const {
+        ARTIST_TEMPLATES,
+        ARTIST_VIEWS,
+        ARTIST_BUILDS,
+        ARTIST_VERSION,
+        templateFolder,
+        ARTIST_LOWER,
+        artistLegX,
+        artistHairLayer,
+      } = await import(contractUrl);
+      const { createEditorRig } = await import('/src/avatar/editorReview.ts');
+      const {
+        reviewPose,
+        editorDimensions,
+        EDITOR_ARM_LENGTH,
+        EDITOR_LEG_LENGTH,
+        EDITOR_WALK_FRAME_MS,
+      } = await import('/src/avatar/editorMotion.ts');
+      const { parentPoint, FRAME, FACE_ANCHORS } = await import('/src/avatar/modular/rig.ts');
+      const { avatarCatalog } = await import('/src/avatar/catalog.ts');
+      const { updateConstructor } = await import('/src/avatar/editor.ts');
+      const files = {},
+        records = [],
+        captures = new Map();
+      const make = (width, height) =>
+        Object.assign(document.createElement('canvas'), { width, height });
+      const save = (name, c) => {
+        files[name] = c.toDataURL('image/png').split(',')[1];
+      };
+      const ink = [53, 43, 53];
+      const normalize = (source, name) => {
+        const out = make(96, 128),
+          ctx = out.getContext('2d');
+        const data = source.getContext('2d').getImageData(0, 0, 96, 128),
+          copy = new Uint8ClampedArray(data.data);
+        const solid = (x, y) =>
+          x >= 0 && x < 96 && y >= 0 && y < 128 && copy[(y * 96 + x) * 4 + 3] > 0;
+        for (let y = 0; y < 128; y++)
+          for (let x = 0; x < 96; x++) {
+            const at = (y * 96 + x) * 4;
+            if (!copy[at + 3]) continue;
+            const outline = ink.every((v, i) => copy[at + i] === v);
+            const external = [
+              [-2, 0],
+              [2, 0],
+              [0, -2],
+              [0, 2],
+            ].some(([dx, dy]) => !solid(x + dx, y + dy));
+            // Preserve the approved open joins. Remove only temporary sleeve/colour seams from underlays.
+            data.data.set(
+              outline && (name === 'head' || external) ? [53, 43, 53, 255] : [184, 184, 184, 255],
+              at,
             );
-            for (const boundary of [
-              high ? LOWER_LAYOUT.bandTop : LOWER_LAYOUT.bandBottom,
-              LOWER_LAYOUT.bandBottom,
-              LOWER_LAYOUT.legSplit,
-              max,
-            ]) {
-              ctx.fillStyle = '#258b91';
-              ctx.fillRect(1, row * t.height + boundary, t.width - 2, 1);
-            }
-            if (!t.id.startsWith('skirt'))
-              for (const index of p.side ? [1] : [0, 1]) {
-                const centre = lowerLegSourceX(dir, index);
-                ctx.strokeStyle = '#258b91';
-                ctx.strokeRect(
-                  centre - 15.5,
-                  row * t.height + LOWER_LAYOUT.legSplit + 0.5,
-                  31,
-                  max - LOWER_LAYOUT.legSplit - 1,
+          }
+        ctx.putImageData(data, 0, 0);
+        return out;
+      };
+      const order = {
+        south: [
+          'back',
+          'legLeft',
+          'footLeft',
+          'legRight',
+          'footRight',
+          'torso',
+          'armLeft',
+          'handLeft',
+          'armRight',
+          'handRight',
+          'head',
+        ],
+        north: [
+          'back',
+          'legLeft',
+          'footLeft',
+          'legRight',
+          'footRight',
+          'handLeft',
+          'handRight',
+          'torso',
+          'armLeft',
+          'armRight',
+          'head',
+        ],
+        east: [
+          'back',
+          'armLeft',
+          'handLeft',
+          'legLeft',
+          'footLeft',
+          'legRight',
+          'footRight',
+          'torso',
+          'armRight',
+          'handRight',
+          'head',
+        ],
+        west: [
+          'back',
+          'armRight',
+          'handRight',
+          'legRight',
+          'footRight',
+          'legLeft',
+          'footLeft',
+          'torso',
+          'armLeft',
+          'handLeft',
+          'head',
+        ],
+      };
+      for (const gender of ['female', 'male'])
+        for (const build of ARTIST_BUILDS) {
+          const config = updateConstructor(avatarCatalog.defaultAvatar, {
+            gender,
+            build,
+            hair: { male: 6, female: 6 },
+            special: null,
+            hat: null,
+            jewelry: null,
+            bodyFeatures: [],
+            faceFeatures: [],
+          });
+          const rig = await createEditorRig(config, new AbortController().signal);
+          for (const direction of ARTIST_VIEWS.full) {
+            const native = make(96, 128),
+              ctx = native.getContext('2d'),
+              parts = new Map();
+            let i = 0;
+            const original = ctx.drawImage.bind(ctx);
+            ctx.drawImage = (...args) => {
+              const name = order[direction][i++];
+              if (!name) throw new Error('Approved draw order changed');
+              const module = make(96, 128),
+                mc = module.getContext('2d');
+              mc.setTransform(ctx.getTransform());
+              mc.drawImage(...args);
+              parts.set(name, normalize(module, name));
+              original(...args);
+            };
+            rig.draw(ctx, direction, 'static', 0);
+            if (i !== order[direction].length) throw new Error('Approved module count changed');
+            captures.set(`${gender}/${build}/${direction}`, {
+              parts,
+              order: order[direction],
+              pose: reviewPose(build, direction, 0, gender),
+            });
+          }
+        }
+      // Both genders have the same head. Use its approved bare female source to omit the male hair placeholder.
+      for (const capture of captures.values())
+        capture.parts.set(
+          'head',
+          captures.get(`female/average/${capture.pose.direction}`).parts.get('head'),
+        );
+      const selected = (t) =>
+        /^(hair|eyes|mouth|details)/.test(t.id)
+          ? ['head']
+          : /^(pants|shorts|skirt)-/.test(t.id)
+            ? ['torso', 'legLeft', 'legRight']
+            : [t.parent];
+      for (const t of ARTIST_TEMPLATES)
+        for (const mode of t.modes) {
+          const views = ARTIST_VIEWS[mode],
+            out = make(t.width, t.height * views.length),
+            ctx = out.getContext('2d');
+          ctx.imageSmoothingEnabled = false;
+          for (const [row, direction] of views.entries()) {
+            const capture = captures.get(`${t.gender ?? 'male'}/average/${direction}`),
+              p = capture.pose;
+            const parent = parentPoint(p, t.parent),
+              dx = t.anchor.x - parent.x,
+              dy = row * t.height + t.anchor.y - parent.y;
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, row * t.height, t.width, t.height);
+            ctx.clip();
+            for (const name of capture.order)
+              if (name !== 'back') {
+                ctx.globalAlpha = selected(t).includes(name) ? 0.52 : 0.09;
+                ctx.drawImage(capture.parts.get(name), dx, dy);
+              }
+            ctx.globalAlpha = 1;
+            if (t.id.startsWith('hair-'))
+              for (let y = 1; y < t.height - 1; y++)
+                for (let x = 1; x < t.width - 1; x++) {
+                  ctx.fillStyle =
+                    artistHairLayer(x, y, direction) === 'front' ? '#d34b8425' : '#258b9130';
+                  ctx.fillRect(x, row * t.height + y, 1, 1);
+                }
+            if (/^(pants|shorts|skirt)-/.test(t.id)) {
+              const top = t.id.endsWith('high') ? ARTIST_LOWER.bandTop : ARTIST_LOWER.bandBottom;
+              const hem = t.id.startsWith('shorts') ? ARTIST_LOWER.shortHem : ARTIST_LOWER.maxHem;
+              ctx.fillStyle = '#d34b8430';
+              ctx.fillRect(1, row * t.height + 1, t.width - 2, top - 1);
+              ctx.fillRect(1, row * t.height + hem, t.width - 2, t.height - hem - 1);
+              for (const boundary of [top, ARTIST_LOWER.bandBottom, ARTIST_LOWER.legSplit, hem]) {
+                ctx.fillStyle = '#258b91';
+                ctx.fillRect(1, row * t.height + boundary, t.width - 2, 1);
+              }
+              const legs = p.side ? [direction === 'east' ? 1 : 0] : [0, 1];
+              for (const i of legs) {
+                const centre = artistLegX(direction, i);
+                ctx.fillStyle = '#258b9160';
+                ctx.fillRect(
+                  centre,
+                  row * t.height + ARTIST_LOWER.legSplit,
+                  1,
+                  hem - ARTIST_LOWER.legSplit,
                 );
               }
+            }
+            if (t.parent === 'head') {
+              ctx.fillStyle = '#7495a999';
+              for (const pt of FACE_ANCHORS[direction].eyes)
+                ctx.fillRect(48 + pt.x + dx, 34 + pt.y + dy, 4, 8);
+              for (const pt of FACE_ANCHORS[direction].mouth)
+                ctx.fillRect(48 + pt.x + dx, 34 + pt.y + dy, 3, 1);
+            }
+            for (let x = 0; x < t.width; x += 4) {
+              ctx.fillStyle = '#7495a91c';
+              ctx.fillRect(x, row * t.height, 1, t.height);
+            }
+            for (let y = 0; y < t.height; y += 4) {
+              ctx.fillStyle = '#7495a91c';
+              ctx.fillRect(0, row * t.height + y, t.width, 1);
+            }
+            ctx.strokeStyle = '#258b91';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(1.5, row * t.height + 1.5, t.width - 3, t.height - 3);
+            ctx.fillStyle = '#d34b84';
+            ctx.fillRect(t.anchor.x - 2, row * t.height + t.anchor.y, 5, 1);
+            ctx.fillRect(t.anchor.x, row * t.height + t.anchor.y - 2, 1, 5);
+            ctx.fillStyle = '#258b9199';
+            ctx.fillRect(2, row * t.height + t.anchor.y, t.width - 4, 1);
+            ctx.fillStyle = '#443b42';
+            ctx.font = '6px monospace';
+            ctx.fillText(direction[0].toUpperCase(), 3, row * t.height + 7);
+            ctx.restore();
           }
-          // All markers are on the hidden TEMPLATE layer, never in EMPTY/the delivered artwork.
-          for (let x = 0; x < t.width; x += 4) {
-            ctx.fillStyle = '#7495a91c';
-            ctx.fillRect(x, row * t.height, 1, t.height);
-          }
-          for (let y = 0; y < t.height; y += 4) {
-            ctx.fillStyle = '#7495a91c';
-            ctx.fillRect(0, row * t.height + y, t.width, 1);
-          }
-          ctx.strokeStyle = '#258b91';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(1.5, row * t.height + 1.5, t.width - 3, t.height - 3);
-          ctx.fillStyle = '#d34b84';
-          ctx.fillRect(t.anchor.x - 2, row * t.height + t.anchor.y, 5, 1);
-          ctx.fillRect(t.anchor.x, row * t.height + t.anchor.y - 2, 1, 5);
-          ctx.fillStyle = '#258b9199';
-          ctx.fillRect(2, row * t.height + t.anchor.y, t.width - 4, 1);
-          ctx.fillStyle = '#443b42';
-          ctx.font = '6px monospace';
-          ctx.fillText(dir[0].toUpperCase(), 3, row * t.height + 7);
+          const stem = `TECH_DOCS/CHARACTER/TEMPLATES/${templateFolder(t)}/${t.id.replaceAll('-', '_')}_${mode}`;
+          save(stem + '_TEMPLATE.png', out);
+          save(stem + '_EMPTY.png', make(out.width, out.height));
+          records.push({
+            ...t,
+            mode,
+            views,
+            template: stem + '_TEMPLATE.png',
+            empty: stem + '_EMPTY.png',
+          });
         }
-        const directory = `TECH_DOCS/CHARACTER/TEMPLATES/${templateFolder(t)}`;
-        const stem = `${directory}/${t.id.replaceAll('-', '_')}_${mode}`;
-        save(stem + '_TEMPLATE.png', c);
-        save(stem + '_EMPTY.png', make(c.width, c.height));
-        records.push({
-          id: t.id,
-          category: t.category,
-          mode,
-          views,
-          width: t.width,
-          height: t.height,
-          anchor: t.anchor,
-          parent: t.parent,
-          template: stem + '_TEMPLATE.png',
-          empty: stem + '_EMPTY.png',
-        });
+      const references = [];
+      for (const gender of ['male', 'female']) {
+        const out = make(96 * 4, 128 * 4),
+          ctx = out.getContext('2d');
+        for (const [row, build] of ARTIST_BUILDS.entries())
+          for (const [col, dir] of ARTIST_VIEWS.full.entries()) {
+            const capture = captures.get(`${gender}/${build}/${dir}`);
+            for (const name of capture.order)
+              if (name !== 'back') ctx.drawImage(capture.parts.get(name), col * 96, row * 128);
+          }
+        const name = `TECH_DOCS/CHARACTER/BODY_${gender.toUpperCase()}.png`;
+        save(name, out);
+        references.push({ name, width: out.width, height: out.height });
       }
-    const palette = make(300, 70),
-      pc = palette.getContext('2d');
-    pc.font = '12px monospace';
-    pal.forEach((color, i) => {
-      pc.fillStyle = color;
-      pc.fillRect(i * 60, 0, 60, 40);
-      pc.fillStyle = '#352b35';
-      pc.fillText(color, i * 60 + 2, 60);
-    });
-    save('TECH_DOCS/CHARACTER/COLORS.png', palette);
-    const config = updateConstructor(avatarCatalog.defaultAvatar, {
-      gender: 'female',
-      hair: { male: 1, female: 1 },
-      special: null,
-    });
-    for (const build of ['slim', 'average', 'sturdy'])
-      save(
-        `.cache/character-review/body-${build}-A24.png`,
-        assemble(updateConstructor(config, { build }), { bodyOnly: true }),
-      );
-    for (let i = 1; i <= 4; i++)
-      save(
-        `.cache/character-review/hair-${i}-A24.png`,
-        await loadAvatarSheet(
-          avatarCatalog,
-          updateConstructor(config, { hair: { male: 1, female: i } }),
-          new AbortController().signal,
-        ),
-      );
-    const overview = make(1152, 720),
-      oc = overview.getContext('2d');
-    oc.fillStyle = '#f5efe5';
-    oc.fillRect(0, 0, 1152, 720);
-    oc.imageSmoothingEnabled = false;
-    for (const [i, build] of ['slim', 'average', 'sturdy'].entries()) {
-      const a = assemble(updateConstructor(config, { build }), { bodyOnly: true });
-      oc.drawImage(a, 0, 256, 96, 128, 30 + i * 380, 25, 288, 384);
-      oc.fillStyle = '#352b35';
-      oc.font = '20px sans-serif';
-      oc.fillText(build, 30 + i * 380, 450);
-      oc.font = '16px sans-serif';
-      oc.fillText(
-        'arm ' + BODY_SHAPES[build].arm + ' / leg ' + BODY_SHAPES[build].leg,
-        30 + i * 380,
-        482,
-      );
-    }
-    save('.cache/character-review/proportions.png', overview);
-    return {
-      files,
-      manifest: {
-        version: RIG_VERSION,
-        frame: FRAME,
-        fps: ANIMATION_FPS,
-        bodyShapes: BODY_SHAPES,
-        templates: records,
-      },
-      rig: DIRECTIONS.flatMap((dir) =>
-        ['slim', 'average', 'sturdy'].flatMap((build) =>
-          Array.from({ length: 6 }, (_, f) => pose(build, dir, f)),
-        ),
-      ),
-    };
-  });
+      const modules = ['head', 'torso', 'armLeft', 'handLeft', 'legLeft', 'footLeft'];
+      const out = make(96 * modules.length, 128 * 4),
+        ctx = out.getContext('2d');
+      for (const [row, dir] of ARTIST_VIEWS.full.entries())
+        for (const [col, name] of modules.entries())
+          ctx.drawImage(captures.get(`male/average/${dir}`).parts.get(name), col * 96, row * 128);
+      save('TECH_DOCS/CHARACTER/MODULES.png', out);
+      references.push({
+        name: 'TECH_DOCS/CHARACTER/MODULES.png',
+        width: out.width,
+        height: out.height,
+      });
+      const palette = make(300, 70),
+        pc = palette.getContext('2d');
+      pc.font = '12px monospace';
+      ['#202020', '#505050', '#808080', '#b8b8b8', '#f0f0f0'].forEach((color, i) => {
+        pc.fillStyle = color;
+        pc.fillRect(i * 60, 0, 60, 40);
+        pc.fillStyle = '#352b35';
+        pc.fillText(color, i * 60 + 2, 60);
+      });
+      save('TECH_DOCS/CHARACTER/COLORS.png', palette);
+      return {
+        files,
+        manifest: {
+          version: ARTIST_VERSION,
+          frame: FRAME,
+          outlinePixels: 2,
+          armLength: EDITOR_ARM_LENGTH,
+          legLength: EDITOR_LEG_LENGTH,
+          idleFrameMs: [500, 500],
+          walkFrameMs: [...EDITOR_WALK_FRAME_MS],
+          builds: ARTIST_BUILDS,
+          geometry: ARTIST_BUILDS.map((build) => ({
+            build,
+            front: editorDimensions(build, false, 'male', 'south'),
+            femaleFront: editorDimensions(build, false, 'female', 'south'),
+            side: editorDimensions(build, true),
+          })),
+          neutralPoses: ['male', 'female'].flatMap((gender) =>
+            ARTIST_VIEWS.full.map((dir) => {
+              const p = reviewPose('average', dir, 0, gender);
+              return {
+                gender,
+                direction: dir,
+                head: p.head,
+                torso: p.torso,
+                pelvis: p.pelvis,
+                arms: p.arms,
+                hands: p.hands,
+                legs: p.legs,
+                feet: p.feet,
+              };
+            }),
+          ),
+          templates: records,
+          references,
+        },
+      };
+    },
+    { contractUrl: '/@fs' + path.resolve('scripts/character/artist-contract.ts') },
+  );
+  if (!registryIsolated) throw new Error('Artist reference was not isolated from imported items');
+  await rm('TECH_DOCS/CHARACTER/TEMPLATES', { recursive: true, force: true });
   for (const [file, bytes] of Object.entries(pack.files)) {
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, Buffer.from(bytes, 'base64'));
   }
+  const outputHashes = Object.fromEntries(
+    Object.entries(pack.files).map(([file, bytes]) => [
+      file,
+      createHash('sha256').update(Buffer.from(bytes, 'base64')).digest('hex'),
+    ]),
+  );
   await writeFile(
     'content/avatars/modular/template-manifest.json',
-    await format(JSON.stringify(pack.manifest), { parser: 'json' }),
+    await format(JSON.stringify({ ...pack.manifest, approval: snapshot, outputHashes }), {
+      parser: 'json',
+    }),
   );
-  await writeFile('.cache/character-review/rig.json', JSON.stringify(pack.rig, null, 2) + '\n');
   console.log(
-    '2× character templates generated:',
-    pack.manifest.templates.length,
-    'pairs. A24/rig reviews are in .cache/character-review only.',
+    `Approved editor exported read-only: ${pack.manifest.templates.length} TEMPLATE/EMPTY pairs, 4 builds, 2 genders, 4 independent views.`,
   );
 } finally {
   await browser.close();

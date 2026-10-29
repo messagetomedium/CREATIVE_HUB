@@ -1,470 +1,1066 @@
 {
-  "version": "adult-2x-v4",
+  "version": "approved-editor-2026-10-29",
   "frame": {
     "width": 96,
     "height": 128,
     "anchor": { "x": 48, "y": 112 },
     "worldScale": 0.5
   },
-  "fps": { "idle": 2, "walk": 8 },
-  "bodyShapes": {
-    "slim": {
-      "shoulders": 28,
-      "waist": 18,
-      "hips": 22,
-      "arm": 10,
-      "leg": 12,
-      "spacing": 8
+  "outlinePixels": 2,
+  "armLength": 26,
+  "legLength": 26,
+  "idleFrameMs": [500, 500],
+  "walkFrameMs": [125, 175, 125, 175],
+  "builds": ["very-slim", "slim", "average", "sturdy"],
+  "geometry": [
+    {
+      "build": "very-slim",
+      "front": {
+        "shoulderWidth": 22,
+        "torsoWidth": 22,
+        "armWidth": 8,
+        "legWidth": 8,
+        "spacing": 6
+      },
+      "femaleFront": {
+        "shoulderWidth": 18,
+        "torsoWidth": 22,
+        "armWidth": 8,
+        "legWidth": 8,
+        "spacing": 6
+      },
+      "side": {
+        "shoulderWidth": 18,
+        "torsoWidth": 18,
+        "armWidth": 8,
+        "legWidth": 8,
+        "spacing": 6
+      }
     },
-    "average": {
-      "shoulders": 32,
-      "waist": 21,
-      "hips": 26,
-      "arm": 12,
-      "leg": 14,
-      "spacing": 9
+    {
+      "build": "slim",
+      "front": {
+        "shoulderWidth": 26,
+        "torsoWidth": 26,
+        "armWidth": 8,
+        "legWidth": 10,
+        "spacing": 7
+      },
+      "femaleFront": {
+        "shoulderWidth": 22,
+        "torsoWidth": 26,
+        "armWidth": 8,
+        "legWidth": 10,
+        "spacing": 7
+      },
+      "side": {
+        "shoulderWidth": 22,
+        "torsoWidth": 22,
+        "armWidth": 8,
+        "legWidth": 10,
+        "spacing": 7
+      }
     },
-    "sturdy": {
-      "shoulders": 37,
-      "waist": 24,
-      "hips": 29,
-      "arm": 14,
-      "leg": 16,
-      "spacing": 11
+    {
+      "build": "average",
+      "front": {
+        "shoulderWidth": 30,
+        "torsoWidth": 30,
+        "armWidth": 10,
+        "legWidth": 12,
+        "spacing": 8
+      },
+      "femaleFront": {
+        "shoulderWidth": 26,
+        "torsoWidth": 30,
+        "armWidth": 10,
+        "legWidth": 12,
+        "spacing": 8
+      },
+      "side": {
+        "shoulderWidth": 26,
+        "torsoWidth": 26,
+        "armWidth": 10,
+        "legWidth": 12,
+        "spacing": 8
+      }
+    },
+    {
+      "build": "sturdy",
+      "front": {
+        "shoulderWidth": 34,
+        "torsoWidth": 34,
+        "armWidth": 10,
+        "legWidth": 14,
+        "spacing": 9
+      },
+      "femaleFront": {
+        "shoulderWidth": 30,
+        "torsoWidth": 34,
+        "armWidth": 10,
+        "legWidth": 14,
+        "spacing": 9
+      },
+      "side": {
+        "shoulderWidth": 30,
+        "torsoWidth": 30,
+        "armWidth": 10,
+        "legWidth": 14,
+        "spacing": 9
+      }
     }
-  },
+  ],
+  "neutralPoses": [
+    {
+      "gender": "male",
+      "direction": "south",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 29, "y": 64 },
+          "end": { "x": 29, "y": 90 },
+          "joint": { "x": 29, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 67, "y": 64 },
+          "end": { "x": 67, "y": 90 },
+          "joint": { "x": 67, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 29, "y": 86 },
+        { "x": 67, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 40, "y": 84 },
+          "joint": { "x": 40, "y": 97 },
+          "end": { "x": 40, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 56, "y": 84 },
+          "joint": { "x": 56, "y": 97 },
+          "end": { "x": 56, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 40, "y": 110 },
+        { "x": 56, "y": 110 }
+      ]
+    },
+    {
+      "gender": "male",
+      "direction": "east",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 43, "y": 64 },
+          "end": { "x": 43, "y": 90 },
+          "joint": { "x": 43, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 45, "y": 64 },
+          "end": { "x": 45, "y": 90 },
+          "joint": { "x": 45, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 43, "y": 86 },
+        { "x": 45, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 46, "y": 84 },
+          "joint": { "x": 46, "y": 97 },
+          "end": { "x": 46, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 50, "y": 84 },
+          "joint": { "x": 50, "y": 97 },
+          "end": { "x": 50, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 46, "y": 110 },
+        { "x": 50, "y": 110 }
+      ]
+    },
+    {
+      "gender": "male",
+      "direction": "north",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 67, "y": 64 },
+          "end": { "x": 67, "y": 90 },
+          "joint": { "x": 67, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 29, "y": 64 },
+          "end": { "x": 29, "y": 90 },
+          "joint": { "x": 29, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 67, "y": 86 },
+        { "x": 29, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 56, "y": 84 },
+          "joint": { "x": 56, "y": 97 },
+          "end": { "x": 56, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 40, "y": 84 },
+          "joint": { "x": 40, "y": 97 },
+          "end": { "x": 40, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 56, "y": 110 },
+        { "x": 40, "y": 110 }
+      ]
+    },
+    {
+      "gender": "male",
+      "direction": "west",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 53, "y": 64 },
+          "end": { "x": 53, "y": 90 },
+          "joint": { "x": 53, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 51, "y": 64 },
+          "end": { "x": 51, "y": 90 },
+          "joint": { "x": 51, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 53, "y": 86 },
+        { "x": 51, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 50, "y": 84 },
+          "joint": { "x": 50, "y": 97 },
+          "end": { "x": 50, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 46, "y": 84 },
+          "joint": { "x": 46, "y": 97 },
+          "end": { "x": 46, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 50, "y": 110 },
+        { "x": 46, "y": 110 }
+      ]
+    },
+    {
+      "gender": "female",
+      "direction": "south",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 31, "y": 64 },
+          "end": { "x": 31, "y": 90 },
+          "joint": { "x": 31, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 65, "y": 64 },
+          "end": { "x": 65, "y": 90 },
+          "joint": { "x": 65, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 31, "y": 86 },
+        { "x": 65, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 40, "y": 84 },
+          "joint": { "x": 40, "y": 97 },
+          "end": { "x": 40, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 56, "y": 84 },
+          "joint": { "x": 56, "y": 97 },
+          "end": { "x": 56, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 40, "y": 110 },
+        { "x": 56, "y": 110 }
+      ]
+    },
+    {
+      "gender": "female",
+      "direction": "east",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 43, "y": 64 },
+          "end": { "x": 43, "y": 90 },
+          "joint": { "x": 43, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 45, "y": 64 },
+          "end": { "x": 45, "y": 90 },
+          "joint": { "x": 45, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 43, "y": 86 },
+        { "x": 45, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 46, "y": 84 },
+          "joint": { "x": 46, "y": 97 },
+          "end": { "x": 46, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 50, "y": 84 },
+          "joint": { "x": 50, "y": 97 },
+          "end": { "x": 50, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 46, "y": 110 },
+        { "x": 50, "y": 110 }
+      ]
+    },
+    {
+      "gender": "female",
+      "direction": "north",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 67, "y": 64 },
+          "end": { "x": 67, "y": 90 },
+          "joint": { "x": 67, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 29, "y": 64 },
+          "end": { "x": 29, "y": 90 },
+          "joint": { "x": 29, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 67, "y": 86 },
+        { "x": 29, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 56, "y": 84 },
+          "joint": { "x": 56, "y": 97 },
+          "end": { "x": 56, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 40, "y": 84 },
+          "joint": { "x": 40, "y": 97 },
+          "end": { "x": 40, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 56, "y": 110 },
+        { "x": 40, "y": 110 }
+      ]
+    },
+    {
+      "gender": "female",
+      "direction": "west",
+      "head": { "x": 48, "y": 34 },
+      "torso": { "x": 48, "y": 72 },
+      "pelvis": { "x": 48, "y": 84 },
+      "arms": [
+        {
+          "root": { "x": 53, "y": 64 },
+          "end": { "x": 53, "y": 90 },
+          "joint": { "x": 53, "y": 77 },
+          "width": 10
+        },
+        {
+          "root": { "x": 51, "y": 64 },
+          "end": { "x": 51, "y": 90 },
+          "joint": { "x": 51, "y": 77 },
+          "width": 10
+        }
+      ],
+      "hands": [
+        { "x": 53, "y": 86 },
+        { "x": 51, "y": 86 }
+      ],
+      "legs": [
+        {
+          "root": { "x": 50, "y": 84 },
+          "joint": { "x": 50, "y": 97 },
+          "end": { "x": 50, "y": 110 },
+          "width": 12
+        },
+        {
+          "root": { "x": 46, "y": 84 },
+          "joint": { "x": 46, "y": 97 },
+          "end": { "x": 46, "y": 110 },
+          "width": 12
+        }
+      ],
+      "feet": [
+        { "x": 50, "y": 110 },
+        { "x": 46, "y": 110 }
+      ]
+    }
+  ],
   "templates": [
     {
       "id": "hair-short",
       "category": "hair",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 96,
       "height": 96,
       "anchor": { "x": 48, "y": 34 },
       "parent": "head",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_full_EMPTY.png"
     },
     {
       "id": "hair-short",
       "category": "hair",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 96,
       "height": 96,
       "anchor": { "x": 48, "y": 34 },
       "parent": "head",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_pair_EMPTY.png"
     },
     {
       "id": "hair-long",
       "category": "hair",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 96,
       "height": 112,
       "anchor": { "x": 48, "y": 34 },
       "parent": "head",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_full_EMPTY.png"
     },
     {
       "id": "hair-long",
       "category": "hair",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 96,
       "height": 112,
       "anchor": { "x": 48, "y": 34 },
       "parent": "head",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_pair_EMPTY.png"
     },
     {
       "id": "eyes",
       "category": "eyes",
-      "mode": "front",
-      "views": ["south"],
       "width": 64,
       "height": 64,
       "anchor": { "x": 32, "y": 32 },
       "parent": "head",
+      "modes": ["front"],
+      "mode": "front",
+      "views": ["south"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/EYES/eyes_front_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/EYES/eyes_front_EMPTY.png"
     },
     {
       "id": "mouth",
       "category": "mouth",
-      "mode": "front",
-      "views": ["south"],
       "width": 64,
       "height": 64,
       "anchor": { "x": 32, "y": 32 },
       "parent": "head",
+      "modes": ["front"],
+      "mode": "front",
+      "views": ["south"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/MOUTH/mouth_front_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/MOUTH/mouth_front_EMPTY.png"
     },
     {
       "id": "details",
-      "category": "jewelry",
-      "mode": "sym1",
-      "views": ["south"],
+      "category": "details",
       "width": 64,
       "height": 64,
       "anchor": { "x": 32, "y": 32 },
       "parent": "head",
+      "modes": ["sym1", "sym2", "full"],
+      "mode": "sym1",
+      "views": ["south"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym1_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym1_EMPTY.png"
     },
     {
       "id": "details",
-      "category": "jewelry",
-      "mode": "sym2",
-      "views": ["south", "east"],
+      "category": "details",
       "width": 64,
       "height": 64,
       "anchor": { "x": 32, "y": 32 },
       "parent": "head",
+      "modes": ["sym1", "sym2", "full"],
+      "mode": "sym2",
+      "views": ["south", "east"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym2_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym2_EMPTY.png"
     },
     {
       "id": "details",
-      "category": "jewelry",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
+      "category": "details",
       "width": 64,
       "height": 64,
       "anchor": { "x": 32, "y": 32 },
       "parent": "head",
+      "modes": ["sym1", "sym2", "full"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_full_EMPTY.png"
     },
     {
       "id": "body",
       "category": "body_features",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 56,
       "height": 52,
       "anchor": { "x": 28, "y": 24 },
       "parent": "torso",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_full_EMPTY.png"
     },
     {
       "id": "body",
       "category": "body_features",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 56,
       "height": 52,
       "anchor": { "x": 28, "y": 24 },
       "parent": "torso",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_pair_EMPTY.png"
     },
     {
       "id": "body-arm",
       "category": "body_features",
+      "width": 24,
+      "height": 40,
+      "anchor": { "x": 12, "y": 8 },
+      "parent": "armLeft",
+      "modes": ["full", "pair"],
       "mode": "full",
       "views": ["south", "east", "north", "west"],
-      "width": 24,
-      "height": 32,
-      "anchor": { "x": 12, "y": 4 },
-      "parent": "armLeft",
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_full_EMPTY.png"
     },
     {
       "id": "body-arm",
       "category": "body_features",
+      "width": 24,
+      "height": 40,
+      "anchor": { "x": 12, "y": 8 },
+      "parent": "armLeft",
+      "modes": ["full", "pair"],
       "mode": "pair",
       "views": ["south", "east", "north"],
-      "width": 24,
-      "height": 32,
-      "anchor": { "x": 12, "y": 4 },
-      "parent": "armLeft",
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_pair_EMPTY.png"
     },
     {
       "id": "body-leg",
       "category": "body_features",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 24,
       "height": 36,
       "anchor": { "x": 12, "y": 4 },
       "parent": "legLeft",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_full_EMPTY.png"
     },
     {
       "id": "body-leg",
       "category": "body_features",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 24,
       "height": 36,
       "anchor": { "x": 12, "y": 4 },
       "parent": "legLeft",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_pair_EMPTY.png"
     },
     {
       "id": "top",
       "category": "tops",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 56,
       "height": 52,
       "anchor": { "x": 28, "y": 24 },
       "parent": "torso",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_full_EMPTY.png"
     },
     {
       "id": "top",
       "category": "tops",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 56,
       "height": 52,
       "anchor": { "x": 28, "y": 24 },
       "parent": "torso",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_pair_EMPTY.png"
     },
     {
-      "id": "sleeve",
+      "id": "top-female",
       "category": "tops",
+      "width": 56,
+      "height": 52,
+      "anchor": { "x": 28, "y": 24 },
+      "parent": "torso",
+      "modes": ["full", "pair"],
+      "gender": "female",
       "mode": "full",
       "views": ["south", "east", "north", "west"],
+      "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_full_TEMPLATE.png",
+      "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_full_EMPTY.png"
+    },
+    {
+      "id": "top-female",
+      "category": "tops",
+      "width": 56,
+      "height": 52,
+      "anchor": { "x": 28, "y": 24 },
+      "parent": "torso",
+      "modes": ["full", "pair"],
+      "gender": "female",
+      "mode": "pair",
+      "views": ["south", "east", "north"],
+      "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_pair_TEMPLATE.png",
+      "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_pair_EMPTY.png"
+    },
+    {
+      "id": "sleeve",
+      "category": "tops",
       "width": 24,
-      "height": 32,
-      "anchor": { "x": 12, "y": 4 },
+      "height": 40,
+      "anchor": { "x": 12, "y": 8 },
       "parent": "armLeft",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_full_EMPTY.png"
     },
     {
       "id": "sleeve",
       "category": "tops",
+      "width": 24,
+      "height": 40,
+      "anchor": { "x": 12, "y": 8 },
+      "parent": "armLeft",
+      "modes": ["full", "pair"],
       "mode": "pair",
       "views": ["south", "east", "north"],
-      "width": 24,
-      "height": 32,
-      "anchor": { "x": 12, "y": 4 },
-      "parent": "armLeft",
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_pair_EMPTY.png"
     },
     {
       "id": "glove",
       "category": "tops",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 20,
       "height": 24,
       "anchor": { "x": 10, "y": 6 },
       "parent": "handLeft",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_full_EMPTY.png"
     },
     {
       "id": "glove",
       "category": "tops",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 20,
       "height": 24,
       "anchor": { "x": 10, "y": 6 },
       "parent": "handLeft",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_pair_EMPTY.png"
     },
     {
       "id": "pants-high",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_full_EMPTY.png"
     },
     {
       "id": "pants-high",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_pair_EMPTY.png"
     },
     {
       "id": "pants-low",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_full_EMPTY.png"
     },
     {
       "id": "pants-low",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_pair_EMPTY.png"
     },
     {
       "id": "skirt-high",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_full_EMPTY.png"
     },
     {
       "id": "skirt-high",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_pair_EMPTY.png"
     },
     {
       "id": "skirt-low",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_full_EMPTY.png"
     },
     {
       "id": "skirt-low",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_pair_EMPTY.png"
     },
     {
       "id": "shorts-high",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_full_EMPTY.png"
     },
     {
       "id": "shorts-high",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_pair_EMPTY.png"
     },
     {
       "id": "shorts-low",
       "category": "bottoms",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_full_EMPTY.png"
     },
     {
       "id": "shorts-low",
       "category": "bottoms",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 80,
       "height": 64,
       "anchor": { "x": 40, "y": 20 },
       "parent": "pelvis",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_pair_EMPTY.png"
     },
     {
       "id": "shoe",
       "category": "footwear",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 40,
       "height": 18,
       "anchor": { "x": 20, "y": 8 },
       "parent": "footLeft",
+      "modes": ["pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/FOOTWEAR/shoe_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/FOOTWEAR/shoe_pair_EMPTY.png"
     },
     {
       "id": "item",
       "category": "specials",
-      "mode": "full",
-      "views": ["south", "east", "north", "west"],
       "width": 32,
       "height": 40,
       "anchor": { "x": 16, "y": 8 },
       "parent": "handRight",
+      "modes": ["full", "pair"],
+      "mode": "full",
+      "views": ["south", "east", "north", "west"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_full_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_full_EMPTY.png"
     },
     {
       "id": "item",
       "category": "specials",
-      "mode": "pair",
-      "views": ["south", "east", "north"],
       "width": 32,
       "height": 40,
       "anchor": { "x": 16, "y": 8 },
       "parent": "handRight",
+      "modes": ["full", "pair"],
+      "mode": "pair",
+      "views": ["south", "east", "north"],
       "template": "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_pair_TEMPLATE.png",
       "empty": "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_pair_EMPTY.png"
     }
-  ]
+  ],
+  "references": [
+    {
+      "name": "TECH_DOCS/CHARACTER/BODY_MALE.png",
+      "width": 384,
+      "height": 512
+    },
+    {
+      "name": "TECH_DOCS/CHARACTER/BODY_FEMALE.png",
+      "width": 384,
+      "height": 512
+    },
+    { "name": "TECH_DOCS/CHARACTER/MODULES.png", "width": 576, "height": 512 }
+  ],
+  "approval": {
+    "approvedCommit": "01432c73feda86f822f8949ab9e91794e7cccfb5",
+    "approvedOn": "2026-10-29",
+    "sha256": {
+      "apps/web/src/avatar/editorMotion.ts": "bf716fd78d0eaef34a9580a202edd4c11bfa07f31c30ee3c52a2a9e303e05862",
+      "apps/web/src/avatar/editorReview.ts": "2e34fe35e7faf1bdd232155e1e3621f2721989089f56ff40b9e00512eaecaae6",
+      "apps/web/src/avatar/editorHair.ts": "4d40360e9bf95f8e256bccb361e6dcd837998fba69640f75c7fe4bb0710f144e",
+      "apps/web/src/avatar/AvatarPreview.tsx": "0d17631c5d98599e07ebf65806c266adcd6bd0eab402e65e0c4b78979d2d0736",
+      "apps/web/src/avatar/modular/rig.ts": "16ded83e48a51118ad25ae28289551e67fa25c23513fda8950056776b444f1f8",
+      "apps/web/src/avatar/modular/render.ts": "5219783338f57cef3c03df5fad8ed8c6f9449644f99281b3e4a5afc978a4dc22",
+      "apps/web/src/avatar/modular/materials.ts": "192f615e150d9559cc9d7904dd135b010f7710c664a459b5d1580af8e4557def",
+      "apps/web/src/avatar/editor.ts": "ece2ed7f1a40829b4b4ccc27877cdd0d3f1af6b12b01ccd1a9cbefe4d3b2b893"
+    }
+  },
+  "outputHashes": {
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_full_TEMPLATE.png": "133a9c8d294ebd863a2b75294fe9719b502d4e59c782aad6d3aabf9364cb7cca",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_full_EMPTY.png": "408ec3c04967f2ac6956051268f48f4f0398a8aff5a08077ebf5c7726e512805",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_pair_TEMPLATE.png": "cde69b2cfda9f16031aaf72433ec5d2f71fd4c36bbebfdec56eedb6ac48ab651",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_short_pair_EMPTY.png": "0be834ace0d99ee346776a388961a24750c0358130087f1be8c76c38129bd7a5",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_full_TEMPLATE.png": "bfbcad2538010e9b3b2c01da9ad190b13302c37fa2708d498d47576e2027310c",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_full_EMPTY.png": "f1ad82214abd2a17de3f71fd9838160568f20b72e2eb9f0d6367920cd290bacc",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_pair_TEMPLATE.png": "320d55d9222a797dc7e0db2ed61e18d8464ea4749d27a4acc07f1a78f6d044ea",
+    "TECH_DOCS/CHARACTER/TEMPLATES/HAIR/hair_long_pair_EMPTY.png": "9a21b099462413800af52f5cc05367220dbff6aa499c4066565a4d852494fec8",
+    "TECH_DOCS/CHARACTER/TEMPLATES/EYES/eyes_front_TEMPLATE.png": "163fe8c5af2f959ab70afd08a81af82405dfc7b208621417f6b2c647640d131a",
+    "TECH_DOCS/CHARACTER/TEMPLATES/EYES/eyes_front_EMPTY.png": "27e6e829950d2205e4103211ecb2b161d961a7d3a23dc4e8acd9d6601bf2c170",
+    "TECH_DOCS/CHARACTER/TEMPLATES/MOUTH/mouth_front_TEMPLATE.png": "163fe8c5af2f959ab70afd08a81af82405dfc7b208621417f6b2c647640d131a",
+    "TECH_DOCS/CHARACTER/TEMPLATES/MOUTH/mouth_front_EMPTY.png": "27e6e829950d2205e4103211ecb2b161d961a7d3a23dc4e8acd9d6601bf2c170",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym1_TEMPLATE.png": "163fe8c5af2f959ab70afd08a81af82405dfc7b208621417f6b2c647640d131a",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym1_EMPTY.png": "27e6e829950d2205e4103211ecb2b161d961a7d3a23dc4e8acd9d6601bf2c170",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym2_TEMPLATE.png": "ef2b62ea61c0b8ce433e5ff2a5667a6fbc86cd9cbc7743c65e37a781469381d8",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_sym2_EMPTY.png": "a4fa84e29c37a8348a2cee53a1b62deffea2dcafffa8b7d43813963a303a49d8",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_full_TEMPLATE.png": "85695e092a9e4c7ef76b1902b49e1789ed963902fed3bc082cecbeaab005ed06",
+    "TECH_DOCS/CHARACTER/TEMPLATES/DETAILS/details_full_EMPTY.png": "444076a4f12c5614de78289d457f291006360fc390d3e714f8171300684620cd",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_full_TEMPLATE.png": "3403b39810bd556a0c26d62c22389ad9d7179c14264a88dc8c396a6b4d8d9abd",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_full_EMPTY.png": "07b47969ec0b599e254920eedd621b56cf556fe2396305d37a24712e42be3e7b",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_pair_TEMPLATE.png": "7a0b76532c6aad8427a97a667984fdf309f56eb08fdcfb1eb4841a217718b28f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_pair_EMPTY.png": "5ece8a090248bcb6cfc4b593693022c3a3fa99a174b1603df90252cfe71f5d4d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_full_TEMPLATE.png": "89ef97bb372ffef013da1005ef38fd8a142128dd25c5fb0dcb7c3e52f31382e2",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_full_EMPTY.png": "b109acc8155fc4187346bd9083b68e02ea8328d49eed4ff69a01776a9918e33f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_pair_TEMPLATE.png": "8b3b9cd021590a8ea0d8ee2735de7ac4efd7ebc03adb1b64af93302ed82a3968",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_pair_EMPTY.png": "d6dc7ba0de414c7124ef50eb86afb54b54741a1e7f5d54c10fc3b383609a6213",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_full_TEMPLATE.png": "ef354d5a07b2268ab67316235e3c7ee0c525ca7d71f87d93c96c189d951dfb8f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_full_EMPTY.png": "676e6eb96dade4b8f558b2d4068d06c94401a2e43f667261741b0f8757bb83be",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_pair_TEMPLATE.png": "b8394e00a596b42fb69a0ece7f42f22a89003557998b52bdfb8230c420ca09d6",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_pair_EMPTY.png": "1bed7c88c2068f7fe84b71f30a6aa09a32301f0efb501a17074be8cb6119b6af",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_full_TEMPLATE.png": "3403b39810bd556a0c26d62c22389ad9d7179c14264a88dc8c396a6b4d8d9abd",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_full_EMPTY.png": "07b47969ec0b599e254920eedd621b56cf556fe2396305d37a24712e42be3e7b",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_pair_TEMPLATE.png": "7a0b76532c6aad8427a97a667984fdf309f56eb08fdcfb1eb4841a217718b28f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_pair_EMPTY.png": "5ece8a090248bcb6cfc4b593693022c3a3fa99a174b1603df90252cfe71f5d4d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_full_TEMPLATE.png": "11e56ace8b2e5c974eb2c66abd582c29c33838051fc948b792234ec6862401bf",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_full_EMPTY.png": "07b47969ec0b599e254920eedd621b56cf556fe2396305d37a24712e42be3e7b",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_pair_TEMPLATE.png": "30faa7b3f11900c6fff819be3811b53c0f7cf7a15205e6bf4a2bcfbb41a91c5e",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/top_female_pair_EMPTY.png": "5ece8a090248bcb6cfc4b593693022c3a3fa99a174b1603df90252cfe71f5d4d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_full_TEMPLATE.png": "89ef97bb372ffef013da1005ef38fd8a142128dd25c5fb0dcb7c3e52f31382e2",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_full_EMPTY.png": "b109acc8155fc4187346bd9083b68e02ea8328d49eed4ff69a01776a9918e33f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_pair_TEMPLATE.png": "8b3b9cd021590a8ea0d8ee2735de7ac4efd7ebc03adb1b64af93302ed82a3968",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/sleeve_pair_EMPTY.png": "d6dc7ba0de414c7124ef50eb86afb54b54741a1e7f5d54c10fc3b383609a6213",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_full_TEMPLATE.png": "6391b0c3f07363bb2c2b783255843c8d9debee8e31878a5db43f66abe0e33046",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_full_EMPTY.png": "ddda48fdfda6b323910c836ccebc9030a6b591a74ea5fe69e36f8fa4055f75b5",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_pair_TEMPLATE.png": "404b8eabc7d4cea78c1ef769bc196f998b107c463eb27e358809b1552e9f5093",
+    "TECH_DOCS/CHARACTER/TEMPLATES/TOPS/glove_pair_EMPTY.png": "e49716fa6769455ea87c5f554df4927058691bff9d37bc50a070e77e73c1bc75",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_full_TEMPLATE.png": "09d16e6adab2bf2a2970d3256b3b884efbc43ca3bfc549ff7f76e274dc03c78f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_pair_TEMPLATE.png": "02a6fdf5c6f44f0c3db64fb8426603d83d84388db29c3938bb7e767f1a2e3be6",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_high_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_full_TEMPLATE.png": "251f78d87f76eedc41a570d7bd2fa4888738b57d380f00f43ef738eb361d22eb",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_pair_TEMPLATE.png": "ff3dedbbaae1e673a38178e6a2d51d4dd4f10c02624e9a4041146286ba1279ee",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/pants_low_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_full_TEMPLATE.png": "09d16e6adab2bf2a2970d3256b3b884efbc43ca3bfc549ff7f76e274dc03c78f",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_pair_TEMPLATE.png": "02a6fdf5c6f44f0c3db64fb8426603d83d84388db29c3938bb7e767f1a2e3be6",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_high_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_full_TEMPLATE.png": "251f78d87f76eedc41a570d7bd2fa4888738b57d380f00f43ef738eb361d22eb",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_pair_TEMPLATE.png": "ff3dedbbaae1e673a38178e6a2d51d4dd4f10c02624e9a4041146286ba1279ee",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/skirt_low_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_full_TEMPLATE.png": "dd780b3fdd5a4ddbab455134992c6e153a4b5429d19ae8c1d5c4f32f7db7cba5",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_pair_TEMPLATE.png": "7c3d63e17bf6f6ee818d7e782cdd62e0bc24e1a07a16125f35d2bfe496e66674",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_high_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_full_TEMPLATE.png": "2ae2e75f17d72a4a6913f382be353ec990ad637476d8f2608cf0ddc1a70edc52",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_full_EMPTY.png": "64468e00dce344b8dc9cbcd6cf6c479b396b47fbcb5c5c62323bdb5cc992d5c7",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_pair_TEMPLATE.png": "61ee51fcd2a46ebdc8a1818f7c59ce8d2ab0721da75c32daf65f9793774fbbab",
+    "TECH_DOCS/CHARACTER/TEMPLATES/BOTTOMS/shorts_low_pair_EMPTY.png": "46e71997d8477ff489a4b3676c21c166207c8ce4388acc5604bfff9b2371ec3d",
+    "TECH_DOCS/CHARACTER/TEMPLATES/FOOTWEAR/shoe_pair_TEMPLATE.png": "d53754837971d541e5348d712396c0d4bb02f4d7bd7c6df1bba4b17ec54b2960",
+    "TECH_DOCS/CHARACTER/TEMPLATES/FOOTWEAR/shoe_pair_EMPTY.png": "44431528568efaaa718e06901cade338ee508d3c9f1be35db61358210b48fd55",
+    "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_full_TEMPLATE.png": "45839874e08feacd98dcd8d562f0fbcdc190628e5ee5ebf97b84555366e541e4",
+    "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_full_EMPTY.png": "64b47cb6b65357ede536ccd807c5c63a601a9b5589c68e630f546089f234ecbb",
+    "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_pair_TEMPLATE.png": "677ef6921baee6870557e31895ce66c7732f39be984c6cb13aac674efbd1f443",
+    "TECH_DOCS/CHARACTER/TEMPLATES/SPECIALS/item_pair_EMPTY.png": "a72624e01cfeeb813964d657bfa4f8793c69fecfa82f0404a03ef5937d011315",
+    "TECH_DOCS/CHARACTER/BODY_MALE.png": "3949201bb9401ee7830132563965aeff731bff8ea349f30f4615f5b35a8fdf3c",
+    "TECH_DOCS/CHARACTER/BODY_FEMALE.png": "e67d059f526fe245fd5f06163c6e64dc24269e3aeb54bf981a63ac5c5891379a",
+    "TECH_DOCS/CHARACTER/MODULES.png": "1083523ccfbad6e0f600031342dc37676a0c80cb6ae362df3fad1d172eea4ab9",
+    "TECH_DOCS/CHARACTER/COLORS.png": "a4a994090f30fe890ad67747a5a349bb559c341cd339153b0af45a88fb9b55ec"
+  }
 }

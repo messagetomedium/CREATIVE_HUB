@@ -32,6 +32,9 @@ try {
   if (!ready) throw new Error('Art preview startup timed out');
   await run(['scripts/export-avatar-tech.mjs', 'http://127.0.0.1:5199']);
   await run(['node_modules/tsx/dist/cli.mjs', 'scripts/character/update-guide.ts']);
+  const archive = spawn('python3', ['scripts/character/package-kit.py'], { stdio: 'inherit' });
+  const [archiveCode] = await once(archive, 'exit');
+  if (archiveCode !== 0) throw new Error('Artist kit packaging failed');
 } finally {
   server.kill('SIGTERM');
 }

@@ -1,11 +1,11 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { format } from 'prettier';
 import {
-  SOURCE_TEMPLATES,
-  VIEW_MODES,
+  ARTIST_TEMPLATES as SOURCE_TEMPLATES,
+  ARTIST_VIEWS as VIEW_MODES,
   templateFolder,
-  type ViewMode,
-} from '../../apps/web/src/avatar/modular/templates';
+  type ArtistMode as ViewMode,
+} from './artist-contract';
 async function table(file: string, key: string, value: string) {
   const text = await readFile(file, 'utf8'),
     start = text.indexOf(`<!-- ${key}:start -->`),
@@ -68,10 +68,10 @@ const rows: Row[] = [
   },
   {
     id: 'details',
-    mode: 'sym1',
-    name: 'hat_detail_sym1_01.png',
+    mode: 'full',
+    name: 'hat_detail_full_01.png',
     category: 'hats',
-    logic: 'Один вид без изменений для N/E/S/W',
+    logic: 'Четыре настоящих вида шапки; sym1 только для одинаковой плоской детали',
   },
   {
     id: 'details',
@@ -110,15 +110,22 @@ const rows: Row[] = [
   },
   {
     id: 'top',
-    mode: 'pair',
-    name: 'top_body_pair_01.png',
+    mode: 'full',
+    name: 'top_body_full_01.png',
     category: 'tops',
     logic: 'Корпус верха; рукав необязателен для безрукавки',
   },
   {
+    id: 'top-female',
+    mode: 'full',
+    name: 'top_body_female_full_01.png',
+    category: 'tops',
+    logic: 'Необязательная посадка на женские плечи; это альтернатива общему верху',
+  },
+  {
     id: 'sleeve',
-    mode: 'pair',
-    name: 'top_sleeve_pair_01.png',
+    mode: 'full',
+    name: 'top_sleeve_full_01.png',
     category: 'tops',
     logic: 'Один рукав → две руки; same number as body',
   },
