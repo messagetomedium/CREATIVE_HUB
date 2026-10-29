@@ -105,7 +105,7 @@ test('wider arm seams, overlapping fists and narrow profile feet stay attached i
 test('female shoulders narrow without changing the base, arms lengthen and thin steps reach forwards', async () => {
   const { editorDimensions, editorMotion, EDITOR_ARM_LENGTH } = await import('./editorMotion');
   const { editorHairRegistration } = await import('./editorHair');
-  expect(EDITOR_ARM_LENGTH).toBe(22);
+  expect(EDITOR_ARM_LENGTH).toBe(26);
   for (const build of ['very-slim', 'slim', 'average', 'sturdy'] as const)
     for (const side of [false, true]) {
       const m = editorDimensions(build, side, 'male'),
@@ -126,7 +126,7 @@ test('female shoulders narrow without changing the base, arms lengthen and thin 
   const s = reviewPose('slim', 'south', 0),
     n = reviewPose('slim', 'north', 0);
   expect(s.arms[0]!.root.x).toBe(n.arms[1]!.root.x);
-  expect(s.arms[0]!.end.y - s.arms[0]!.root.y).toBe(22);
+  expect(s.arms[0]!.end.y - s.arms[0]!.root.y).toBe(26);
   for (let slot = 1; slot <= 4; slot++) {
     const views = (['north', 'east', 'south', 'west'] as const).map(
       (d) => editorHairRegistration(slot, d)!,
@@ -134,6 +134,32 @@ test('female shoulders narrow without changing the base, arms lengthen and thin 
     expect(views.map((v) => v.row)).toEqual([0, 1, 2, 3]);
     expect(new Set(views.map((v) => v.scaleY)).size).toBe(1);
   }
+});
+
+test('profile arms move inward by build without changing their four walking offsets', async () => {
+  const { editorMotion, editorDimensions } = await import('./editorMotion');
+  for (const [build, inset] of [
+    ['very-slim', 3],
+    ['slim', 2],
+    ['average', 1],
+    ['sturdy', 0],
+  ] as const)
+    for (const gender of ['male', 'female'] as const)
+      for (const dir of ['east', 'west'] as const) {
+        const facing = dir === 'west' ? -1 : 1;
+        for (let phase = 0; phase < 4; phase++) {
+          const p = editorMotion(build, dir, 'walk', editorWalkPoseSeconds(phase), gender);
+          for (const [i, sign] of [-1, 1].entries()) {
+            const previousX = facing * (-5 + sign + [0, 1, 0, -1][(phase + i * 2) % 4]!);
+            expect(p.arms[i]!.x).toBeCloseTo(previousX + facing * inset, 10);
+          }
+          if (build === 'very-slim') {
+            const near = dir === 'west' ? 0 : 1,
+              dims = editorDimensions(build, true, gender);
+            expect(Math.abs(p.arms[near]!.x) + dims.armWidth / 2).toBeLessThan(dims.torsoWidth / 2);
+          }
+        }
+      }
 });
 
 test('whole legs lift higher in the forward recovery for both facing directions and heels meet calves', async () => {

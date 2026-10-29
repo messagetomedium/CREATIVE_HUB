@@ -1,7 +1,7 @@
 import type { AvatarCustomization, Direction } from '@creative-factory/contracts';
 import { pose, ANIMATION_FPS, type Point, type Pose } from './modular/rig';
 export type EditorBuild = AvatarCustomization['build'];
-export const EDITOR_ARM_LENGTH = 22;
+export const EDITOR_ARM_LENGTH = 26;
 export const EDITOR_LEG_LENGTH = 26;
 export type ArmPlacement = 'attached' | 'separated';
 // Previous approved placement (9c6054f) is retained for a one-parameter rollback.
@@ -65,11 +65,12 @@ export function editorMotion(
   const dims = editorDimensions(build, side, gender, direction),
     width = dims.torsoWidth,
     facing = direction === 'west' ? -1 : 1,
-    frontSign = direction === 'north' ? -1 : 1;
+    frontSign = direction === 'north' ? -1 : 1,
+    profileArmInset = { 'very-slim': 3, slim: 2, average: 1, sturdy: 0 }[build];
   const arms: Joint[] = [-1, 1].map((sign, i) => ({
     // Separated arms leave a one-pixel gap below a small shoulder connector.
     x: side
-      ? facing * (-5 + sign + (walking ? [0, 1, 0, -1][(phase + i * 2) % 4]! : 0))
+      ? facing * (-5 + sign + profileArmInset + (walking ? [0, 1, 0, -1][(phase + i * 2) % 4]! : 0))
       : frontSign *
         sign *
         ((armPlacement === 'separated' ? width / 2 + 1 : dims.shoulderWidth / 2 - 1) +

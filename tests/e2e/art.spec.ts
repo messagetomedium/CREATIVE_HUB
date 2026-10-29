@@ -546,7 +546,8 @@ test('editor approval body has two pixel contours, rigid breathing hair and equa
     for (let y = 0; y < 53; y++)
       for (let x = 0; x < 96; x++)
         if (String(pixel(x, 256 + y)) !== String(pixel(96 + x, 256 + y + 1))) headDifferences++;
-    for (let y = 94; y < 116; y++)
+    // The longer arms breathe with the torso through y=95; sample below the fists.
+    for (let y = 96; y < 116; y++)
       for (let x = 0; x < 96; x++)
         if (String(pixel(x, 256 + y)) !== String(pixel(96 + x, 256 + y))) legDifferences++;
     const male = await loadEditorReview(
@@ -916,7 +917,7 @@ test('rear palms render behind sleeves and attached arm placement is restored by
       rig.draw(ctx, dir, 'static', 0);
       orders.push({
         hands: draws.flatMap((d, i) => (d.w === 10 && d.h === 10 ? [i] : [])),
-        arms: draws.flatMap((d, i) => (d.w === 10 && d.h === 28 ? [i] : [])),
+        arms: draws.flatMap((d, i) => (d.w === 10 && d.h === 32 ? [i] : [])),
       });
     }
     ctx.clearRect(0, 0, 96, 128);
@@ -937,7 +938,7 @@ test('rear palms render behind sleeves and attached arm placement is restored by
   expect(result.oldGap).toBe(0);
 });
 
-test('wrist and ear joins are skin-colored and baked walking frames keep the head stationary', async ({
+test('open wrists and ears keep one head contour and baked walking frames keep the head stationary', async ({
   page,
 }) => {
   await page.goto('/');
@@ -964,19 +965,22 @@ test('wrist and ear joins are skin-colored and baked walking frames keep the hea
       skin,
       joins: [
         pixel(27, 256 + 38),
-        pixel(28, 256 + 38),
-        pixel(29, 256 + 38),
+        pixel(30, 256 + 38),
+        pixel(65, 256 + 38),
+        pixel(68, 256 + 38),
         pixel(43, 128 + 38),
         pixel(44, 128 + 38),
-        pixel(67, 256 + 82),
-        pixel(67, 85),
+        pixel(67, 256 + 86),
+        pixel(67, 89),
       ],
+      headContour: [28, 29, 66, 67].map((x) => pixel(x, 256 + 38)),
       outside: pixel(21, 256 + 38),
       head,
       heads,
     };
   });
   for (const join of result.joins) expect(join).toEqual(result.skin);
+  for (const edge of result.headContour) expect(edge).toEqual([53, 43, 53, 255]);
   expect(result.outside).toEqual([53, 43, 53, 255]);
   for (const head of result.heads) expect(head).toEqual(result.head);
 });

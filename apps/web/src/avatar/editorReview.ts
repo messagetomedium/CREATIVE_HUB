@@ -293,13 +293,8 @@ export async function createEditorRig(
         earShape(ctx, 21, 'left', skin);
         earShape(ctx, 68, 'right', skin);
       }
+      // The ear's inner edge is open; the head supplies the single shared contour.
       rounded(ctx, 28, 14, 40, 40, 10, skin);
-      if (!side) {
-        // Also remove the head contour at the ear join, leaving hair on its own layer.
-        ctx.fillStyle = skin;
-        ctx.fillRect(28, 33, 2, 10);
-        ctx.fillRect(66, 33, 2, 10);
-      }
       face(ctx, p, config, parts);
       ctx.drawImage(hs[1]!, 0, 0);
       if (c.gender === 'male' && !has('hair')) {
