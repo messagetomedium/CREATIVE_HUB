@@ -974,6 +974,15 @@ test('open wrists and ears keep one head contour and baked walking frames keep t
         pixel(67, 89),
       ],
       headContour: [28, 29, 66, 67].map((x) => pixel(x, 256 + 38)),
+      // No vertical skin strip may cut through the ear's top/bottom at its open edge.
+      earAttachmentContours: [
+        { row: 0, xs: [26, 27, 68, 69] },
+        { row: 1, xs: [43, 44] },
+        { row: 2, xs: [26, 27, 68, 69] },
+        { row: 3, xs: [51, 52] },
+      ].flatMap(({ row, xs }) =>
+        xs.flatMap((x) => [33, 34, 41, 42].map((y) => pixel(x, row * 128 + y))),
+      ),
       outside: pixel(21, 256 + 38),
       head,
       heads,
@@ -981,6 +990,7 @@ test('open wrists and ears keep one head contour and baked walking frames keep t
   });
   for (const join of result.joins) expect(join).toEqual(result.skin);
   for (const edge of result.headContour) expect(edge).toEqual([53, 43, 53, 255]);
+  for (const edge of result.earAttachmentContours) expect(edge).toEqual([53, 43, 53, 255]);
   expect(result.outside).toEqual([53, 43, 53, 255]);
   for (const head of result.heads) expect(head).toEqual(result.head);
 });

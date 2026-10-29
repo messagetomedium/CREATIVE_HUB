@@ -150,10 +150,18 @@ function earShape(
   outer: 'left' | 'right',
   color: string,
 ) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(left, 33, 7, 10);
+  ctx.clip();
   shape(
     ctx,
     (x, y) => {
-      if (x < left || x >= left + 7 || y < 33 || y >= 43) return false;
+      // Extend only the hidden attachment before clipping. This opens the inner
+      // edge without painting a skin strip over the ear's top/bottom contours.
+      const minX = outer === 'left' ? left : left - 2,
+        maxX = outer === 'left' ? left + 9 : left + 7;
+      if (x < minX || x >= maxX || y < 33 || y >= 43) return false;
       const roundedSide = outer === 'left' ? x < left + 3 : x > left + 4;
       if (!roundedSide || (y >= 36 && y <= 40)) return true;
       const cx = outer === 'left' ? left + 3 : left + 4,
@@ -162,8 +170,7 @@ function earShape(
     },
     color,
   );
-  ctx.fillStyle = color;
-  ctx.fillRect(outer === 'left' ? left + 5 : left, 33, 2, 10);
+  ctx.restore();
 }
 function hairContour(c: HTMLCanvasElement) {
   const ctx = c.getContext('2d')!,
