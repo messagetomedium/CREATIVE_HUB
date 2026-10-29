@@ -2,9 +2,10 @@
 import type { AvatarConfig, Direction } from '@creative-factory/contracts';
 import { constructorChoices } from './editor';
 import { loadHairAtlas, loadParts } from './modular/assets';
-import { tintHair, legacyHair, face, attachPart } from './modular/render';
+import { tintHair, face, attachPart } from './modular/render';
 import { DIRECTIONS, type Pose } from './modular/rig';
-import { editorMotion, reviewPose, WALK_SECONDS } from './editorMotion';
+import { drawEditorHair } from './editorHair';
+import { editorMotion, reviewPose, WALK_SECONDS, EDITOR_ARM_LENGTH } from './editorMotion';
 export { reviewPose } from './editorMotion';
 import { OUTLINE, mix } from './modular/materials';
 
@@ -66,13 +67,20 @@ function rounded(
   );
 }
 /** Flat top at the shoulder; preserve the existing rounded lower torso. */
-function torsoShape(ctx: CanvasRenderingContext2D, width: number, color: string) {
+function torsoShape(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  color: string,
+  shoulderWidth = width,
+) {
   const left = 48 - width / 2,
     right = 48 + width / 2;
   shape(
     ctx,
     (x, y) => {
-      if (x < left || x >= right || y < 58 || y >= 92) return false;
+      const half =
+        (shoulderWidth + (width - shoulderWidth) * Math.min(1, Math.max(0, (y - 58) / 26))) / 2;
+      if (x < 48 - half || x >= 48 + half || y < 58 || y >= 92) return false;
       if (y <= 87) return true;
       const cx = Math.max(left + 5, Math.min(right - 5, x));
       return (x - cx) ** 2 + (y - 87) ** 2 <= 25;
@@ -92,7 +100,7 @@ function armShape(
   const left = 48 - width / 2,
     right = 48 + width / 2,
     r = width / 2,
-    bottom = sleeve ? 77 : 84;
+    bottom = sleeve ? 77 : 64 + EDITOR_ARM_LENGTH;
   shape(
     ctx,
     (x, y) => {
@@ -189,20 +197,15 @@ export async function createEditorRig(
   const hairCanvas = (dir: Direction, pass: 'back' | 'front') => {
     const out = canvas();
     if (c.gender === 'female' && !has('hair'))
-      legacyHair(out.getContext('2d')!, reviewPose(c.build, dir, 0), hair, c.hair.female, pass);
+      drawEditorHair(
+        out.getContext('2d')!,
+        reviewPose(c.build, dir, 0, c.gender),
+        hair,
+        c.hair.female,
+        pass,
+      );
     return hairContour(out);
   };
-  const hairTop = (images: HTMLCanvasElement[]) =>
-    Math.min(
-      14,
-      ...images.map((img) => {
-        const d = img.getContext('2d')!.getImageData(0, 0, 96, 128).data;
-        for (let y = 0; y < 128; y++)
-          for (let x = 0; x < 96; x++) if (d[(y * 96 + x) * 4 + 3]) return y;
-        return 14;
-      }),
-    );
-  const frontTop = hairTop([hairCanvas('south', 'back'), hairCanvas('south', 'front')]);
   const prepared = new Map<
     Direction,
     {
@@ -215,8 +218,8 @@ export async function createEditorRig(
       feet: Texture[];
     }
   >();
-  for (const dir of ['north', 'east', 'south'] as const) {
-    const p = reviewPose(c.build, dir, 0),
+  for (const dir of DIRECTIONS) {
+    const p = reviewPose(c.build, dir, 0, c.gender),
       side = p.side;
     const make = (
       pivot: { x: number; y: number },
@@ -226,10 +229,9 @@ export async function createEditorRig(
       draw(out.getContext('2d')!);
       return texture(out, pivot);
     };
-    const hs = [hairCanvas(dir, 'back'), hairCanvas(dir, 'front')],
-      hairY = dir === 'north' ? frontTop - hairTop(hs) : 0;
+    const hs = [hairCanvas(dir, 'back'), hairCanvas(dir, 'front')];
     const back = make(p.head, (ctx) => {
-      ctx.drawImage(hs[0]!, 0, hairY);
+      ctx.drawImage(hs[0]!, 0, 0);
       paint(ctx, p, 'head', 'back');
     });
     const head = make(p.head, (ctx) => {
@@ -238,13 +240,13 @@ export async function createEditorRig(
           shape(ctx, (px, py) => ((px - x) / 3.5) ** 2 + ((py - 38) / 5) ** 2 <= 1, skin);
       rounded(ctx, 28, 14, 40, 40, 10, skin);
       face(ctx, p, config, parts);
-      ctx.drawImage(hs[1]!, 0, hairY);
+      ctx.drawImage(hs[1]!, 0, 0);
       if (c.gender === 'male' && !has('hair')) {
         rounded(ctx, 28, 13, 40, 13, 5, config.palette.hair);
         if (dir === 'north') rounded(ctx, 28, 13, 40, 37, 8, config.palette.hair);
         if (config.parts.hair === 'bob-01') {
           if (dir !== 'east') rounded(ctx, 26, 22, 6, 32, 2, config.palette.hair);
-          rounded(ctx, 64, 22, 6, 32, 2, config.palette.hair);
+          if (dir !== 'west') rounded(ctx, 64, 22, 6, 32, 2, config.palette.hair);
         }
         if (config.parts.hair === 'curls-01')
           for (const x of [33, 43, 53, 63])
@@ -255,16 +257,21 @@ export async function createEditorRig(
             );
       }
       // One small near ear, on the side plane; never a second ear on the rear silhouette.
-      if (side) shape(ctx, (x, y) => ((x - 41.5) / 3.5) ** 2 + ((y - 38) / 5) ** 2 <= 1, skin);
+      if (side)
+        shape(
+          ctx,
+          (x, y) => ((x - (dir === 'west' ? 54.5 : 41.5)) / 3.5) ** 2 + ((y - 38) / 5) ** 2 <= 1,
+          skin,
+        );
       paint(ctx, p, 'head');
       if (config.parts.accessory === 'headphones-01' && !has('special')) {
         if (!side) rounded(ctx, 22, 30, 7, 15, 3, c.colors.special);
-        rounded(ctx, side ? 38 : 67, 30, 7, 15, 3, c.colors.special);
+        rounded(ctx, side ? (dir === 'west' ? 51 : 38) : 67, 30, 7, 15, 3, c.colors.special);
       }
     });
     const torso = make({ x: 48, y: 84 }, (ctx) => {
-      torsoShape(ctx, p.torsoWidth, skin);
-      if (!has('top')) torsoShape(ctx, p.torsoWidth, config.palette.outfit);
+      torsoShape(ctx, p.hipWidth, skin, p.torsoWidth);
+      if (!has('top')) torsoShape(ctx, p.hipWidth, config.palette.outfit, p.torsoWidth);
       ctx.fillStyle = skin;
       ctx.fillRect(44, 50, 8, 12);
       ctx.fillStyle = OUTLINE;
@@ -285,34 +292,39 @@ export async function createEditorRig(
         ...p,
         arms: p.arms.map(() => ({
           root: { x: 48, y: 64 },
-          joint: { x: 48, y: 74 },
-          end: { x: 48, y: 84 },
+          joint: { x: 48, y: 64 + EDITOR_ARM_LENGTH / 2 },
+          end: { x: 48, y: 64 + EDITOR_ARM_LENGTH },
           width: p.arms[i]!.width,
         })),
         hands: [
-          { x: 48, y: 84 },
-          { x: 48, y: 84 },
+          { x: 48, y: 64 + EDITOR_ARM_LENGTH },
+          { x: 48, y: 64 + EDITOR_ARM_LENGTH },
         ],
       };
       const width = p.arms[i]!.width;
       arms.push(
         make({ x: 48, y: 64 }, (ctx) => {
-          armShape(ctx, width, i, side, skin);
-          if (!has('top')) armShape(ctx, width, i, side, config.palette.outfit, true);
+          armShape(ctx, width, p.arms[i]!.root.x < 48 ? 0 : 1, side, skin);
+          if (!has('top'))
+            armShape(ctx, width, p.arms[i]!.root.x < 48 ? 0 : 1, side, config.palette.outfit, true);
           paint(ctx, armP, armParent, 'back');
           paint(ctx, armP, armParent);
         }),
       );
       hands.push(
-        make({ x: 48, y: 84 }, (ctx) => {
+        make({ x: 48, y: 64 + EDITOR_ARM_LENGTH }, (ctx) => {
           // One invariant round fist, without fingers or a thumb.
-          shape(ctx, (x, y) => ((x - 48) / 5) ** 2 + ((y - 88) / 5) ** 2 <= 1, skin);
+          shape(
+            ctx,
+            (x, y) => ((x - 48) / 5) ** 2 + ((y - (68 + EDITOR_ARM_LENGTH)) / 5) ** 2 <= 1,
+            skin,
+          );
           paint(ctx, armP, handParent);
         }),
       );
       const x = p.legs[i]!.root.x,
         w = p.legs[i]!.width,
-        far = side && i === 0;
+        far = side && i === (dir === 'west' ? 1 : 0);
       const color = far ? mix(c.colors.bottom, OUTLINE, 0.14) : c.colors.bottom;
       const leg = canvas(),
         lc = leg.getContext('2d')!;
@@ -325,7 +337,7 @@ export async function createEditorRig(
         make({ x, y: 108 }, (ctx) => {
           rounded(
             ctx,
-            x - (side ? 5 : 6),
+            x - (side ? (dir === 'west' ? 9 : 5) : 6),
             106,
             side ? 14 : 12,
             7,
@@ -339,17 +351,13 @@ export async function createEditorRig(
     prepared.set(dir, { torso, head, back, arms, hands, legs, feet });
   }
   return {
-    textureCount: 3 * 11,
+    textureCount: 4 * 11,
     draw(ctx, direction, animation, seconds) {
-      const assets = prepared.get(direction === 'west' ? 'east' : direction)!;
-      const m = editorMotion(c.build, direction, animation, seconds),
+      const assets = prepared.get(direction)!;
+      const m = editorMotion(c.build, direction, animation, seconds, c.gender),
         side = direction === 'east' || direction === 'west';
       ctx.save();
       ctx.imageSmoothingEnabled = false;
-      if (direction === 'west') {
-        ctx.translate(96, 0);
-        ctx.scale(-1, 1);
-      }
       const body = (draw: () => void) => {
         ctx.save();
         ctx.translate(m.body.x, m.body.y);
@@ -366,8 +374,10 @@ export async function createEditorRig(
         ctx.restore();
       };
       body(() => drawTexture(ctx, assets.back, 0, -50));
-      if (side) body(() => arm(0));
-      for (let i = 0; i < 2; i++) {
+      const near = direction === 'west' ? 0 : 1,
+        far = 1 - near;
+      if (side && animation !== 'walk') body(() => arm(far));
+      for (const i of side ? [far, near] : [0, 1]) {
         const l = m.legs[i]!;
         drawTexture(ctx, assets.legs[i]!, 48 + l.hip.x, l.hip.y);
         drawTexture(ctx, assets.feet[i]!, 48 + l.ankle.x, l.ankle.y);
@@ -375,7 +385,7 @@ export async function createEditorRig(
       body(() => {
         drawTexture(ctx, assets.torso, 0, 0);
         if (!side) arm(0);
-        arm(1);
+        arm(side ? near : 1);
         drawTexture(ctx, assets.head, 0, -50);
       });
       ctx.restore();

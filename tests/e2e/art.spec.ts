@@ -738,3 +738,143 @@ test('editor plays baked pixel frames with pauses and equal front/profile ears',
   for (let i = 0; i < ears.front.length; i += 4)
     if (ears.front[i + 3]) expect(ears.side.slice(i, i + 4)).toEqual(ears.front.slice(i, i + 4));
 });
+
+test('four authored asymmetrical views survive editor turns and profile walking skips the far arm', async ({
+  page,
+}) => {
+  const hairColors = [
+    [211, 11, 11, 255],
+    [11, 211, 11, 255],
+    [11, 11, 211, 255],
+    [211, 11, 211, 255],
+  ];
+  const topColors = [
+    [240, 100, 10, 255],
+    [10, 170, 200, 255],
+    [100, 80, 220, 255],
+    [240, 140, 200, 255],
+  ];
+  const hair = new PNG({ width: 96, height: 512 }),
+    top = new PNG({ width: 32, height: 160 });
+  for (let row = 0; row < 4; row++) {
+    for (let y = 16; y < 23; y++)
+      for (let x = 34 + row * 6; x < 40 + row * 6; x++)
+        hair.data.set(hairColors[row]!, ((row * 128 + y) * 96 + x) * 4);
+    for (let y = 22; y < 29; y++)
+      for (let x = [14, 22, 14, 8][row]!; x < [14, 22, 14, 8][row]! + 7; x++)
+        top.data.set(topColors[row]!, ((row * 40 + y) * 32 + x) * 4);
+  }
+  const registry = [
+    {
+      id: 'asym-head-test',
+      parent: 'head',
+      pass: 'front',
+      material: 'fixed',
+      source: '/content/asym-hair-test.png',
+      frameWidth: 96,
+      frameHeight: 128,
+      anchor: { x: 48, y: 34 },
+      offset: { x: 0, y: 0 },
+      fit: 'head',
+      sync: 'head',
+      selection: { field: 'hair', slot: 1, gender: 'female' },
+    },
+    {
+      id: 'asym-top-test',
+      parent: 'torso',
+      pass: 'front',
+      material: 'fixed',
+      source: '/content/asym-top-test.png',
+      frameWidth: 32,
+      frameHeight: 40,
+      anchor: { x: 16, y: 14 },
+      offset: { x: 0, y: 0 },
+      fit: 'fixed',
+      sync: 'body',
+      selection: { field: 'top', slot: 1 },
+    },
+  ];
+  await page.route(/\/content\/avatars\/modular\/parts\.json(?:\?.*)?$/, (r) =>
+    r.fulfill({
+      contentType: 'application/javascript',
+      body: 'export default ' + JSON.stringify(registry) + ';',
+    }),
+  );
+  await page.route('**/content/asym-hair-test.png', (r) =>
+    r.fulfill({ contentType: 'image/png', body: PNG.sync.write(hair) }),
+  );
+  await page.route('**/content/asym-top-test.png', (r) =>
+    r.fulfill({ contentType: 'image/png', body: PNG.sync.write(top) }),
+  );
+  await enterDemo(page);
+  await page.goto('/#/avatar');
+  await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
+  await page.getByRole('tab', { name: 'Голова', exact: true }).click();
+  await page.getByRole('button', { name: 'Причёска: Женская 1', exact: true }).click();
+  await page.getByText('Проверка графики', { exact: true }).click();
+  await page.getByRole('button', { name: '1×', exact: true }).click();
+  const view = page.locator('.avatar-stage canvas');
+  for (const [direction, row] of [
+    ['south', 2],
+    ['west', 3],
+    ['north', 0],
+    ['east', 1],
+  ] as const) {
+    await expect(view).toHaveAttribute('data-direction', direction);
+    await expect
+      .poll(() =>
+        view.evaluate(
+          (c, row) => [
+            ...(c as HTMLCanvasElement).getContext('2d')!.getImageData(37 + row * 6, 19, 1, 1).data,
+          ],
+          row,
+        ),
+      )
+      .toEqual(hairColors[row]);
+    await expect
+      .poll(() =>
+        view.evaluate(
+          (c, sampleX) => [
+            ...(c as HTMLCanvasElement).getContext('2d')!.getImageData(sampleX, 82, 1, 1).data,
+          ],
+          [49, 57, 49, 43][row]!,
+        ),
+      )
+      .toEqual(topColors[row]);
+    await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
+  }
+  const counts = await page.evaluate(async () => {
+    const { createEditorRig } = await import(
+      /* @vite-ignore */ String('/src/avatar/editorReview.ts')
+    );
+    const { avatarCatalog } = await import(/* @vite-ignore */ String('/src/avatar/catalog.ts'));
+    const { updateConstructor } = await import(/* @vite-ignore */ String('/src/avatar/editor.ts'));
+    const rig = await createEditorRig(
+      updateConstructor(avatarCatalog.defaultAvatar, {
+        gender: 'female',
+        hair: { female: 1, male: 1 },
+        special: null,
+      }),
+      new AbortController().signal,
+    );
+    const c = document.createElement('canvas');
+    c.width = 96;
+    c.height = 128;
+    const ctx = c.getContext('2d')!;
+    let count = 0;
+    const original = ctx.drawImage.bind(ctx);
+    ctx.drawImage = ((...args: Parameters<typeof ctx.drawImage>) => {
+      count++;
+      return original(...args);
+    }) as typeof ctx.drawImage;
+    const values = [];
+    for (const dir of ['east', 'west'] as const)
+      for (const mode of ['idle', 'walk'] as const) {
+        count = 0;
+        rig.draw(ctx, dir, mode, 0);
+        values.push(count);
+      }
+    return values;
+  });
+  expect(counts).toEqual([11, 9, 11, 9]);
+});
