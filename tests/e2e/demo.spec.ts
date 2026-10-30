@@ -214,7 +214,7 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
     for (const group of groups)
       await expect(
         page.getByRole('group', { name: group, exact: true }).getByRole('button'),
-      ).toHaveCount(6);
+      ).toHaveCount(group === 'Особенности лица' ? 7 : 6);
     for (const color of colors)
       await expect(
         page.getByRole('group', { name: color, exact: true }).getByRole('button'),
@@ -244,7 +244,7 @@ test('new placeholder choices, independent hair sets and colors survive save, re
   await page.getByRole('button', { name: 'Причёска: Женская 3', exact: true }).click();
   await page.getByRole('button', { name: 'Рот: Вариант 4', exact: true }).click();
   await page.getByRole('button', { name: 'Глаза: Вариант 5', exact: true }).click();
-  await page.getByRole('button', { name: 'Особенности лица: Веснушки', exact: true }).click();
+  await page.getByRole('button', { name: 'Особенности лица: Три родинки', exact: true }).click();
   await page.getByRole('tab', { name: 'Тело', exact: true }).click();
   await page.getByRole('button', { name: 'Пол и возраст: Женщина', exact: true }).click();
   await page.getByRole('tab', { name: 'Голова', exact: true }).click();

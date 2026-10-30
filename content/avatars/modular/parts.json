@@ -1,1 +1,1025 @@
-[]
+[
+  {
+    "id": "character-eyes-any-1-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-e4754a5fee8e8e0100ab.png",
+    "frameWidth": 18,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 10,
+      "y": 0
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-eyes-any-2-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-0c9b208f00cc0833cafd.png",
+    "frameWidth": 28,
+    "frameHeight": 8,
+    "anchor": {
+      "x": 14,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-eyes-any-3-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-398a6da8dc0cac5c8697.png",
+    "frameWidth": 32,
+    "frameHeight": 10,
+    "anchor": {
+      "x": 16,
+      "y": 3
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-eyes-any-4-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-028e4a78e3b433174850.png",
+    "frameWidth": 31,
+    "frameHeight": 4,
+    "anchor": {
+      "x": 15,
+      "y": 0
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-eyes-any-5-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-72e834c7939303e35b2d.png",
+    "frameWidth": 34,
+    "frameHeight": 8,
+    "anchor": {
+      "x": 17,
+      "y": 3
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-eyes-any-6-compact-eyes-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-d2315c32230912160855.png",
+    "frameWidth": 30,
+    "frameHeight": 5,
+    "anchor": {
+      "x": 15,
+      "y": 1
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "eyes",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-face-features-any-1-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-2896d22f4313711e3a23.png",
+    "frameWidth": 25,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 14,
+      "y": -7
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-face-features-any-2-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-b2e87921e7286b6fcff6.png",
+    "frameWidth": 28,
+    "frameHeight": 4,
+    "anchor": {
+      "x": 14,
+      "y": -6
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-face-features-any-3-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-edd28d962b3a893305d9.png",
+    "frameWidth": 34,
+    "frameHeight": 6,
+    "anchor": {
+      "x": 17,
+      "y": -6
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-face-features-any-4-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-ec8175058a4f2170d162.png",
+    "frameWidth": 28,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 14,
+      "y": -8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-face-features-any-5-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-398e176e55b172b807f8.png",
+    "frameWidth": 36,
+    "frameHeight": 6,
+    "anchor": {
+      "x": 18,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-face-features-any-6-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-d2c74720bad65980b607.png",
+    "frameWidth": 36,
+    "frameHeight": 4,
+    "anchor": {
+      "x": 18,
+      "y": -6
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-face-features-any-7-compact-face-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-4bc90bb6fad31c2835bc.png",
+    "frameWidth": 31,
+    "frameHeight": 24,
+    "anchor": {
+      "x": 15,
+      "y": 7
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "faceFeatures",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-hair-any-1-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-a8d72fd2a17b8856cf53.png",
+    "frameWidth": 75,
+    "frameHeight": 103,
+    "anchor": {
+      "x": 39,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-hair-any-1-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-1720203b4b2f6525403e.png",
+    "frameWidth": 45,
+    "frameHeight": 57,
+    "anchor": {
+      "x": 24,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-hair-any-2-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-08e2fc4a1a847c0068a0.png",
+    "frameWidth": 83,
+    "frameHeight": 80,
+    "anchor": {
+      "x": 42,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-hair-any-2-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-e2bc39e4a3be94ef6df0.png",
+    "frameWidth": 85,
+    "frameHeight": 34,
+    "anchor": {
+      "x": 44,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-hair-any-3-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-7741ae28d2b6a9f386bb.png",
+    "frameWidth": 74,
+    "frameHeight": 103,
+    "anchor": {
+      "x": 37,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-hair-any-3-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-5cc58d7e6b2429ccae60.png",
+    "frameWidth": 54,
+    "frameHeight": 57,
+    "anchor": {
+      "x": 29,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-hair-any-4-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-0746befd218e34bdde30.png",
+    "frameWidth": 79,
+    "frameHeight": 56,
+    "anchor": {
+      "x": 40,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-hair-any-4-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-d85a0e5e70d739c05138.png",
+    "frameWidth": 62,
+    "frameHeight": 10,
+    "anchor": {
+      "x": 33,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-hair-any-5-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-1e064c4af0435ad13904.png",
+    "frameWidth": 84,
+    "frameHeight": 83,
+    "anchor": {
+      "x": 37,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-hair-any-5-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-ce18ae7df9825a3e5dd4.png",
+    "frameWidth": 87,
+    "frameHeight": 37,
+    "anchor": {
+      "x": 42,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-hair-any-6-compact-hair-hair-front-head-front-hair",
+    "parent": "head",
+    "pass": "front",
+    "material": "hair",
+    "source": "/content/character-ae4a8a7592fa3c0bca7a.png",
+    "frameWidth": 90,
+    "frameHeight": 83,
+    "anchor": {
+      "x": 44,
+      "y": 26
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-hair-any-6-compact-hair-hair-back-head-back-hair",
+    "parent": "head",
+    "pass": "back",
+    "material": "hair",
+    "source": "/content/character-436675aea0528d2e405e.png",
+    "frameWidth": 91,
+    "frameHeight": 37,
+    "anchor": {
+      "x": 44,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "hair",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-mouth-any-1-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-a42d9d97a121f691546b.png",
+    "frameWidth": 32,
+    "frameHeight": 4,
+    "anchor": {
+      "x": 16,
+      "y": -10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-mouth-any-2-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-50e870c06b40e1f8bdc0.png",
+    "frameWidth": 34,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 17,
+      "y": -11
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-mouth-any-3-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-95dae8e3a049ad4bd333.png",
+    "frameWidth": 34,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 17,
+      "y": -10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-mouth-any-4-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-f8bc9dc4ab1da1b89ca0.png",
+    "frameWidth": 34,
+    "frameHeight": 6,
+    "anchor": {
+      "x": 17,
+      "y": -9
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-mouth-any-5-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-93ed08f8815751299294.png",
+    "frameWidth": 34,
+    "frameHeight": 3,
+    "anchor": {
+      "x": 17,
+      "y": -10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-mouth-any-6-compact-mouth-source-head-front-fixed",
+    "parent": "head",
+    "pass": "front",
+    "material": "fixed",
+    "source": "/content/character-faf617d2b6afa9fb3e4c.png",
+    "frameWidth": 34,
+    "frameHeight": 3,
+    "anchor": {
+      "x": 17,
+      "y": -11
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "head",
+    "approved": {
+      "version": 1,
+      "kind": "head",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "mouth",
+      "slot": 6
+    }
+  }
+]

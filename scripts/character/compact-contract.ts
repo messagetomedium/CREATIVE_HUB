@@ -1,4 +1,4 @@
-export const COMPACT_VERSION = 'compact-approved-2026-10-30';
+export const COMPACT_VERSION = 'compact-approved-2026-10-30-facial-7';
 export const SOURCE_VIEWS = ['south', 'east', 'north', 'west'] as const;
 export const RUNTIME_VIEWS = ['north', 'east', 'south', 'west'] as const;
 export const COMPACT_SPECS = {

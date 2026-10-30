@@ -68,5 +68,285 @@
     "path": "apps/web/public/favicon.svg",
     "sha256": "fd923c0ba3d4d11bcfd26919d30875fb5f1b96a639602f0e2397129561e77556",
     "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-19967d526b1740bee13f.png",
+    "sha256": "19967d526b1740bee13f593ddf7ff9183449d29039271447a097541b2fb0009c",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-96291e56620126d2927a.png",
+    "sha256": "96291e56620126d2927acdc65458ce52b60578b936d5eebbd9bef4cf6c209b29",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-9e78fd1a1e8ba2c002d9.png",
+    "sha256": "9e78fd1a1e8ba2c002d9269aa195a42ca7eb001d44764f21cc9f70a72dd8182c",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-8ce7a8f445f140be8f04.png",
+    "sha256": "8ce7a8f445f140be8f04e4c4d6883f1e396057400596c993bc986b6df2c6f972",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-39065ed802d27da6f286.png",
+    "sha256": "39065ed802d27da6f286a42db164a968590ca728f8eb669b3551e812a84d8881",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-9640ef564c0c5e071a4e.png",
+    "sha256": "9640ef564c0c5e071a4edf06cf7a81d247026339041db46393bf25ce5c6ae983",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-18f7d2284fefa491effb.png",
+    "sha256": "18f7d2284fefa491effb64d251a6771a5475efbbf7413110e38c8cca9f4f858b",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-3ef85fc9b858813c3fda.png",
+    "sha256": "3ef85fc9b858813c3fda44be28508a790679c1c34e3ce271322d10f46fd8e41f",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-f886beecbe3c3cc5723c.png",
+    "sha256": "f886beecbe3c3cc5723c4c3fbcc63d41df8e96db9cdebfa4bcc2bb2786defb7d",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-42826785d1504e71cbd7.png",
+    "sha256": "42826785d1504e71cbd74749695cbc15539e41c6b32d5269b19d70e67f56f0a9",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-14f26ddfeafbecfbfdb7.png",
+    "sha256": "14f26ddfeafbecfbfdb7f21724fca57bd5de1463cab17f08e9ea6abd3d51e407",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-c172af4fdb4a2c8737a1.png",
+    "sha256": "c172af4fdb4a2c8737a184ff8dff59151f499442c9238b58945895d329cde63a",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-85962e5821344e390601.png",
+    "sha256": "85962e5821344e390601a77f5d01395ff3f15bbb291e42d2edd0f00bde63eb7f",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-c93d543469759ac3d4f0.png",
+    "sha256": "c93d543469759ac3d4f043d4cae67e94cc0f271094ce825081d240eb1d325110",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-bb32da9ec11f35293bc8.png",
+    "sha256": "bb32da9ec11f35293bc85e4265778f46ddafde7dd9eeacd3205c8207d84b3447",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-8c3d69f48a57955e3396.png",
+    "sha256": "8c3d69f48a57955e3396e651133e51e46f88154533571518c2fdd3cb8326a5bf",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-b7923304706024f17439.png",
+    "sha256": "b7923304706024f1743961a22f1e46ae799a6060a202ed7ad1fd26a6b771c0ec",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-d63a5dfb0c32c95d5d86.png",
+    "sha256": "d63a5dfb0c32c95d5d8617d40107fc258e195a8725943a8c53b95d3285fcc2b8",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-3a1507ccaa8e4d729820.png",
+    "sha256": "3a1507ccaa8e4d72982033bb22d0a0209429f5dc61fe478a289c1615c134e2d8",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-c922daa693d0e9aef54e.png",
+    "sha256": "c922daa693d0e9aef54eee31a213df791dd2c90fa2659d5db51de5225115a1c3",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-5cfa4e229aa21bfc30bf.png",
+    "sha256": "5cfa4e229aa21bfc30bf1732b167f91c48de9168e78a40ccea22a34394d50057",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-f966a74455ce7cc7260d.png",
+    "sha256": "f966a74455ce7cc7260de85081efd8bdf6b241cb55513b1c834e7a809f60edf0",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-dad3612fefd6299cee0d.png",
+    "sha256": "dad3612fefd6299cee0d7e3a3d44b7dfbc3914bc8c45369ab0f1f17d3d2adcac",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-122f5e39a0d2310a52eb.png",
+    "sha256": "122f5e39a0d2310a52ebc1a699f18da485214a35914f40235f2329bdb894df72",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-thumb-180c8993fdb6aae22620.png",
+    "sha256": "180c8993fdb6aae22620b0e56ebe985ebba021c5f3f12e6c616d86271cb16de0",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-e4754a5fee8e8e0100ab.png",
+    "sha256": "b1ff4446549e6b29615fc0762de2373430ae30caafac574e8f10482fcb219445",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-0c9b208f00cc0833cafd.png",
+    "sha256": "b1bec03766e1b39e598a6aef667853f660c9edf19a6d2518826c9cb9e3d37e06",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-398a6da8dc0cac5c8697.png",
+    "sha256": "9eda0b3f96cff25d14658775bf72c1b65f27d1eaad6093d332f69cdd943ae724",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-028e4a78e3b433174850.png",
+    "sha256": "b689ffa658bc414e04763be565dbddc3a98446ad2985bf2550fe285b6e7fe43e",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-72e834c7939303e35b2d.png",
+    "sha256": "c3907e563c9365e80af695f2de90b324f34c15dc902918e46bc2dbfc4c62bcb7",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-d2315c32230912160855.png",
+    "sha256": "90a23608f15d4c3f0967ee460d92ca7938213f0ec4df824447bdbef474863c0d",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-2896d22f4313711e3a23.png",
+    "sha256": "ab55017dec0edc6bd0a411424f1cc7865fd488be6ac926c3864f4305111e0892",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-b2e87921e7286b6fcff6.png",
+    "sha256": "9b089d9c7044bee1778fc58764d48b1e5ac3db6d22240cf580f9d23c65fd63d4",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-edd28d962b3a893305d9.png",
+    "sha256": "c410db4c5e134e07845a1c33bb24c10a302206f9daba2e63a5cad2af156cb2ce",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-ec8175058a4f2170d162.png",
+    "sha256": "a207b3bf23c75e83b30da6356250cdcd4c672ce5ad8c125c4d524ca4f639b5d6",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-398e176e55b172b807f8.png",
+    "sha256": "8182bf0663dac1ce99a51903f4e8aa38838ac9352f841b46185ac6662c3ceb87",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-d2c74720bad65980b607.png",
+    "sha256": "c5d5ec3d90dc16c5925f2c5f8d539e84035b490dbab88d958983b29537c13ad5",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-4bc90bb6fad31c2835bc.png",
+    "sha256": "990124aac88f3d685f73286014055420f5b2421f708cd8561afcad512e58e82e",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-a8d72fd2a17b8856cf53.png",
+    "sha256": "44727e93b280778583a5099336c0a1c3ed9b801682a6554d05a44bfd3752a4c5",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-1720203b4b2f6525403e.png",
+    "sha256": "8dc9d3deef889bde77791ba7d9892b8c6da21ac20fee8ca946aff518ad89f134",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-08e2fc4a1a847c0068a0.png",
+    "sha256": "c4b2144711dda9f961db81ff9a5fbb0fc23e6e7f01a709f17896c0741fbc2c9a",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-e2bc39e4a3be94ef6df0.png",
+    "sha256": "adefc4e88bb88f10091982fd6040ea97fc648dc04b25a39b230da6a1eebe9263",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-7741ae28d2b6a9f386bb.png",
+    "sha256": "1fba109443b401ed4ec1fac8eef4018a15cede80a478d0602107b30c917375f7",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-5cc58d7e6b2429ccae60.png",
+    "sha256": "79e8308e1724ff50ce8e1432d214df2275c081c88edead2ed04773615790f6ba",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-0746befd218e34bdde30.png",
+    "sha256": "95e5dfe1095e2dee7253d084030a2a5eb6dd8c4ceb1e5e55ab9bd68b2c20dc2a",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-d85a0e5e70d739c05138.png",
+    "sha256": "055ef1091673fa6876ed6314db0b189dc1f8932501bf1e6347382d944f8cea66",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-1e064c4af0435ad13904.png",
+    "sha256": "b479d6b4299923c1b91acafebdbf30bf73243b36820f4b1efbdf28e53ef9469b",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-ce18ae7df9825a3e5dd4.png",
+    "sha256": "d7b0558fa310cace13d26a2f58b63eae74c575db359825afe959499b3bdf575b",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-ae4a8a7592fa3c0bca7a.png",
+    "sha256": "ad04a6adfad6ad786c3e5d74b262ae9fce859a08ab682a1ece1e30cbc354b81f",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-436675aea0528d2e405e.png",
+    "sha256": "c876abe9f17ab36649ffc7389d2d95b8798645b9245f2fd3d9c35fcbec3b64bf",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-a42d9d97a121f691546b.png",
+    "sha256": "13261294b1bffcba1f034b2824a5b63d012916ac6641ecc950fb9addcf8f305a",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-50e870c06b40e1f8bdc0.png",
+    "sha256": "1ced95f808987d23d5281cd0da6696c927eed70dd8b069f44c56aac3d769fe4b",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-95dae8e3a049ad4bd333.png",
+    "sha256": "c89151931d6a22d810e68dcb4f177ec8576c4f872a296be41523e51669ebc92a",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-f8bc9dc4ab1da1b89ca0.png",
+    "sha256": "53e2ed295f420299e5cd066d4b37b3d769490f7f770e8898b75e4ab8e459e55b",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-93ed08f8815751299294.png",
+    "sha256": "3ac7b23e5d99b41486ad9ad55ee6fb48bf112b54c638d73f18aa6f008c9912e1",
+    "origin": "Original Creative Factory placeholder; created for this project"
+  },
+  {
+    "path": "content/art/character-faf617d2b6afa9fb3e4c.png",
+    "sha256": "f95ec9666f1a699848fed8bb7e4c749cf4293267780843542d09ddb2036bf17c",
+    "origin": "Original Creative Factory placeholder; created for this project"
   }
 ]

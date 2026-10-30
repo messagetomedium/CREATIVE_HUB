@@ -7,6 +7,17 @@ import { tmpdir } from 'node:os';
 import { expect, test } from '@playwright/test';
 import type { AvatarCatalog } from '@creative-factory/contracts';
 import { enterDemo } from './demoFixture';
+// Body/animation contract tests deliberately run without optional artist overlays.
+// Import-specific tests below install their own later routes; actual installed art
+// is covered separately by reference-art.spec.ts.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/content/avatars/modular/parts.json*', (r) =>
+    r.fulfill({ contentType: 'application/javascript', body: 'export default []' }),
+  );
+  await page.route('**/content/avatars/modular/import-manifest.json*', (r) =>
+    r.fulfill({ contentType: 'application/javascript', body: 'export default {"items":[]}' }),
+  );
+});
 test('real PNG layers share frames, use palette masks and reject incorrect sheet dimensions', async ({
   page,
 }) => {
@@ -450,7 +461,11 @@ test('whole-source PNGs enter slots through the real CLI without touching reposi
     await button.click();
     await page.getByRole('button', { name: 'Глаза: Вариант 6', exact: true }).click();
     await page.getByRole('button', { name: 'Рот: Вариант 6', exact: true }).click();
-    await page.getByRole('button', { name: 'Особенности лица: Румянец', exact: true }).click();
+    await page
+      .getByRole('group', { name: 'Особенности лица', exact: true })
+      .getByRole('button')
+      .nth(4)
+      .click();
     await page.getByRole('tab', { name: 'Одежда', exact: true }).click();
     await page.getByRole('button', { name: 'Низ: Вариант 6', exact: true }).click();
     await page.getByRole('button', { name: 'Сохранить', exact: true }).click();

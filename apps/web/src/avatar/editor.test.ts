@@ -67,7 +67,7 @@ test('new choices are bounded and strict, including feature sets, colors and ver
     { hat: 'url' },
     { bodyFeatures: [13] },
     { bodyFeatures: [1, 1] },
-    { faceFeatures: [7] },
+    { faceFeatures: [8] },
     { hair: { male: 7, female: 1 } },
     { hair: { male: 1 } },
     { colors: { ...config.customization!.colors, bottom: 'red' } },

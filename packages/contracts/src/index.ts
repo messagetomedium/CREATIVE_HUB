@@ -103,7 +103,7 @@ export const AvatarCustomizationSchema = z
     bodyFeatures: uniqueFeatures(12),
     mouth: avatarSlot,
     eyes: avatarSlot,
-    faceFeatures: uniqueFeatures(6),
+    faceFeatures: uniqueFeatures(7),
     hair: z.object({ male: avatarSlot, female: avatarSlot }).strict(),
     top: avatarSlot,
     bottom: avatarSlot,

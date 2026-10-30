@@ -216,10 +216,14 @@ export function AvatarPage() {
     <ChoiceGrid
       label={label}
       icon="features"
-      options={Array.from({ length: key === 'bodyFeatures' ? 12 : 6 }, (_, i) => i + 1).map(
+      options={Array.from({ length: key === 'bodyFeatures' ? 12 : 7 }, (_, i) => i + 1).map(
         (id) => ({
           id,
-          name: key === 'faceFeatures' ? FACE_FEATURES[id - 1]! : `Вариант ${id}`,
+          name:
+            importedChoice(key, id, c.gender)?.label ??
+            (key === 'faceFeatures'
+              ? (FACE_FEATURES[id - 1] ?? 'Веснушки по всему лицу')
+              : `Вариант ${id}`),
           preview: importedPreview(key, id),
           selected: c[key].includes(id),
           choose: () =>

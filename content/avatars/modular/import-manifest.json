@@ -1,4 +1,1596 @@
 {
   "version": "adult-2x-v4",
-  "items": []
+  "items": [
+    {
+      "id": "eyes-any-1",
+      "category": "eyes",
+      "slot": 1,
+      "label": "Близко посаженные точки",
+      "hash": "f9c1738f23b2cf4674640c4e49c8e80cf15ab9b4dc09e41672eb4fb3b503acaa",
+      "files": [
+        "character-e4754a5fee8e8e0100ab.png",
+        "character-thumb-19967d526b1740bee13f.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_01.png",
+          "sha256": "19276dbc50f95dd618e48c55dff7098ce51d2ec1164418652aac901d9d8d01af",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-1-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-e4754a5fee8e8e0100ab.png",
+          "frameWidth": 18,
+          "frameHeight": 2,
+          "anchor": {
+            "x": 10,
+            "y": 0
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 1
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-19967d526b1740bee13f.png"
+    },
+    {
+      "id": "eyes-any-2",
+      "category": "eyes",
+      "slot": 2,
+      "label": "Широкие глаза",
+      "hash": "209ecc54fe4bfcb13f09d15b133b7fe1ba5a600caf61e2269e6b7c15736fcfb8",
+      "files": [
+        "character-0c9b208f00cc0833cafd.png",
+        "character-thumb-96291e56620126d2927a.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_02.png",
+          "sha256": "81008391b26add36d5cc3e12ddecc232918376f946bfc554e1f086d87ebba8a1",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-2-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-0c9b208f00cc0833cafd.png",
+          "frameWidth": 28,
+          "frameHeight": 8,
+          "anchor": {
+            "x": 14,
+            "y": 2
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 2
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-96291e56620126d2927a.png"
+    },
+    {
+      "id": "eyes-any-3",
+      "category": "eyes",
+      "slot": 3,
+      "label": "Большие глаза со зрачками",
+      "hash": "6982c85cc5452e79a39bb5f0db6800ac4da4e4f2f07f9939608ff4460f80db26",
+      "files": [
+        "character-398a6da8dc0cac5c8697.png",
+        "character-thumb-9e78fd1a1e8ba2c002d9.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_03.png",
+          "sha256": "49ec33fac24a0a10ce8c61c5f7005359dd04bfe572a9927edce420e54c888811",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-3-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-398a6da8dc0cac5c8697.png",
+          "frameWidth": 32,
+          "frameHeight": 10,
+          "anchor": {
+            "x": 16,
+            "y": 3
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 3
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-9e78fd1a1e8ba2c002d9.png"
+    },
+    {
+      "id": "eyes-any-4",
+      "category": "eyes",
+      "slot": 4,
+      "label": "Закрытые улыбающиеся глаза",
+      "hash": "9f4512b86e9845878bc8d887ccb7a218ab357a328069e195042603037c61c187",
+      "files": [
+        "character-028e4a78e3b433174850.png",
+        "character-thumb-8ce7a8f445f140be8f04.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_04.png",
+          "sha256": "83c0620dff78bf89a508d196bcff7ae5208e63484e40356febbba128349ed35c",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-4-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-028e4a78e3b433174850.png",
+          "frameWidth": 31,
+          "frameHeight": 4,
+          "anchor": {
+            "x": 15,
+            "y": 0
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 4
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-8ce7a8f445f140be8f04.png"
+    },
+    {
+      "id": "eyes-any-5",
+      "category": "eyes",
+      "slot": 5,
+      "label": "Реснички со зрачками",
+      "hash": "567af4eca35c07b95b4131ad2a65fee9cfa468871ae699df4372f26a4d4d995b",
+      "files": [
+        "character-72e834c7939303e35b2d.png",
+        "character-thumb-39065ed802d27da6f286.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_05.png",
+          "sha256": "af702f2570190cf6aeed7b46297cc36a647f63549058a405a0ee0881e29164af",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-5-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-72e834c7939303e35b2d.png",
+          "frameWidth": 34,
+          "frameHeight": 8,
+          "anchor": {
+            "x": 17,
+            "y": 3
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 5
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-39065ed802d27da6f286.png"
+    },
+    {
+      "id": "eyes-any-6",
+      "category": "eyes",
+      "slot": 6,
+      "label": "Недовольный взгляд",
+      "hash": "6fb812c3f656fc312548e3397440c5131c7b9270737f482ed9329b8db980957d",
+      "files": [
+        "character-d2315c32230912160855.png",
+        "character-thumb-9640ef564c0c5e071a4e.png"
+      ],
+      "sources": [
+        {
+          "name": "eyes_06.png",
+          "sha256": "f82c128954dff79cccc492a8ced79d3c36c82532e303e631eb6dd4b5954a696f",
+          "mode": "full",
+          "module": "compact-eyes"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-eyes-any-6-compact-eyes-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-d2315c32230912160855.png",
+          "frameWidth": 30,
+          "frameHeight": 5,
+          "anchor": {
+            "x": 15,
+            "y": 1
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "eyes",
+            "slot": 6
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-9640ef564c0c5e071a4e.png"
+    },
+    {
+      "id": "face_features-any-1",
+      "category": "face_features",
+      "slot": 1,
+      "label": "Три родинки",
+      "hash": "1ab66b6d71f7e4ad2b55b562ce38a26aa38282dbcebb77687c6c18991de5bfd7",
+      "files": [
+        "character-2896d22f4313711e3a23.png",
+        "character-thumb-18f7d2284fefa491effb.png"
+      ],
+      "sources": [
+        {
+          "name": "face_01.png",
+          "sha256": "dc48b7e30c63ecdac02f7f8cdfa53cbeaac254eb10232bbb3c6e29b4c9c148d5",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-1-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-2896d22f4313711e3a23.png",
+          "frameWidth": 25,
+          "frameHeight": 9,
+          "anchor": {
+            "x": 14,
+            "y": -7
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 1
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-18f7d2284fefa491effb.png"
+    },
+    {
+      "id": "face_features-any-2",
+      "category": "face_features",
+      "slot": 2,
+      "label": "Синяки под глазами",
+      "hash": "45a5ae5b4e10930f2c5bc3878d5f501d489edec0e33f09a22a8781a5e4b31f10",
+      "files": [
+        "character-b2e87921e7286b6fcff6.png",
+        "character-thumb-3ef85fc9b858813c3fda.png"
+      ],
+      "sources": [
+        {
+          "name": "face_02.png",
+          "sha256": "ea868922e8b08fb9ebc7c37057d3fca350d9a6437d44118274653edb24d22cab",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-2-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-b2e87921e7286b6fcff6.png",
+          "frameWidth": 28,
+          "frameHeight": 4,
+          "anchor": {
+            "x": 14,
+            "y": -6
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 2
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-3ef85fc9b858813c3fda.png"
+    },
+    {
+      "id": "face_features-any-3",
+      "category": "face_features",
+      "slot": 3,
+      "label": "Круглый румянец",
+      "hash": "6bcd8a916c68c9aa9a48eaedeeca90b5a3897b1eb3112f13b0ee6310a58c38bf",
+      "files": [
+        "character-edd28d962b3a893305d9.png",
+        "character-thumb-f886beecbe3c3cc5723c.png"
+      ],
+      "sources": [
+        {
+          "name": "face_03.png",
+          "sha256": "fad2b0021fe3f2f59a6922707581d7982055c196a783071a968a034b9119f9af",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-3-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-edd28d962b3a893305d9.png",
+          "frameWidth": 34,
+          "frameHeight": 6,
+          "anchor": {
+            "x": 17,
+            "y": -6
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 3
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-f886beecbe3c3cc5723c.png"
+    },
+    {
+      "id": "face_features-any-4",
+      "category": "face_features",
+      "slot": 4,
+      "label": "Полоски румянца",
+      "hash": "c7caf35ae5f251287d6df6efdc41129a624fea629c6fe7a003eac3c454c4efb2",
+      "files": [
+        "character-ec8175058a4f2170d162.png",
+        "character-thumb-42826785d1504e71cbd7.png"
+      ],
+      "sources": [
+        {
+          "name": "face_04.png",
+          "sha256": "d3c4ea6608a2755bd50cbdb93ffc5ba81913c34011acdcc2d457dc6fa511853a",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-4-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-ec8175058a4f2170d162.png",
+          "frameWidth": 28,
+          "frameHeight": 2,
+          "anchor": {
+            "x": 14,
+            "y": -8
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 4
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-42826785d1504e71cbd7.png"
+    },
+    {
+      "id": "face_features-any-5",
+      "category": "face_features",
+      "slot": 5,
+      "label": "Румянец на носу",
+      "hash": "b37fdb30f3d75b6cbbb33bce39ea2cef9f8c40365e806b3f3ed2cc725b61dce5",
+      "files": [
+        "character-398e176e55b172b807f8.png",
+        "character-thumb-14f26ddfeafbecfbfdb7.png"
+      ],
+      "sources": [
+        {
+          "name": "face_05.png",
+          "sha256": "b79fe7fc480f8ab64979e647a278f79699a1836e220d2d3fff01e0e0514b0407",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-5-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-398e176e55b172b807f8.png",
+          "frameWidth": 36,
+          "frameHeight": 6,
+          "anchor": {
+            "x": 18,
+            "y": -4
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 5
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-14f26ddfeafbecfbfdb7.png"
+    },
+    {
+      "id": "face_features-any-6",
+      "category": "face_features",
+      "slot": 6,
+      "label": "Веснушки на носу",
+      "hash": "20672a009b58b9a4664c6b57482f08da68c03275f9413f4e5dc7454abea96bab",
+      "files": [
+        "character-d2c74720bad65980b607.png",
+        "character-thumb-c172af4fdb4a2c8737a1.png"
+      ],
+      "sources": [
+        {
+          "name": "face_06.png",
+          "sha256": "c95c922d319a76c79786ca0319574d9011485f976a41404eed382b7739aca22c",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-6-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-d2c74720bad65980b607.png",
+          "frameWidth": 36,
+          "frameHeight": 4,
+          "anchor": {
+            "x": 18,
+            "y": -6
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 6
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-c172af4fdb4a2c8737a1.png"
+    },
+    {
+      "id": "face_features-any-7",
+      "category": "face_features",
+      "slot": 7,
+      "label": "Веснушки по всему лицу",
+      "hash": "b3fcfa4c0ea8fa3fe7042fcb361ee94ccdbc34507c5eb5ae8dfaca6fc0de6211",
+      "files": [
+        "character-4bc90bb6fad31c2835bc.png",
+        "character-thumb-85962e5821344e390601.png"
+      ],
+      "sources": [
+        {
+          "name": "face_07.png",
+          "sha256": "8cebcbea4d1e0abf8da5a65dcd10b2081ca0ac1a1bfb0dad7b8752f4954d299e",
+          "mode": "full",
+          "module": "compact-face"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-face-features-any-7-compact-face-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-4bc90bb6fad31c2835bc.png",
+          "frameWidth": 31,
+          "frameHeight": 24,
+          "anchor": {
+            "x": 15,
+            "y": 7
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "faceFeatures",
+            "slot": 7
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-85962e5821344e390601.png"
+    },
+    {
+      "id": "hair-any-1",
+      "category": "hair",
+      "slot": 1,
+      "label": "Асимметричное кудрявое каре",
+      "hash": "86b2eb2fc0a29563b742515cf972b51db0c5262ac6d9cae55b9f0a739a1a6c0d",
+      "files": [
+        "character-a8d72fd2a17b8856cf53.png",
+        "character-1720203b4b2f6525403e.png",
+        "character-thumb-c93d543469759ac3d4f0.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_01.png",
+          "sha256": "424c8cbd6ae533415e9ec1a886aeb8c1726505ac755f79f1721d54d96787fc55",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_01_mask.png",
+          "maskHash": "330ee9094ccd20c51f99c822ff8ddbe00aea456d9038293af973f0985336db92"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-1-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-a8d72fd2a17b8856cf53.png",
+          "frameWidth": 75,
+          "frameHeight": 103,
+          "anchor": {
+            "x": 39,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 1
+          }
+        },
+        {
+          "id": "character-hair-any-1-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-1720203b4b2f6525403e.png",
+          "frameWidth": 45,
+          "frameHeight": 57,
+          "anchor": {
+            "x": 24,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 1
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-c93d543469759ac3d4f0.png"
+    },
+    {
+      "id": "hair-any-2",
+      "category": "hair",
+      "slot": 2,
+      "label": "Длинные волнистые волосы",
+      "hash": "dc98369f4c153b89891a065522b8e49e3eaa094bda97cb574f744e5319f347e3",
+      "files": [
+        "character-08e2fc4a1a847c0068a0.png",
+        "character-e2bc39e4a3be94ef6df0.png",
+        "character-thumb-bb32da9ec11f35293bc8.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_02.png",
+          "sha256": "8c4be41c7db8de9aa85cce6e94b963ea327c83947bb0ecf23cdf01011d97acfa",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_02_mask.png",
+          "maskHash": "05a366ed525e64bee7e1aa8320f77dd2a14f9b05227bcee598a5581d146b3259"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-2-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-08e2fc4a1a847c0068a0.png",
+          "frameWidth": 83,
+          "frameHeight": 80,
+          "anchor": {
+            "x": 42,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 2
+          }
+        },
+        {
+          "id": "character-hair-any-2-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-e2bc39e4a3be94ef6df0.png",
+          "frameWidth": 85,
+          "frameHeight": 34,
+          "anchor": {
+            "x": 44,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 2
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-bb32da9ec11f35293bc8.png"
+    },
+    {
+      "id": "hair-any-3",
+      "category": "hair",
+      "slot": 3,
+      "label": "Прямое каре",
+      "hash": "41920e117c13c742319337bbddc369a34e4942e44cb77501d7408998e4449831",
+      "files": [
+        "character-7741ae28d2b6a9f386bb.png",
+        "character-5cc58d7e6b2429ccae60.png",
+        "character-thumb-8c3d69f48a57955e3396.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_03.png",
+          "sha256": "84d45f9b25338c5678aa96cde60c44e88164dd565f0492f198d48998739196c6",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_03_mask.png",
+          "maskHash": "24123f4660d4500d052797cb330c97245758cf2c7cbc37fd6822cb7981d9acbe"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-3-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-7741ae28d2b6a9f386bb.png",
+          "frameWidth": 74,
+          "frameHeight": 103,
+          "anchor": {
+            "x": 37,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 3
+          }
+        },
+        {
+          "id": "character-hair-any-3-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-5cc58d7e6b2429ccae60.png",
+          "frameWidth": 54,
+          "frameHeight": 57,
+          "anchor": {
+            "x": 29,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 3
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-8c3d69f48a57955e3396.png"
+    },
+    {
+      "id": "hair-any-4",
+      "category": "hair",
+      "slot": 4,
+      "label": "Боковой пучок с прядями",
+      "hash": "52d4f1ff485b5a611d91825d38f903fbb8b877666de543e0f58d4efe0bdbeb8f",
+      "files": [
+        "character-0746befd218e34bdde30.png",
+        "character-d85a0e5e70d739c05138.png",
+        "character-thumb-b7923304706024f17439.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_04.png",
+          "sha256": "aac4bc5599c11d91fd97ea55b8ae6b74796fe192a4a17ad00647aaaceb6970ff",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_04_mask.png",
+          "maskHash": "9bc555d49e459b474cbaa8abeb1d3b586a64814cabda6b485d5f0e646a1ec109"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-4-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-0746befd218e34bdde30.png",
+          "frameWidth": 79,
+          "frameHeight": 56,
+          "anchor": {
+            "x": 40,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 4
+          }
+        },
+        {
+          "id": "character-hair-any-4-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-d85a0e5e70d739c05138.png",
+          "frameWidth": 62,
+          "frameHeight": 10,
+          "anchor": {
+            "x": 33,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 4
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-b7923304706024f17439.png"
+    },
+    {
+      "id": "hair-any-5",
+      "category": "hair",
+      "slot": 5,
+      "label": "Длинные прямые волосы",
+      "hash": "f497aa709f41ef06f272104ddc76c5312b8c1935acc4ebc3527c75936b30612c",
+      "files": [
+        "character-1e064c4af0435ad13904.png",
+        "character-ce18ae7df9825a3e5dd4.png",
+        "character-thumb-d63a5dfb0c32c95d5d86.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_05.png",
+          "sha256": "fe433ca0ddf2ab960cb0fac8fa561564b90cb2ecbe15c014cf4452b7da79d7ae",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_05_mask.png",
+          "maskHash": "67bfc624f7583e0b08ef0a71148fcf83a37ec412cf433ff9512c6b8e1ca6e717"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-5-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-1e064c4af0435ad13904.png",
+          "frameWidth": 84,
+          "frameHeight": 83,
+          "anchor": {
+            "x": 37,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 5
+          }
+        },
+        {
+          "id": "character-hair-any-5-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-ce18ae7df9825a3e5dd4.png",
+          "frameWidth": 87,
+          "frameHeight": 37,
+          "anchor": {
+            "x": 42,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 5
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-d63a5dfb0c32c95d5d86.png"
+    },
+    {
+      "id": "hair-any-6",
+      "category": "hair",
+      "slot": 6,
+      "label": "Объёмные длинные кудри",
+      "hash": "6e470b2c6499bb9dc0654fb97946f323c7cbb6b7a6a67edd6c27550927b17069",
+      "files": [
+        "character-ae4a8a7592fa3c0bca7a.png",
+        "character-436675aea0528d2e405e.png",
+        "character-thumb-3a1507ccaa8e4d729820.png"
+      ],
+      "sources": [
+        {
+          "name": "hair_06.png",
+          "sha256": "e52c37516aabb41b221eda051ec95d3fb149b0c908c093761271c8cbedcc06bb",
+          "mode": "full",
+          "module": "compact-hair",
+          "mask": "hair_06_mask.png",
+          "maskHash": "e9697cd42af40f8e000e3a918a7b381bd4b7d0cff97407fd773a1ab9de328c00"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-hair-any-6-compact-hair-hair-front-head-front-hair",
+          "parent": "head",
+          "pass": "front",
+          "material": "hair",
+          "source": "/content/character-ae4a8a7592fa3c0bca7a.png",
+          "frameWidth": 90,
+          "frameHeight": 83,
+          "anchor": {
+            "x": 44,
+            "y": 26
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 6
+          }
+        },
+        {
+          "id": "character-hair-any-6-compact-hair-hair-back-head-back-hair",
+          "parent": "head",
+          "pass": "back",
+          "material": "hair",
+          "source": "/content/character-436675aea0528d2e405e.png",
+          "frameWidth": 91,
+          "frameHeight": 37,
+          "anchor": {
+            "x": 44,
+            "y": -20
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "hair",
+            "slot": 6
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-3a1507ccaa8e4d729820.png"
+    },
+    {
+      "id": "mouth-any-1",
+      "category": "mouth",
+      "slot": 1,
+      "label": "Круглый рот",
+      "hash": "56180a4fc5a85cbec4eb9aa27004d34fd5c46ed967ad93e3e4461d3f0aa3e446",
+      "files": [
+        "character-a42d9d97a121f691546b.png",
+        "character-thumb-c922daa693d0e9aef54e.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_01.png",
+          "sha256": "6a8edd09ebe45bd8ba368de00963d7b2fffa2de0c717dcf540e7a6f33bd4551e",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-1-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-a42d9d97a121f691546b.png",
+          "frameWidth": 32,
+          "frameHeight": 4,
+          "anchor": {
+            "x": 16,
+            "y": -10
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 1
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-c922daa693d0e9aef54e.png"
+    },
+    {
+      "id": "mouth-any-2",
+      "category": "mouth",
+      "slot": 2,
+      "label": "Короткая полоска",
+      "hash": "55c48cb75baa82bd301882cc105707811d2b7c9ca0b86ce989d9db15c0540ef7",
+      "files": [
+        "character-50e870c06b40e1f8bdc0.png",
+        "character-thumb-5cfa4e229aa21bfc30bf.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_02.png",
+          "sha256": "aa2af6da3177c0b257e747a06acc433f8f67bd5ce869b6d0b43f511fe9a2f0e0",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-2-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-50e870c06b40e1f8bdc0.png",
+          "frameWidth": 34,
+          "frameHeight": 2,
+          "anchor": {
+            "x": 17,
+            "y": -11
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 2
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-5cfa4e229aa21bfc30bf.png"
+    },
+    {
+      "id": "mouth-any-3",
+      "category": "mouth",
+      "slot": 3,
+      "label": "Тень верхней губы",
+      "hash": "ea3eff70a6084ebf22455a23ce7655e04ea284d7c3f64a81383a5372f6717a77",
+      "files": [
+        "character-95dae8e3a049ad4bd333.png",
+        "character-thumb-f966a74455ce7cc7260d.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_03.png",
+          "sha256": "f912704113afb23c5670067c667240c1f0ade379fa585a53ef91b59190b3c56b",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-3-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-95dae8e3a049ad4bd333.png",
+          "frameWidth": 34,
+          "frameHeight": 2,
+          "anchor": {
+            "x": 17,
+            "y": -10
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 3
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-f966a74455ce7cc7260d.png"
+    },
+    {
+      "id": "mouth-any-4",
+      "category": "mouth",
+      "slot": 4,
+      "label": "Пухлые губы",
+      "hash": "c6b099c4d4b0349ade2294e0010eba4bc2c3fd165c080ad2d73523b99e1cad8e",
+      "files": [
+        "character-f8bc9dc4ab1da1b89ca0.png",
+        "character-thumb-dad3612fefd6299cee0d.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_04.png",
+          "sha256": "2ab77518681aa49109a887ea07819bb1aba396f3b137819d2526cc96034c11a7",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-4-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-f8bc9dc4ab1da1b89ca0.png",
+          "frameWidth": 34,
+          "frameHeight": 6,
+          "anchor": {
+            "x": 17,
+            "y": -9
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 4
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-dad3612fefd6299cee0d.png"
+    },
+    {
+      "id": "mouth-any-5",
+      "category": "mouth",
+      "slot": 5,
+      "label": "Улыбка",
+      "hash": "1d2b04fac97604059e3fe74a75b8596bdf313ff86e6e63ddb9618c51364c2748",
+      "files": [
+        "character-93ed08f8815751299294.png",
+        "character-thumb-122f5e39a0d2310a52eb.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_05.png",
+          "sha256": "bab41357e788f2e2c811626a47da260ecff0b191c03b314e71d1a8bc87d7b642",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-5-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-93ed08f8815751299294.png",
+          "frameWidth": 34,
+          "frameHeight": 3,
+          "anchor": {
+            "x": 17,
+            "y": -10
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 5
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-122f5e39a0d2310a52eb.png"
+    },
+    {
+      "id": "mouth-any-6",
+      "category": "mouth",
+      "slot": 6,
+      "label": "Тень нижней губы",
+      "hash": "9f69a094a8fcb7be77376f465de7b75ed7d041b9529e63b3631ae039871c71ba",
+      "files": [
+        "character-faf617d2b6afa9fb3e4c.png",
+        "character-thumb-180c8993fdb6aae22620.png"
+      ],
+      "sources": [
+        {
+          "name": "mouth_06.png",
+          "sha256": "75140b166a66c2ee10525651516aa44716506297ba3f417f5ec071adf89a17d3",
+          "mode": "full",
+          "module": "compact-mouth"
+        }
+      ],
+      "parts": [
+        {
+          "id": "character-mouth-any-6-compact-mouth-source-head-front-fixed",
+          "parent": "head",
+          "pass": "front",
+          "material": "fixed",
+          "source": "/content/character-faf617d2b6afa9fb3e4c.png",
+          "frameWidth": 34,
+          "frameHeight": 3,
+          "anchor": {
+            "x": 17,
+            "y": -11
+          },
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "fit": "fixed",
+          "mirrorWest": false,
+          "mirrorX": false,
+          "pairMirror": false,
+          "hideBase": false,
+          "sync": "head",
+          "approved": {
+            "version": 1,
+            "kind": "head",
+            "referenceGender": "male"
+          },
+          "overrides": [],
+          "selection": {
+            "field": "mouth",
+            "slot": 6
+          }
+        }
+      ],
+      "thumbnail": "/content/character-thumb-180c8993fdb6aae22620.png"
+    }
+  ]
 }

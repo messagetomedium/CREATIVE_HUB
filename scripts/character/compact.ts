@@ -23,8 +23,10 @@ export function parseCompact(name: string, category: Category): ParsedName | und
     spec = COMPACT_TYPES[type],
     slot = Number(m[3]);
   if (spec.category !== category) throw new Error('Имя PNG не соответствует папке CHARACTER.');
-  if (slot < 1 || slot > 6)
-    throw new Error('Номер должен быть 01…06; bottom и skirt используют общие слоты.');
+  if (slot < 1 || slot > (type === 'face' ? 7 : 6))
+    throw new Error(
+      'Номер должен быть 01…06 (для лица 01…07); bottom и skirt используют общие слоты.',
+    );
   if (m[2] && type !== 'hair')
     throw new Error(
       'Суффикс f/m используется только для волос; посадка одежды задаётся необязательной строкой ITEMS.',
@@ -128,7 +130,11 @@ export function expandCompact(
     }
     const front = new PNG({ width: t.width, height: t.height });
     source.data.copy(front.data, 0, 0, t.width * t.height * 4);
-    return { image: projectFront(front, t, n.slot), mask: undefined, westMirrored: false };
+    return {
+      image: projectFront(front, t, n.compact === 'face' && n.slot === 5 ? 6 : n.slot),
+      mask: undefined,
+      westMirrored: false,
+    };
   }
   const expandedMask = mask ? transformed(mask, t.height, transforms) : undefined;
   if (expandedMask && n.compact === 'top' && transforms[3]!.mirror) {

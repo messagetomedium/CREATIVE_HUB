@@ -57,6 +57,8 @@ function color(image: PNG, row: number, x: number, y: number, height = 64) {
   ];
 }
 test('simple names retain shared slots and reject folder, gender and slot mistakes', () => {
+  expect(parseName('face_07.png', 'face_features')).toMatchObject({ compact: 'face', slot: 7 });
+  expect(() => parseName('face_08.png', 'face_features')).toThrow();
   expect(parseName('hair_f_01.png', 'hair')).toMatchObject({
     compact: 'hair',
     gender: 'female',
