@@ -81,7 +81,7 @@ test('registration, required public profile, avatar persistence, session restora
   ).toHaveAttribute('aria-pressed', 'true');
   expect(savedImage).toBeTruthy();
   await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
-  await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
+  await expect(page.getByTestId('current-zone')).toHaveText('Мой остров', { timeout: 20000 });
   expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar.parts.hair).toBe(
     'curls-01',
   );
@@ -158,7 +158,7 @@ test('hash routes reload, browser back, protected screens and repeated Phaser mo
     await page.goto(`/#/${route}`);
     await page.reload();
     if (route === 'factory') {
-      await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', {
+      await expect(page.getByTestId('current-zone')).toHaveText('Мой остров', {
         timeout: 20000,
       });
       await expect(page.locator('.game-canvas canvas')).toHaveCount(1);
@@ -200,7 +200,7 @@ test('logout in another tab closes its factory; a failed network logout cannot r
   const other = await context.newPage();
   await installSupabaseFixture(other, { existing: true });
   await other.goto('/#/factory');
-  await expect(other.getByTestId('current-zone')).toHaveText('Центральный холл', {
+  await expect(other.getByTestId('current-zone')).toHaveText('Мой остров', {
     timeout: 20000,
   });
   await page.getByRole('button', { name: 'Выйти', exact: true }).click();

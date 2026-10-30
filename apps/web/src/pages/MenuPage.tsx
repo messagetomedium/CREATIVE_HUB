@@ -11,7 +11,7 @@ export function MenuPage() {
         <h1>
           С чего начнём<span> сегодня?</span>
         </h1>
-        <p>Создайте свой образ. Исследуйте завод. Найдите место для новых идей.</p>
+        <p>Создайте свой образ. Исследуйте остров. Найдите место для новых идей.</p>
       </section>
       <nav className="menu-grid" aria-label="Главное меню">
         <a className="destination-card avatar-card" href="#/avatar">
@@ -25,16 +25,16 @@ export function MenuPage() {
           <p>Причёска, одежда и детали, которые делают образ вашим.</p>
           <span className="card-tag">Открыть конструктор</span>
         </a>
-        <a className="destination-card factory-card" href="#/factory">
+        <a className="destination-card factory-card" href="#/island">
           <span className="card-number">02 / ВАШ МАРШРУТ</span>
           <div className="menu-card-art factory-door" aria-hidden="true">
             <FactoryMark />
             <span>CF / 01</span>
           </div>
           <h2>
-            Войти на завод <ArrowIcon />
+            Войти на остров <ArrowIcon />
           </h2>
-          <p>Холл, четыре цеха и пространство для вашей прогулки.</p>
+          <p>Небольшой остров, ваш дом и пространство для прогулки.</p>
           <span className="card-tag">Локальная прогулка</span>
         </a>
         <a className="destination-card profile-menu-card" href="#/profile">

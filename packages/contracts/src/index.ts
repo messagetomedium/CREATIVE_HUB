@@ -86,6 +86,17 @@ export const WorldSchema = z
       ctx.addIssue({ code: 'custom', message: 'zoneId должен быть уникальным' });
   });
 export type World = z.infer<typeof WorldSchema>;
+/** Shared collision input. Locations need no factory workshops or factory asset IDs. */
+export interface WalkableWorld {
+  width: number;
+  height: number;
+  tileSize: number;
+  solids: boolean[];
+  spawn: Point;
+  zones: Zone[];
+  props: { solid: boolean; bounds: Rect }[];
+}
+export * from './locations';
 const avatarSlot = z.number().int().min(1).max(6);
 const uniqueFeatures = (max: number) =>
   z

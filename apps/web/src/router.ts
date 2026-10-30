@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-export const ROUTES = ['/', '/login', '/menu', '/profile', '/avatar', '/factory'] as const;
+export const ROUTES = [
+  '/',
+  '/login',
+  '/menu',
+  '/profile',
+  '/avatar',
+  '/factory',
+  '/island',
+  '/house',
+] as const;
 export type Route = (typeof ROUTES)[number];
 export function parseRoute(hash: string): Route | null {
   const path = hash.replace(/^#/, '') || '/';

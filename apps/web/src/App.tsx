@@ -34,7 +34,9 @@ function Application() {
       '/login': 'Вход',
       '/profile': 'Личный кабинет',
       '/avatar': 'Мой персонаж',
-      '/factory': 'Завод',
+      '/factory': 'Остров',
+      '/island': 'Остров',
+      '/house': 'Дом',
       '/menu': 'Главное меню',
     };
     document.title = `${route ? titles[route] : 'Страница не найдена'} — Creative Factory`;
@@ -78,7 +80,12 @@ function Application() {
     screen = <Redirect to={account.data.profile ? '/' : '/profile'} from="/login" />;
   else if (
     demo &&
-    (route === '/menu' || route === '/profile' || route === '/avatar' || route === '/factory') &&
+    (route === '/menu' ||
+      route === '/profile' ||
+      route === '/avatar' ||
+      route === '/factory' ||
+      route === '/island' ||
+      route === '/house') &&
     !account.user
   )
     screen = <Redirect to="/" from={route} />;
@@ -86,7 +93,7 @@ function Application() {
     screen = <Redirect to="/login" from={route} />;
   else if (
     !demo &&
-    (route === '/factory' || route === '/avatar') &&
+    (route === '/factory' || route === '/island' || route === '/house' || route === '/avatar') &&
     account.user &&
     !account.data.profile
   )
@@ -120,7 +127,17 @@ function Application() {
         screen = <AvatarPage />;
         break;
       case '/factory':
-        screen = <FactoryPage avatar={account.data.avatar ?? undefined} />;
+        screen = <Redirect to="/island" from="/factory" />;
+        break;
+      case '/island':
+      case '/house':
+        screen = (
+          <FactoryPage
+            key={route}
+            location={route === '/house' ? 'house' : 'island'}
+            avatar={account.data.avatar ?? undefined}
+          />
+        );
         break;
       default:
         screen = (

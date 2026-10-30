@@ -154,12 +154,56 @@ test('the actual Phaser scene can replace procedural props with one PNG without 
   await page.route('**/content/test-props.png', (r) =>
     r.fulfill({ contentType: 'image/png', body: Buffer.from(png, 'base64') }),
   );
-  await page.goto('/#/factory');
-  await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
-  expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).rendering.props).toHaveLength(
-    30,
-  );
-  await expect(page.locator('.game-canvas canvas')).toHaveCount(1);
+  // The old factory provider stays testable without putting factory objects on the island.
+  const rendered = await page.evaluate(async () => {
+    const { default: Phaser } = await import(
+      /* @vite-ignore */ String('/node_modules/.vite/deps/phaser.js')
+    );
+    const { loadContent } = await import(/* @vite-ignore */ String('/src/game/content.ts'));
+    const { installSceneArt, propAppearance } = await import(
+      /* @vite-ignore */ String('/src/game/sceneArt.ts')
+    );
+    const content = await loadContent(new AbortController().signal);
+    return await new Promise<{ count: number; color: number[] }>((resolve) => {
+      class PropsScene extends Phaser.Scene {
+        preload() {
+          this.load.spritesheet('props', content.sceneArt.props.source.url, {
+            frameWidth: 128,
+            frameHeight: 128,
+          });
+        }
+        create() {
+          installSceneArt(this, content.sceneArt);
+          for (const prop of content.world.props)
+            this.add.image(64, 64, 'props', propAppearance(content.sceneArt, prop).frame);
+          const image = this.textures.get('props').getSourceImage();
+          const c = document.createElement('canvas');
+          c.width = 1;
+          c.height = 1;
+          const ctx = c.getContext('2d')!;
+          ctx.drawImage(image, 0, 0);
+          const result = {
+            count: content.world.props.length,
+            color: [...ctx.getImageData(0, 0, 1, 1).data],
+          };
+          this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+            this.game.destroy(true);
+            resolve(result);
+          });
+        }
+      }
+      new Phaser.Game({
+        type: Phaser.CANVAS,
+        width: 128,
+        height: 128,
+        scene: [PropsScene],
+        audio: { noAudio: true },
+        banner: false,
+      });
+    });
+  });
+  expect(rendered.count).toBe(30);
+  expect(rendered.color).toEqual([141, 165, 161, 255]);
   expect(errors).toEqual([]);
 });
 
@@ -470,7 +514,7 @@ test('whole-source PNGs enter slots through the real CLI without touching reposi
     await page.getByRole('button', { name: 'Низ: Вариант 6', exact: true }).click();
     await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
     await page.getByRole('link', { name: /Войти на завод/ }).click();
-    await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл');
+    await expect(page.getByTestId('current-zone')).toHaveText('Мой остров');
     const config = (await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar
       .customization!;
     expect(config.hair.female).toBe(6);
@@ -503,7 +547,7 @@ test('DPR 1 and 2 keep 48×64 world size, feet origin, crisp sampling and bounde
       await page.goto('http://127.0.0.1:5180');
       await page.getByRole('button', { name: 'Войти в деморежим', exact: true }).click();
       await page.goto('http://127.0.0.1:5180/#/factory');
-      await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл');
+      await expect(page.getByTestId('current-zone')).toHaveText('Мой остров');
       await page.waitForFunction(() => (window.__CF_DEBUG__?.snapshot().tick ?? 0) > 4);
       for (const viewport of [
         { width: 1440, height: 1000 },

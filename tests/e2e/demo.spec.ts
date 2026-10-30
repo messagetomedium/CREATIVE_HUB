@@ -48,7 +48,7 @@ test('complete local flow, saved avatar in factory, reload, logout and repeat en
   expect(saved.avatar.parts.hair).toBe('curls-01');
   await page.screenshot({ path: '.cache/review/demo-editor.png', fullPage: true });
   await page.getByRole('link', { name: 'Войти на завод', exact: true }).click();
-  await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл', { timeout: 20000 });
+  await expect(page.getByTestId('current-zone')).toHaveText('Мой остров', { timeout: 20000 });
   expect((await page.evaluate(() => window.__CF_DEBUG__!.snapshot())).avatar).toEqual(saved.avatar);
   await page.locator('.game-canvas canvas').focus();
   await page.keyboard.down('KeyD');
@@ -81,14 +81,16 @@ test('four directions, idle and walk, reset, random and unsaved-navigation guard
   const preview = page.locator('.avatar-stage canvas');
   await expect(preview).toHaveAttribute('data-direction', 'south');
   const first = await preview.getAttribute('data-frame');
-  await expect.poll(() => preview.getAttribute('data-frame')).not.toBe(first);
+  await expect.poll(() => preview.getAttribute('data-frame'), { intervals: [50] }).not.toBe(first);
   await page.getByRole('button', { name: 'Идёт', exact: true }).click();
   await expect(preview).toHaveAttribute('data-animation', 'walk');
   for (const direction of ['east', 'north', 'west', 'south']) {
     await page.getByRole('button', { name: 'Повернуть вправо', exact: true }).click();
     await expect(preview).toHaveAttribute('data-direction', direction);
     const frame = await preview.getAttribute('data-frame');
-    await expect.poll(() => preview.getAttribute('data-frame')).not.toBe(frame);
+    await expect
+      .poll(() => preview.getAttribute('data-frame'), { intervals: [50] })
+      .not.toBe(frame);
   }
   await page.getByRole('button', { name: 'Повернуть влево', exact: true }).click();
   await expect(preview).toHaveAttribute('data-direction', 'west');

@@ -3,7 +3,7 @@ import type {
   PlayerState,
   Point,
   Rect,
-  World,
+  WalkableWorld,
   Zone,
 } from '@creative-factory/contracts';
 
@@ -23,7 +23,7 @@ export function contains(rect: Rect, point: Point): boolean {
 function overlaps(a: Rect, b: Rect): boolean {
   return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
 }
-export function canOccupy(world: World, point: Point): boolean {
+export function canOccupy(world: WalkableWorld, point: Point): boolean {
   if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) return false;
   const box = {
     x: point.x - PLAYER_HALF_WIDTH,
@@ -49,7 +49,11 @@ export function canOccupy(world: World, point: Point): boolean {
   return !world.props.some((prop) => prop.solid && overlaps(box, prop.bounds));
 }
 /** One fixed simulation step, shared later with the authoritative server. No Phaser dependency. */
-export function stepPlayer(state: PlayerState, input: MovementInput, world: World): PlayerState {
+export function stepPlayer(
+  state: PlayerState,
+  input: MovementInput,
+  world: WalkableWorld,
+): PlayerState {
   let dx = Number(input.right) - Number(input.left);
   let dy = Number(input.down) - Number(input.up);
   const direction =
@@ -69,12 +73,12 @@ export function stepPlayer(state: PlayerState, input: MovementInput, world: Worl
   }
   return { x, y, direction, moving: x !== state.x || y !== state.y };
 }
-export function zoneAt(world: World, point: Point): Zone | undefined {
+export function zoneAt(world: WalkableWorld, point: Point): Zone | undefined {
   return world.zones
     .filter((zone) => contains(zone.bounds, point))
     .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id))[0];
 }
-export function initialPlayer(world: World): PlayerState {
+export function initialPlayer(world: WalkableWorld): PlayerState {
   if (!canOccupy(world, world.spawn)) throw new Error('Точка входа заблокирована');
   return { ...world.spawn, direction: 'north', moving: false };
 }

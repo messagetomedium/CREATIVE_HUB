@@ -1,9 +1,12 @@
 import type { PlayerState, Zone } from '@creative-factory/contracts';
+import type { ContextInteraction } from './interactions';
 export interface GameEvents {
   ready: undefined;
   zone: Zone | undefined;
   position: PlayerState;
   error: string;
+  interaction: ContextInteraction | undefined;
+  dismissInteraction: undefined;
 }
 export class GameBridge {
   private listeners = new Map<keyof GameEvents, Set<(value: never) => void>>();

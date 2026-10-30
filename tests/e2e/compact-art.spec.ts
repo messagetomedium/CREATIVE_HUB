@@ -225,7 +225,7 @@ test('compact real CLI sources fit approved editor on both genders/all builds wi
       page.getByRole('button', { name: 'Верх: Вариант 6', exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('link', { name: /Войти на завод/ }).click();
-    await expect(page.getByTestId('current-zone')).toHaveText('Центральный холл');
+    await expect(page.getByTestId('current-zone')).toHaveText('Мой остров');
     expect(errors).toEqual([]);
     for (const [file, bytes] of originals) expect(await readFile(file)).toEqual(bytes);
     expect(run()).toContain('обновлено 0');

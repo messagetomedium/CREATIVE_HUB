@@ -3,19 +3,22 @@ import type { AvatarConfig } from '@creative-factory/contracts';
 import type { GameContent } from './content';
 import { GameBridge } from './bridge';
 import { FactoryScene } from './FactoryScene';
-import { loadAvatarSheet } from '../avatar/art';
+import { loadGameAvatar } from './avatarSheet';
+import type { WorldStore } from './world/storage';
 export async function createGame(
   parent: HTMLElement,
   content: GameContent,
   bridge: GameBridge,
-  avatar?: AvatarConfig,
+  avatar: AvatarConfig | undefined,
   signal: AbortSignal = new AbortController().signal,
+  store: WorldStore,
+  location: 'island' | 'house',
 ) {
   const selected = avatar ?? content.avatars.defaultAvatar;
-  const sheet = await loadAvatarSheet(content.avatars, selected, signal);
+  const sheet = await loadGameAvatar(selected, signal);
   signal.throwIfAborted();
   const pixelRatio = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
-  const scene = new FactoryScene(content, bridge, selected, sheet, pixelRatio);
+  const scene = new FactoryScene(content, bridge, selected, sheet, pixelRatio, store, location);
   const game = new Phaser.Game({
     // The current orthogonal scene needs no shaders. Canvas also avoids software-WebGL
     // framebuffer failures on viewport resize in headless/cloud Chromium.

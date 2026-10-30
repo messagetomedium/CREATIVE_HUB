@@ -70,8 +70,8 @@ export function HomePage() {
                 <DemoEntry />
               )
             ) : user ? (
-              <a className="button primary" href={data.profile ? '#/factory' : '#/profile'}>
-                {data.profile ? 'Войти на завод' : 'Заполнить профиль'}{' '}
+              <a className="button primary" href={data.profile ? '#/island' : '#/profile'}>
+                {data.profile ? 'Войти на остров' : 'Заполнить профиль'}{' '}
                 <span>
                   <ArrowIcon />
                 </span>
@@ -84,7 +84,7 @@ export function HomePage() {
                     <ArrowIcon />
                   </span>
                 </a>
-                <a className="text-link" href="#/factory">
+                <a className="text-link" href="#/island">
                   Прогуляться без аккаунта →
                 </a>
               </>
@@ -150,12 +150,12 @@ export function HomePage() {
           <div className="dashboard-grid">
             <a
               className="destination-card factory-card"
-              href={config.mode === 'demo' || data.profile ? '#/factory' : '#/profile'}
+              href={config.mode === 'demo' || data.profile ? '#/island' : '#/profile'}
             >
               <span className="card-number">01 / ПРОСТРАНСТВО</span>
               <div className="card-symbol">⌘</div>
               <h3>
-                Войти на завод{' '}
+                Войти на остров{' '}
                 <span>
                   <ArrowIcon />
                 </span>
