@@ -3,6 +3,7 @@ import { mkdtemp, readFile, writeFile, mkdir, rm, stat, readdir } from 'node:fs/
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { PNG } from 'pngjs';
+import { format } from 'prettier';
 import { importCharacters, parseName, readItems, expandViews, validatePixels } from './pipeline';
 import { LEGACY_SOURCE_TEMPLATES as SOURCE_TEMPLATES } from '../../apps/web/src/avatar/modular/templates';
 const roots: string[] = [];
@@ -68,6 +69,9 @@ test('unchanged reimport is deterministic, creates thumbnails, mirrors E and nev
   const stamp = (await stat(path.join(r, 'content/art', entry.files[0]))).mtimeMs,
     manifestBytes = await readFile(path.join(r, 'content/avatars/modular/import-manifest.json'));
   const second = await importCharacters(r);
+  expect(manifestBytes.toString()).toBe(
+    await format(manifestBytes.toString(), { parser: 'json', printWidth: 100 }),
+  );
   expect(second.updated).toBe(0);
   expect(second.unchanged).toBe(1);
   expect((await stat(path.join(r, 'content/art', entry.files[0]))).mtimeMs).toBe(stamp);

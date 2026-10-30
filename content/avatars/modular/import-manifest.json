@@ -7,10 +7,7 @@
       "slot": 1,
       "label": "Близко посаженные точки",
       "hash": "f9c1738f23b2cf4674640c4e49c8e80cf15ab9b4dc09e41672eb4fb3b503acaa",
-      "files": [
-        "character-e4754a5fee8e8e0100ab.png",
-        "character-thumb-19967d526b1740bee13f.png"
-      ],
+      "files": ["character-e4754a5fee8e8e0100ab.png", "character-thumb-19967d526b1740bee13f.png"],
       "sources": [
         {
           "name": "eyes_01.png",
@@ -62,10 +59,7 @@
       "slot": 2,
       "label": "Широкие глаза",
       "hash": "209ecc54fe4bfcb13f09d15b133b7fe1ba5a600caf61e2269e6b7c15736fcfb8",
-      "files": [
-        "character-0c9b208f00cc0833cafd.png",
-        "character-thumb-96291e56620126d2927a.png"
-      ],
+      "files": ["character-0c9b208f00cc0833cafd.png", "character-thumb-96291e56620126d2927a.png"],
       "sources": [
         {
           "name": "eyes_02.png",
@@ -117,10 +111,7 @@
       "slot": 3,
       "label": "Большие глаза со зрачками",
       "hash": "6982c85cc5452e79a39bb5f0db6800ac4da4e4f2f07f9939608ff4460f80db26",
-      "files": [
-        "character-398a6da8dc0cac5c8697.png",
-        "character-thumb-9e78fd1a1e8ba2c002d9.png"
-      ],
+      "files": ["character-398a6da8dc0cac5c8697.png", "character-thumb-9e78fd1a1e8ba2c002d9.png"],
       "sources": [
         {
           "name": "eyes_03.png",
@@ -172,10 +163,7 @@
       "slot": 4,
       "label": "Закрытые улыбающиеся глаза",
       "hash": "9f4512b86e9845878bc8d887ccb7a218ab357a328069e195042603037c61c187",
-      "files": [
-        "character-028e4a78e3b433174850.png",
-        "character-thumb-8ce7a8f445f140be8f04.png"
-      ],
+      "files": ["character-028e4a78e3b433174850.png", "character-thumb-8ce7a8f445f140be8f04.png"],
       "sources": [
         {
           "name": "eyes_04.png",
@@ -227,10 +215,7 @@
       "slot": 5,
       "label": "Реснички со зрачками",
       "hash": "567af4eca35c07b95b4131ad2a65fee9cfa468871ae699df4372f26a4d4d995b",
-      "files": [
-        "character-72e834c7939303e35b2d.png",
-        "character-thumb-39065ed802d27da6f286.png"
-      ],
+      "files": ["character-72e834c7939303e35b2d.png", "character-thumb-39065ed802d27da6f286.png"],
       "sources": [
         {
           "name": "eyes_05.png",
@@ -282,10 +267,7 @@
       "slot": 6,
       "label": "Недовольный взгляд",
       "hash": "6fb812c3f656fc312548e3397440c5131c7b9270737f482ed9329b8db980957d",
-      "files": [
-        "character-d2315c32230912160855.png",
-        "character-thumb-9640ef564c0c5e071a4e.png"
-      ],
+      "files": ["character-d2315c32230912160855.png", "character-thumb-9640ef564c0c5e071a4e.png"],
       "sources": [
         {
           "name": "eyes_06.png",
@@ -337,10 +319,7 @@
       "slot": 1,
       "label": "Три родинки",
       "hash": "1ab66b6d71f7e4ad2b55b562ce38a26aa38282dbcebb77687c6c18991de5bfd7",
-      "files": [
-        "character-2896d22f4313711e3a23.png",
-        "character-thumb-18f7d2284fefa491effb.png"
-      ],
+      "files": ["character-2896d22f4313711e3a23.png", "character-thumb-18f7d2284fefa491effb.png"],
       "sources": [
         {
           "name": "face_01.png",
@@ -392,10 +371,7 @@
       "slot": 2,
       "label": "Синяки под глазами",
       "hash": "45a5ae5b4e10930f2c5bc3878d5f501d489edec0e33f09a22a8781a5e4b31f10",
-      "files": [
-        "character-b2e87921e7286b6fcff6.png",
-        "character-thumb-3ef85fc9b858813c3fda.png"
-      ],
+      "files": ["character-b2e87921e7286b6fcff6.png", "character-thumb-3ef85fc9b858813c3fda.png"],
       "sources": [
         {
           "name": "face_02.png",
@@ -447,10 +423,7 @@
       "slot": 3,
       "label": "Круглый румянец",
       "hash": "6bcd8a916c68c9aa9a48eaedeeca90b5a3897b1eb3112f13b0ee6310a58c38bf",
-      "files": [
-        "character-edd28d962b3a893305d9.png",
-        "character-thumb-f886beecbe3c3cc5723c.png"
-      ],
+      "files": ["character-edd28d962b3a893305d9.png", "character-thumb-f886beecbe3c3cc5723c.png"],
       "sources": [
         {
           "name": "face_03.png",
@@ -502,10 +475,7 @@
       "slot": 4,
       "label": "Полоски румянца",
       "hash": "c7caf35ae5f251287d6df6efdc41129a624fea629c6fe7a003eac3c454c4efb2",
-      "files": [
-        "character-ec8175058a4f2170d162.png",
-        "character-thumb-42826785d1504e71cbd7.png"
-      ],
+      "files": ["character-ec8175058a4f2170d162.png", "character-thumb-42826785d1504e71cbd7.png"],
       "sources": [
         {
           "name": "face_04.png",
@@ -557,10 +527,7 @@
       "slot": 5,
       "label": "Румянец на носу",
       "hash": "b37fdb30f3d75b6cbbb33bce39ea2cef9f8c40365e806b3f3ed2cc725b61dce5",
-      "files": [
-        "character-398e176e55b172b807f8.png",
-        "character-thumb-14f26ddfeafbecfbfdb7.png"
-      ],
+      "files": ["character-398e176e55b172b807f8.png", "character-thumb-14f26ddfeafbecfbfdb7.png"],
       "sources": [
         {
           "name": "face_05.png",
@@ -612,10 +579,7 @@
       "slot": 6,
       "label": "Веснушки на носу",
       "hash": "20672a009b58b9a4664c6b57482f08da68c03275f9413f4e5dc7454abea96bab",
-      "files": [
-        "character-d2c74720bad65980b607.png",
-        "character-thumb-c172af4fdb4a2c8737a1.png"
-      ],
+      "files": ["character-d2c74720bad65980b607.png", "character-thumb-c172af4fdb4a2c8737a1.png"],
       "sources": [
         {
           "name": "face_06.png",
@@ -667,10 +631,7 @@
       "slot": 7,
       "label": "Веснушки по всему лицу",
       "hash": "b3fcfa4c0ea8fa3fe7042fcb361ee94ccdbc34507c5eb5ae8dfaca6fc0de6211",
-      "files": [
-        "character-4bc90bb6fad31c2835bc.png",
-        "character-thumb-85962e5821344e390601.png"
-      ],
+      "files": ["character-4bc90bb6fad31c2835bc.png", "character-thumb-85962e5821344e390601.png"],
       "sources": [
         {
           "name": "face_07.png",
@@ -1268,10 +1229,7 @@
       "slot": 1,
       "label": "Круглый рот",
       "hash": "56180a4fc5a85cbec4eb9aa27004d34fd5c46ed967ad93e3e4461d3f0aa3e446",
-      "files": [
-        "character-a42d9d97a121f691546b.png",
-        "character-thumb-c922daa693d0e9aef54e.png"
-      ],
+      "files": ["character-a42d9d97a121f691546b.png", "character-thumb-c922daa693d0e9aef54e.png"],
       "sources": [
         {
           "name": "mouth_01.png",
@@ -1323,10 +1281,7 @@
       "slot": 2,
       "label": "Короткая полоска",
       "hash": "55c48cb75baa82bd301882cc105707811d2b7c9ca0b86ce989d9db15c0540ef7",
-      "files": [
-        "character-50e870c06b40e1f8bdc0.png",
-        "character-thumb-5cfa4e229aa21bfc30bf.png"
-      ],
+      "files": ["character-50e870c06b40e1f8bdc0.png", "character-thumb-5cfa4e229aa21bfc30bf.png"],
       "sources": [
         {
           "name": "mouth_02.png",
@@ -1378,10 +1333,7 @@
       "slot": 3,
       "label": "Тень верхней губы",
       "hash": "ea3eff70a6084ebf22455a23ce7655e04ea284d7c3f64a81383a5372f6717a77",
-      "files": [
-        "character-95dae8e3a049ad4bd333.png",
-        "character-thumb-f966a74455ce7cc7260d.png"
-      ],
+      "files": ["character-95dae8e3a049ad4bd333.png", "character-thumb-f966a74455ce7cc7260d.png"],
       "sources": [
         {
           "name": "mouth_03.png",
@@ -1433,10 +1385,7 @@
       "slot": 4,
       "label": "Пухлые губы",
       "hash": "c6b099c4d4b0349ade2294e0010eba4bc2c3fd165c080ad2d73523b99e1cad8e",
-      "files": [
-        "character-f8bc9dc4ab1da1b89ca0.png",
-        "character-thumb-dad3612fefd6299cee0d.png"
-      ],
+      "files": ["character-f8bc9dc4ab1da1b89ca0.png", "character-thumb-dad3612fefd6299cee0d.png"],
       "sources": [
         {
           "name": "mouth_04.png",
@@ -1488,10 +1437,7 @@
       "slot": 5,
       "label": "Улыбка",
       "hash": "1d2b04fac97604059e3fe74a75b8596bdf313ff86e6e63ddb9618c51364c2748",
-      "files": [
-        "character-93ed08f8815751299294.png",
-        "character-thumb-122f5e39a0d2310a52eb.png"
-      ],
+      "files": ["character-93ed08f8815751299294.png", "character-thumb-122f5e39a0d2310a52eb.png"],
       "sources": [
         {
           "name": "mouth_05.png",
@@ -1543,10 +1489,7 @@
       "slot": 6,
       "label": "Тень нижней губы",
       "hash": "9f69a094a8fcb7be77376f465de7b75ed7d041b9529e63b3631ae039871c71ba",
-      "files": [
-        "character-faf617d2b6afa9fb3e4c.png",
-        "character-thumb-180c8993fdb6aae22620.png"
-      ],
+      "files": ["character-faf617d2b6afa9fb3e4c.png", "character-thumb-180c8993fdb6aae22620.png"],
       "sources": [
         {
           "name": "mouth_06.png",

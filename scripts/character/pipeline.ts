@@ -856,11 +856,14 @@ export async function importCharacters(root = process.cwd()) {
   } catch {}
   await writeChanged(
     registryPath,
-    await format(json([...manual, ...final.flatMap((v) => v.parts)]), { parser: 'json' }),
+    await format(json([...manual, ...final.flatMap((v) => v.parts)]), {
+      parser: 'json',
+      printWidth: 100,
+    }),
   );
   await writeChanged(
     manifestPath,
-    await format(json({ version: RIG_VERSION, items: final }), { parser: 'json' }),
+    await format(json({ version: RIG_VERSION, items: final }), { parser: 'json', printWidth: 100 }),
   );
   const used = new Set([
     ...final.flatMap((v) => v.files),
