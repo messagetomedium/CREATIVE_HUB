@@ -5,12 +5,14 @@ import type { AvatarConfig } from '@creative-factory/contracts';
 import { contentPath } from '../../game/contentPath';
 import { colorMask, normalizeMask, mix } from './materials';
 import type { PartImage } from './render';
+import { fitApprovedPixels } from './approved-fit';
 const entries = partsSource.map((entry) => PartEntrySchema.parse(entry));
 const pixelsCache = new Map<string, HTMLCanvasElement>();
 export async function loadParts(
   config: AvatarConfig,
   signal: AbortSignal,
   catalog: PartEntry[] = entries,
+  geometry: 'approved' | 'legacy' = 'approved',
 ): Promise<PartImage[]> {
   const choices = constructorChoices(config);
   const selected = catalog.filter((d) => {
@@ -73,6 +75,21 @@ export async function loadParts(
           color = mix(config.palette.skin, pigment, 0.5);
         }
         colorMask(pixels, color);
+      }
+      if (d.approved) {
+        const fitted = fitApprovedPixels(
+          { width: copy.width, height: copy.height, data: pixels.data },
+          d,
+          config,
+          geometry,
+        );
+        copy.width = fitted.raster.width;
+        copy.height = fitted.raster.height;
+        const out = copy.getContext('2d')!,
+          data = out.createImageData(copy.width, copy.height);
+        data.data.set(fitted.raster.data);
+        out.putImageData(data, 0, 0);
+        return { descriptor: fitted.descriptor, image: copy };
       }
       ctx.putImageData(pixels, 0, 0);
       return { descriptor: d, image: copy };

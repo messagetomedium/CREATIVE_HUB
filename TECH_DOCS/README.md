@@ -1,43 +1,43 @@
-# Графика для утверждённого персонажа Creative Factory
+# Пять макетов для художника Creative Factory
 
-**Персонаж утверждён 29 октября 2026, редактор `01432c7`. Рисуем вещи под него, форму тела и анимацию не переделываем.**
+Персонаж **01432c7 утверждён**: тело, пропорции, четыре комплекции и анимация сохранены. [Скачать весь комплект](CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip) · [Эталон тела](CHARACTER/BODY_STANDARD.md) · [Правила макетов и исключения](CHARACTER/ART_RULES.md) · [Проверка и сдача](CHARACTER/DELIVERY.md).
 
-[Скачать весь комплект художнику](CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip) · [Что и сколько рисовать](CHARACTER/PRODUCTION.md) · [Эталон тела и опоры](CHARACTER/BODY_STANDARD.md).
+1. Открыть один из **пяти** TEMPLATE: HAIR, HEAD, TOP, BOTTOM или SHOES.
+2. Рисовать цельную вещь **на новом прозрачном слое**. Серая подложка, цветные зоны, сетка и крест — только ориентиры, их скрыть при экспорте.
+3. Сохранить полный PNG в исходном размере, без обрезки полей и сглаживания. Внешняя обводка **2 px**, [пять технических цветов](CHARACTER/COLORS.png); глаза/рот и fixed-детали могут быть цветными. Цветовые и анимационные копии не нужны.
+4. Ячейки идут сверху вниз **S/E/N/W**: спереди, смотрит вправо, сзади, смотрит влево. У SHOES только **S/E/N одного ботинка**. Неиспользуемая ячейка полностью прозрачна; вид определяется по alpha, не по визуальному сходству.
+5. Назвать PNG по таблице, номер **01…06 — существующий слот**. Для обычной вещи других файлов не нужно. Bottom и skirt имеют общие шесть слотов; универсальные волосы и f/m-альтернативы в одном слоте не смешивать.
+6. Положить в CHARACTER, попросить Codex **«Импортируй новые PNG из CHARACTER»**. **npm run character:import** автоматически готовит ракурсы, внутренние модули и подгонку; оригиналы не переписываются. Сначала проверить один комплект, затем рисовать серию.
 
-1. Выбрать одну нужную подложку TEMPLATE и прозрачный EMPTY в таблице ниже. Основной рисунок — на среднем теле, без отдельных цветовых/анимационных копий.
-2. Рисовать на новом слое; внешний контур **2 исходных пикселя**, прозрачность PNG, без сглаживания. [Правила и стыки](CHARACTER/ART_RULES.md).
-3. Скрыть подложку и сохранить полный PNG с прежними полями и порядком статичных видов. Анимационные фазы, вторая рука/ботинок и четыре телосложения вручную не производятся.
-4. Назвать по [FILE_NAMING](CHARACTER/FILE_NAMING.md), положить в нужную папку [CHARACTER](../CHARACTER/README.md). Художнику не нужен JSON или код.
-5. Передать один тестовый комплект разработчику по [DELIVERY](CHARACTER/DELIVERY.md), проверить посадку и затем рисовать серию. Старый импортёр ещё требует адаптации к утверждённому телу; сам коммит PNG не заменяет пробного подключения.
+| Имя PNG            | Макет                                             | Весь PNG | Что рисовать                                               | Обязательные виды         | Что достраивается          | Куда положить                               |
+| ------------------ | ------------------------------------------------- | -------- | ---------------------------------------------------------- | ------------------------- | -------------------------- | ------------------------------------------- |
+| `hair_01.png`      | [HAIR](CHARACTER/TEMPLATES/HAIR_TEMPLATE.png)     | 96×448   | Цельная универсальная причёска                             | S/E/N                     | W из E                     | [hair](../CHARACTER/hair)                   |
+| `hair_f_01.png`    | [HAIR](CHARACTER/TEMPLATES/HAIR_TEMPLATE.png)     | 96×448   | Женский вариант, только при отличии дизайна                | S/E/N                     | W из E                     | [hair](../CHARACTER/hair)                   |
+| `hair_m_01.png`    | [HAIR](CHARACTER/TEMPLATES/HAIR_TEMPLATE.png)     | 96×448   | Мужской вариант, только при отличии дизайна                | S/E/N                     | W из E                     | [hair](../CHARACTER/hair)                   |
+| `top_01.png`       | [TOP](CHARACTER/TEMPLATES/TOP_TEMPLATE.png)       | 96×448   | Весь верх с обоими рукавами и при необходимости перчатками | S/E/N                     | W из E                     | [tops](../CHARACTER/tops)                   |
+| `bottom_01.png`    | [BOTTOM](CHARACTER/TEMPLATES/BOTTOM_TEMPLATE.png) | 80×256   | Цельные брюки, шорты или капри любой нарисованной длины    | S/E/N                     | W из E                     | [bottoms](../CHARACTER/bottoms)             |
+| `skirt_01.png`     | [BOTTOM](CHARACTER/TEMPLATES/BOTTOM_TEMPLATE.png) | 80×256   | Цельная юбка, не две штанины                               | S/E/N                     | W из E                     | [bottoms](../CHARACTER/bottoms)             |
+| `shoes_01.png`     | [SHOES](CHARACTER/TEMPLATES/SHOES_TEMPLATE.png)   | 40×54    | Один ботинок, три рисунка                                  | S/E/N                     | W и второй ботинок         | [footwear](../CHARACTER/footwear)           |
+| `hat_01.png`       | [HEAD](CHARACTER/TEMPLATES/HEAD_TEMPLATE.png)     | 64×256   | Шапка                                                      | S; другие виды по дизайну | По таблице HEAD            | [hats](../CHARACTER/hats)                   |
+| `accessory_01.png` | [HEAD](CHARACTER/TEMPLATES/HEAD_TEMPLATE.png)     | 64×256   | Украшение/аксессуар головы и верхней шеи                   | S; другие виды по дизайну | По таблице HEAD            | [jewelry](../CHARACTER/jewelry)             |
+| `eyes_01.png`      | [HEAD](CHARACTER/TEMPLATES/HEAD_TEMPLATE.png)     | 64×256   | Два глаза только спереди                                   | Только S                  | Профильные глаза; N пустой | [eyes](../CHARACTER/eyes)                   |
+| `mouth_01.png`     | [HEAD](CHARACTER/TEMPLATES/HEAD_TEMPLATE.png)     | 64×256   | Один фронтальный рот                                       | Только S                  | Профиль; N пустой          | [mouth](../CHARACTER/mouth)                 |
+| `face_01.png`      | [HEAD](CHARACTER/TEMPLATES/HEAD_TEMPLATE.png)     | 64×256   | Фронтальная маска кожи/лица без второй кожи                | Только S                  | Профили; N пустой          | [face_features](../CHARACTER/face_features) |
 
-Ракурсы full сверху вниз S/E/N/W (спереди/смотрит вправо/сзади/смотрит влево), pair — S/E/N только для симметрии. Front — один фронт лица. Шапкам с другим затылком нужен full. Точные опоры, размеры клеток и EMPTY — [в полной таблице](CHARACTER/README.md).
+У первых четырёх макетов всегда четыре ячейки, даже если часть пустая. Не делать отдельные холсты по длине волос, фасону/посадке низа, полу, симметрии, корпусу/рукавам/перчаткам. Особенности тела и предметы в руках сейчас не входят в художественное производство; их существующие пункты редактора и сохранения остаются.
 
-<!-- character-categories:start -->
+## HEAD: что означают заполненные ячейки
 
-| Файл-пример                    | Рисунков | PNG    | Шаблон                                                                 | Куда загрузить                              |
-| ------------------------------ | -------: | ------ | ---------------------------------------------------------------------- | ------------------------------------------- |
-| `hair_short_full_01.png`       |        4 | 96×384 | [Шаблон](CHARACTER/TEMPLATES/HAIR/hair_short_full_TEMPLATE.png)        | [hair](../CHARACTER/hair)                   |
-| `hair_long_full_01.png`        |        4 | 96×448 | [Шаблон](CHARACTER/TEMPLATES/HAIR/hair_long_full_TEMPLATE.png)         | [hair](../CHARACTER/hair)                   |
-| `eyes_basic_front_01.png`      |        1 | 64×64  | [Шаблон](CHARACTER/TEMPLATES/EYES/eyes_front_TEMPLATE.png)             | [eyes](../CHARACTER/eyes)                   |
-| `mouth_basic_front_01.png`     |        1 | 64×64  | [Шаблон](CHARACTER/TEMPLATES/MOUTH/mouth_front_TEMPLATE.png)           | [mouth](../CHARACTER/mouth)                 |
-| `face_detail_front_01.png`     |        1 | 64×64  | [Шаблон](CHARACTER/TEMPLATES/DETAILS/details_sym1_TEMPLATE.png)        | [face_features](../CHARACTER/face_features) |
-| `hat_detail_full_01.png`       |        4 | 64×256 | [Шаблон](CHARACTER/TEMPLATES/DETAILS/details_full_TEMPLATE.png)        | [hats](../CHARACTER/hats)                   |
-| `accessory_detail_sym2_01.png` |        2 | 64×128 | [Шаблон](CHARACTER/TEMPLATES/DETAILS/details_sym2_TEMPLATE.png)        | [jewelry](../CHARACTER/jewelry)             |
-| `accessory_detail_full_01.png` |        4 | 64×256 | [Шаблон](CHARACTER/TEMPLATES/DETAILS/details_full_TEMPLATE.png)        | [jewelry](../CHARACTER/jewelry)             |
-| `pants_high_full_01.png`       |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/pants_high_full_TEMPLATE.png)     | [bottoms](../CHARACTER/bottoms)             |
-| `pants_low_full_01.png`        |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/pants_low_full_TEMPLATE.png)      | [bottoms](../CHARACTER/bottoms)             |
-| `skirt_high_full_01.png`       |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/skirt_high_full_TEMPLATE.png)     | [bottoms](../CHARACTER/bottoms)             |
-| `skirt_low_full_01.png`        |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/skirt_low_full_TEMPLATE.png)      | [bottoms](../CHARACTER/bottoms)             |
-| `shorts_high_full_01.png`      |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/shorts_high_full_TEMPLATE.png)    | [bottoms](../CHARACTER/bottoms)             |
-| `shorts_low_full_01.png`       |        4 | 80×256 | [Шаблон](CHARACTER/TEMPLATES/BOTTOMS/shorts_low_full_TEMPLATE.png)     | [bottoms](../CHARACTER/bottoms)             |
-| `shoes_basic_pair_01.png`      |        3 | 40×54  | [Шаблон](CHARACTER/TEMPLATES/FOOTWEAR/shoe_pair_TEMPLATE.png)          | [footwear](../CHARACTER/footwear)           |
-| `top_body_full_01.png`         |        4 | 56×208 | [Шаблон](CHARACTER/TEMPLATES/TOPS/top_full_TEMPLATE.png)               | [tops](../CHARACTER/tops)                   |
-| `top_body_female_full_01.png`  |        4 | 56×208 | [Шаблон](CHARACTER/TEMPLATES/TOPS/top_female_full_TEMPLATE.png)        | [tops](../CHARACTER/tops)                   |
-| `top_sleeve_full_01.png`       |        4 | 24×160 | [Шаблон](CHARACTER/TEMPLATES/TOPS/sleeve_full_TEMPLATE.png)            | [tops](../CHARACTER/tops)                   |
-| `top_glove_pair_01.png`        |        3 | 20×72  | [Шаблон](CHARACTER/TEMPLATES/TOPS/glove_pair_TEMPLATE.png)             | [tops](../CHARACTER/tops)                   |
-| `body_torso_full_01.png`       |        4 | 56×208 | [Шаблон](CHARACTER/TEMPLATES/BODY_FEATURES/body_full_TEMPLATE.png)     | [body_features](../CHARACTER/body_features) |
-| `body_arm_full_01.png`         |        4 | 24×160 | [Шаблон](CHARACTER/TEMPLATES/BODY_FEATURES/body_arm_full_TEMPLATE.png) | [body_features](../CHARACTER/body_features) |
-| `body_leg_full_01.png`         |        4 | 24×144 | [Шаблон](CHARACTER/TEMPLATES/BODY_FEATURES/body_leg_full_TEMPLATE.png) | [body_features](../CHARACTER/body_features) |
-| `item_hand_full_01.png`        |        4 | 32×160 | [Шаблон](CHARACTER/TEMPLATES/SPECIALS/item_full_TEMPLATE.png)          | [specials](../CHARACTER/specials)           |
+| Заполнены | Действие для шапки/аксессуара                         |
+| --------- | ----------------------------------------------------- |
+| S         | Один вид повторяется для E/N/W                        |
+| S/E       | N копирует S, W отражает E                            |
+| S/E/N     | W отражает E                                          |
+| S/E/W     | E и W самостоятельные; N — горизонтальное отражение S |
+| S/E/N/W   | Все виды самостоятельные                              |
 
-<!-- character-categories:end -->
+Для S/E/W можно указать **N=copy** в ITEMS.md вместо отражения. Для объёмной шапки с отличающимся затылком нарисовать N: пустая ячейка сознательно разрешает программе достроить её. Другие сочетания — ошибка. Eyes/mouth/face — исключение: только S, программа проецирует профиль, N оставляет пустым.
+
+TOP, BOTTOM и HAIR требуют собственных S/E/N; такой минимум сохраняет настоящий задний вид объёмной вещи. Если W нарисован, он никогда не заменяется отражением. Исходные цвета/пиксели не «распознаются» нейросетью; используются точные зоны и утверждённые опоры.
+
+Простой старт: **4 PNG** — hair, top, bottom/skirt, shoes. Рукава/штанины/слои волос программа выделяет сама, без ручного разрезания и кадров ходьбы. Для сложного перекрытия есть необязательная техническая маска в ITEMS.md; её формат — в ART_RULES.

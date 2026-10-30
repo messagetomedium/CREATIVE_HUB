@@ -47,7 +47,7 @@ test('FULL and explicit symmetry modes reject ambiguity and retain authored W', 
   const es = fixture('eyes', 2),
     e = expandViews(es, SOURCE_TEMPLATES.find((t) => t.id === 'eyes')!, 'SYM_ES');
   expect(e.data.subarray(0, 64 * 64 * 4).some(Boolean)).toBe(false);
-  expect(() => parseName('hair_01.png', 'hair')).toThrow();
+  expect(parseName('hair_01.png', 'hair')).toMatchObject({ compact: 'hair', slot: 1 });
   expect(() => parseName('hair_01__FULL__SYM_ES.png', 'hair')).toThrow();
   expect(() => parseName('hair_07__FULL.png', 'hair')).toThrow();
 });

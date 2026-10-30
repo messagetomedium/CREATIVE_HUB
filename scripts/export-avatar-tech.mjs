@@ -37,7 +37,6 @@ try {
         ARTIST_VIEWS,
         ARTIST_BUILDS,
         ARTIST_VERSION,
-        templateFolder,
         ARTIST_LOWER,
         artistLegX,
         artistHairLayer,
@@ -188,11 +187,15 @@ try {
           captures.get(`female/average/${capture.pose.direction}`).parts.get('head'),
         );
       const selected = (t) =>
-        /^(hair|eyes|mouth|details)/.test(t.id)
-          ? ['head']
-          : /^(pants|shorts|skirt)-/.test(t.id)
-            ? ['torso', 'legLeft', 'legRight']
-            : [t.parent];
+        t.id === 'HAIR'
+          ? ['head', 'torso', 'armLeft', 'armRight']
+          : t.id === 'HEAD'
+            ? ['head']
+            : t.id === 'TOP'
+              ? ['torso', 'armLeft', 'armRight', 'handLeft', 'handRight']
+              : t.id === 'BOTTOM'
+                ? ['torso', 'legLeft', 'legRight']
+                : ['footLeft'];
       for (const t of ARTIST_TEMPLATES)
         for (const mode of t.modes) {
           const views = ARTIST_VIEWS[mode],
@@ -200,7 +203,7 @@ try {
             ctx = out.getContext('2d');
           ctx.imageSmoothingEnabled = false;
           for (const [row, direction] of views.entries()) {
-            const capture = captures.get(`${t.gender ?? 'male'}/average/${direction}`),
+            const capture = captures.get(`male/average/${direction}`),
               p = capture.pose;
             const parent = parentPoint(p, t.parent),
               dx = t.anchor.x - parent.x,
@@ -210,24 +213,48 @@ try {
             ctx.rect(0, row * t.height, t.width, t.height);
             ctx.clip();
             for (const name of capture.order)
-              if (name !== 'back') {
+              if (
+                name !== 'back' &&
+                (t.id !== 'HEAD' || name === 'head') &&
+                (t.id !== 'SHOES' || ['footLeft', 'legLeft'].includes(name))
+              ) {
                 ctx.globalAlpha = selected(t).includes(name) ? 0.52 : 0.09;
                 ctx.drawImage(capture.parts.get(name), dx, dy);
               }
+            if (t.id === 'HEAD') {
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(44 + dx, 50 + dy, 8, 12);
+              ctx.clip();
+              ctx.globalAlpha = 0.3;
+              ctx.drawImage(capture.parts.get('torso'), dx, dy);
+              ctx.restore();
+            }
             ctx.globalAlpha = 1;
-            if (t.id.startsWith('hair-'))
+            if (t.id === 'TOP') {
+              ctx.fillStyle = '#d34b8420';
+              ctx.fillRect(1, row * t.height + 1, t.width - 2, 49);
+              for (const edge of [48 - p.hipWidth / 2, 48 + p.hipWidth / 2]) {
+                ctx.fillStyle = '#258b9170';
+                ctx.fillRect(edge, row * t.height + 56, 1, 40);
+              }
+              ctx.fillStyle = '#258b9170';
+              ctx.fillRect(1, row * t.height + 86, t.width - 2, 1);
+            }
+            if (t.id === 'HAIR')
               for (let y = 1; y < t.height - 1; y++)
                 for (let x = 1; x < t.width - 1; x++) {
                   ctx.fillStyle =
                     artistHairLayer(x, y, direction) === 'front' ? '#d34b8425' : '#258b9130';
                   ctx.fillRect(x, row * t.height + y, 1, 1);
                 }
-            if (/^(pants|shorts|skirt)-/.test(t.id)) {
-              const top = t.id.endsWith('high') ? ARTIST_LOWER.bandTop : ARTIST_LOWER.bandBottom;
-              const hem = t.id.startsWith('shorts') ? ARTIST_LOWER.shortHem : ARTIST_LOWER.maxHem;
+            if (t.id === 'BOTTOM') {
+              const top = ARTIST_LOWER.bandTop;
+              const hem = ARTIST_LOWER.floor;
               ctx.fillStyle = '#d34b8430';
               ctx.fillRect(1, row * t.height + 1, t.width - 2, top - 1);
-              ctx.fillRect(1, row * t.height + hem, t.width - 2, t.height - hem - 1);
+              ctx.fillStyle = '#d34b8420';
+              ctx.fillRect(1, row * t.height + top, t.width - 2, ARTIST_LOWER.bandBottom - top);
               for (const boundary of [top, ARTIST_LOWER.bandBottom, ARTIST_LOWER.legSplit, hem]) {
                 ctx.fillStyle = '#258b91';
                 ctx.fillRect(1, row * t.height + boundary, t.width - 2, 1);
@@ -272,15 +299,13 @@ try {
             ctx.fillText(direction[0].toUpperCase(), 3, row * t.height + 7);
             ctx.restore();
           }
-          const stem = `TECH_DOCS/CHARACTER/TEMPLATES/${templateFolder(t)}/${t.id.replaceAll('-', '_')}_${mode}`;
+          const stem = `TECH_DOCS/CHARACTER/TEMPLATES/${t.id}`;
           save(stem + '_TEMPLATE.png', out);
-          save(stem + '_EMPTY.png', make(out.width, out.height));
           records.push({
             ...t,
             mode,
             views,
             template: stem + '_TEMPLATE.png',
-            empty: stem + '_EMPTY.png',
           });
         }
       const references = [];
@@ -378,7 +403,7 @@ try {
     }),
   );
   console.log(
-    `Approved editor exported read-only: ${pack.manifest.templates.length} TEMPLATE/EMPTY pairs, 4 builds, 2 genders, 4 independent views.`,
+    `Approved editor exported read-only: ${pack.manifest.templates.length} artist TEMPLATE canvases, 4 builds, 2 genders, 4 independent views.`,
   );
 } finally {
   await browser.close();

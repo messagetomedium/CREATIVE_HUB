@@ -4,10 +4,10 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 output = Path('TECH_DOCS/CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip')
 files = sorted(p for p in Path('TECH_DOCS').rglob('*') if p.is_file() and p.suffix in ('.md', '.png'))
-files += [Path('CHARACTER/README.md'), *sorted(Path('CHARACTER').glob('*/ITEMS.md'))]
+files += [Path('CHARACTER/README.md'), *sorted(p for p in Path('CHARACTER').glob('*/ITEMS.md') if p.parent.name not in ('body_features','specials'))]
 entries = {p.as_posix(): p.read_bytes() for p in files}
 entries['START_HERE.md'] = ('# Creative Factory — комплект художнику\n\n'
-    'Утверждённый персонаж 01432c7, 29 октября 2026.\n\n'
+    'Пять макетов HAIR/HEAD/TOP/BOTTOM/SHOES, 30 октября 2026. Утверждённое тело 01432c7.\n\n'
     'Начать с [TECH_DOCS/README.md](TECH_DOCS/README.md). '
     'Рисовать поверх TEMPLATE, экспортировать без подложки в CHARACTER. '
     'Контур 2 px; фазы движения вручную не рисовать.\n').encode('utf8')

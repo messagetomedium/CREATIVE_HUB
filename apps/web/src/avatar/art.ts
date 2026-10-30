@@ -31,7 +31,10 @@ export async function loadAvatarSheet(
 ): Promise<HTMLCanvasElement> {
   const source = catalog.sprite.source;
   if (source.kind === 'procedural') {
-    const [atlas, parts] = await Promise.all([loadHairAtlas(signal), loadParts(config, signal)]);
+    const [atlas, parts] = await Promise.all([
+      loadHairAtlas(signal),
+      loadParts(config, signal, undefined, 'legacy'),
+    ]);
     signal.throwIfAborted();
     return cachedAssembly(config, () => tintHair(atlas, config.palette.hair), parts);
   }

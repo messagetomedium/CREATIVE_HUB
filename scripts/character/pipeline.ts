@@ -1,9 +1,15 @@
+import { projectFront } from './front-projection';
+export { projectFront } from './front-projection';
 import { readFile, writeFile, mkdir, readdir, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { PNG } from 'pngjs';
 import { format } from 'prettier';
 import { compileSource } from './compile-source';
+import { parseCompact, compactTemplate, expandCompact, compileCompact } from './compact';
+import { COMPACT_VERSION, type CompactType } from './compact-contract';
+import { preflightCompact } from './compact-preflight';
+import { reviewPose } from '../../apps/web/src/avatar/editorMotion';
 import {
   CATEGORIES,
   SOURCE_TEMPLATES,
@@ -36,7 +42,8 @@ async function writeChanged(p: string, bytes: string | Buffer) {
   await rename(temp, p);
 }
 const blankItems =
-  '# Предметы\n\nСтандартный PNG достаточно назвать по FILE_NAMING.md. Заполняйте строку только для названия или исключений.\n\n| Файл/ID | Название | Симметрия | Крепление | Наложение | Материал | Особенности |\n| --- | --- | --- | --- | --- | --- | --- |\n';
+  '# Предметы\n\nОбычному PNG достаточно простого имени из TECH_DOCS/README.md. Строка нужна только для исключений.\n\n| Файл | Название | N | Пояс | Маска | Посадка | Материал |\n| --- | --- | --- | --- | --- | --- | --- |\n';
+
 export async function initCharacterFolders(root: string) {
   for (const category of CATEGORIES) {
     const folder = path.join(root, 'CHARACTER', category);
@@ -57,6 +64,10 @@ export interface Metadata {
   pass: string;
   material: string;
   notes: string;
+  back?: string;
+  belt?: string;
+  mask?: string;
+  reference?: string;
 }
 export function readItems(markdown: string): Metadata[] {
   const result: Metadata[] = [];
@@ -71,6 +82,11 @@ export function readItems(markdown: string): Metadata[] {
     наложение: 'pass',
     материал: 'material',
     особенности: 'notes',
+    n: 'back',
+    'вид n': 'back',
+    пояс: 'belt',
+    маска: 'mask',
+    посадка: 'reference',
   };
   for (const line of markdown.split(/\r?\n/)) {
     if (!line.trim().startsWith('|')) continue;
@@ -88,7 +104,7 @@ export function readItems(markdown: string): Metadata[] {
     const row = { key: '', label: '', symmetry: '', parent: '', pass: '', material: '', notes: '' };
     cells.forEach((v, i) => {
       const key = columns[i];
-      if (key && key in row) row[key as keyof Metadata] = v;
+      if (key) (row as Metadata)[key as keyof Metadata] = v;
     });
     if (row.key) result.push(row);
   }
@@ -104,8 +120,11 @@ export interface ParsedName {
   fixed: boolean;
   template?: string;
   simple?: boolean;
+  compact?: CompactType;
 }
 export function parseName(name: string, category: Category): ParsedName {
+  const compact = parseCompact(name, category);
+  if (compact) return compact;
   if (!name.includes('__')) return parseSimpleName(name, category);
   if (!/^[a-z0-9_]+(?:__[A-Z_]+)+\.png$/.test(name))
     throw new Error('Имя: нужен латинский ID_01 и суффикс __FULL, __SYM_NES или __SYM_ES.png.');
@@ -274,6 +293,7 @@ function parseSimpleName(name: string, category: Category): ParsedName {
   };
 }
 function chooseTemplate(category: Category, n: ParsedName, parent?: string): SourceTemplate {
+  if (n.compact) return compactTemplate(n);
   if (n.simple) {
     const source = SOURCE_TEMPLATES.find((t) => t.id === n.template)!;
     const fields: Record<Category, string> = {
@@ -426,6 +446,7 @@ export function validatePixels(
   const nInvisible = ['eyes', 'mouth', 'face_features', 'jewelry'].includes(t.category);
   for (let row = 0; row < rows.length; row++)
     if (
+      !n.compact &&
       !activeRows[row] &&
       !(rows[row] === 'north' && nInvisible) &&
       !skinEffect &&
@@ -434,7 +455,7 @@ export function validatePixels(
       ['hair', 'tops', 'bottoms', 'footwear', 'hats'].includes(t.category)
     )
       throw new Error(`Отсутствует обязательный вид ${rows[row]}.`);
-  if (material !== 'fixed' && !skinEffect) {
+  if (material !== 'fixed' && !skinEffect && !n.compact) {
     const ink = (x: number, y: number) =>
       x >= 0 &&
       x < png.width &&
@@ -491,45 +512,7 @@ export function expandViews(png: PNG, t: SourceTemplate, mode: ViewMode, slot = 
   }
   return out;
 }
-export function projectFront(png: PNG, t: SourceTemplate, slot = 1) {
-  const out = new PNG({ width: t.width, height: t.height * 4 }),
-    cx = t.anchor.x;
-  png.data.copy(out.data, 2 * t.width * t.height * 4);
-  let minX = t.width,
-    maxX = -1;
-  for (let y = 0; y < t.height; y++)
-    for (let x = 0; x < t.width; x++)
-      if (png.data[(y * t.width + x) * 4 + 3]) {
-        minX = Math.min(minX, x);
-        maxX = Math.max(maxX, x);
-      }
-  const mouthMid = Math.floor((minX + maxX) / 2);
-  for (const [row, right] of [
-    [1, true],
-    [3, false],
-  ] as const)
-    for (let y = 0; y < t.height; y++)
-      for (let x = 0; x < t.width; x++) {
-        const at = (y * t.width + x) * 4;
-        if (!png.data[at + 3]) continue;
-        let accept = right ? x >= cx : x < cx,
-          shift = right ? 4 : -4;
-        if (t.field === 'mouth') {
-          accept = right ? x >= mouthMid : x <= mouthMid;
-          const mid = right ? Math.floor((mouthMid + maxX) / 2) : Math.floor((minX + mouthMid) / 2);
-          shift = (right ? cx + 14 : cx - 16) - mid;
-        } else if (t.field === 'faceFeatures') {
-          if (slot === 6) {
-            accept = Math.abs(x - cx) <= 4;
-            shift = right ? 14 : -14;
-          } else shift = right ? 2 : -2;
-        }
-        const dx = x + shift;
-        if (!accept || dx < 1 || dx >= t.width - 1) continue;
-        png.data.copy(out.data, ((row * t.height + y) * t.width + dx) * 4, at, at + 4);
-      }
-  return out;
-}
+
 interface ItemRecord {
   id: string;
   category: Category;
@@ -568,6 +551,7 @@ export async function importCharacters(root = process.cwd()) {
       a.name.localeCompare(b.name, 'en'),
     )) {
       if (!entry.isFile() || !entry.name.toLowerCase().endsWith('.png')) continue;
+      if (rows.some((row) => row.mask === entry.name)) continue;
       try {
         const parsed = parseName(entry.name, category),
           key = `${category}-${parsed.gender ?? 'any'}-${parsed.slot}`,
@@ -597,7 +581,7 @@ export async function importCharacters(root = process.cwd()) {
         const occupancy = new Set<string>();
         for (const f of files) {
           const meta = metadataFor(rows, f.name, f.parsed);
-          if (meta?.symmetry && meta.symmetry !== f.parsed.mode)
+          if (meta?.symmetry && !f.parsed.compact && meta.symmetry !== f.parsed.mode)
             throw new Error('Симметрия в ITEMS.md противоречит имени PNG.');
           const parent = meta?.parent
             ? (parentNames[meta.parent.toLowerCase()] ?? meta.parent)
@@ -665,8 +649,44 @@ export async function importCharacters(root = process.cwd()) {
           const png = PNG.sync.read(bytes, { checkCRC: true }),
             skinEffect = category === 'face_features' || category === 'body_features';
           validatePixels(png, t, f.parsed, material, skinEffect);
-          const expanded = expandViews(png, t, f.parsed.mode, f.parsed.slot);
-          prepared.push({ f, t, descriptor, expanded, sourceHash: sha(bytes), meta });
+          let rawMask: PNG | undefined, maskHash: string | undefined;
+          if (meta?.mask) {
+            if (!f.parsed.compact || !['hair', 'top'].includes(f.parsed.compact))
+              throw new Error('Техническая маска применяется к hair/top.');
+            if (
+              path.basename(meta.mask) !== meta.mask ||
+              !/^[a-z0-9_]+\.png$/.test(meta.mask) ||
+              meta.mask === f.name
+            )
+              throw new Error('Маска: отдельный PNG в той же папке без путей.');
+            const maskPath = path.join(folder, meta.mask),
+              info = await import('node:fs/promises').then((fs) => fs.lstat(maskPath));
+            if (!info.isFile() || info.size > 8 * 1024 * 1024)
+              throw new Error('Маска должна быть обычным PNG не более 8 MiB.');
+            const maskBytes = await readFile(maskPath);
+            if (
+              maskBytes.length < 33 ||
+              maskBytes.readUInt32BE(16) !== png.width ||
+              maskBytes.readUInt32BE(20) !== png.height
+            )
+              throw new Error('Размер маски не совпадает с вещью.');
+            rawMask = PNG.sync.read(maskBytes, { checkCRC: true });
+            maskHash = sha(maskBytes);
+          }
+          const converted = f.parsed.compact
+            ? expandCompact(png, t, f.parsed, meta, rawMask)
+            : { image: expandViews(png, t, f.parsed.mode, f.parsed.slot), mask: undefined };
+          prepared.push({
+            f,
+            t,
+            descriptor,
+            expanded: converted.image,
+            mask: converted.mask,
+            westMirrored: 'westMirrored' in converted ? Boolean(converted.westMirrored) : false,
+            maskHash,
+            sourceHash: sha(bytes),
+            meta,
+          });
           if (meta?.label) label = meta.label;
         }
         if (['hair', 'tops', 'bottoms', 'footwear', 'hats'].includes(category))
@@ -697,14 +717,18 @@ export async function importCharacters(root = process.cwd()) {
           throw new Error(
             'Несколько цельных вещей занимают один слот: нумеруйте варианты низа/волос в пределах общей категории.',
           );
+        if (prepared.filter((v) => v.f.parsed.compact).length > 1)
+          throw new Error('Один простой PNG на слот: bottom и skirt имеют общую нумерацию.');
         const fingerprint = sha(
           json({
             version: RIG_VERSION,
+            compactVersion: prepared.some((v) => v.f.parsed.compact) ? COMPACT_VERSION : undefined,
             prepared: prepared.map((v) => ({
               file: v.f.name,
               hash: v.sourceHash,
               descriptor: v.descriptor,
               meta: v.meta,
+              maskHash: v.maskHash,
             })),
           }),
         );
@@ -724,24 +748,35 @@ export async function importCharacters(root = process.cwd()) {
         const images = new Map<string, PNG>();
         let thumbnail = '';
         for (const v of prepared)
-          for (const piece of compileSource(
-            v.t,
-            v.descriptor,
-            v.expanded,
-            Boolean(v.f.parsed.simple),
-            v.descriptor.material === 'fixed' &&
-              prepared.some(
-                (other) =>
-                  other !== v && other.t.id === v.t.id && other.descriptor.material !== 'fixed',
-              ),
-          )) {
+          for (const piece of v.f.parsed.compact
+            ? compileCompact(
+                v.t,
+                v.descriptor,
+                v.expanded,
+                v.f.parsed,
+                v.meta,
+                v.mask,
+                v.westMirrored,
+              )
+            : compileSource(
+                v.t,
+                v.descriptor,
+                v.expanded,
+                Boolean(v.f.parsed.simple),
+                v.descriptor.material === 'fixed' &&
+                  prepared.some(
+                    (other) =>
+                      other !== v && other.t.id === v.t.id && other.descriptor.material !== 'fixed',
+                  ),
+              )) {
+            preflightCompact(piece);
             const bytes = PNG.sync.write(piece.image),
-              name = `character-${sha(bytes).slice(0, 20)}.png`;
+              name = `character-${sha(piece.descriptor.approved ? Buffer.concat([bytes, Buffer.from(json({ ...piece.descriptor, id: undefined, source: undefined, selection: undefined }))]) : bytes).slice(0, 20)}.png`;
             await writeChanged(path.join(destination, name), bytes);
             outputs.push(name);
             const d = PartEntrySchema.parse({
               ...piece.descriptor,
-              id: `character-${id.replaceAll('_', '-')}-${v.t.id}-${piece.key}-${piece.descriptor.parent.toLowerCase()}-${piece.descriptor.pass}-${piece.descriptor.material}`,
+              id: `character-${id.replaceAll('_', '-')}-${v.t.id}-${piece.key}-${piece.descriptor.parent.toLowerCase()}-${piece.descriptor.pass}-${piece.descriptor.material}`.toLowerCase(),
               source: `/content/${name}`,
             });
             parts.push(d);
@@ -773,6 +808,7 @@ export async function importCharacters(root = process.cwd()) {
             sha256: v.sourceHash,
             mode: v.f.parsed.mode,
             module: v.t.id,
+            ...(v.meta?.mask ? { mask: v.meta.mask, maskHash: v.maskHash } : {}),
           })),
           parts,
           thumbnail,
@@ -853,7 +889,9 @@ function requireSafeOutput(name: string) {
 }
 
 function makeThumbnail(parts: PartEntry[], images: Map<string, PNG>) {
-  const p = pose('average', 'south', 0),
+  const p = parts.some((d) => d.approved)
+      ? reviewPose('average', 'south', 0, parts[0]?.approved?.referenceGender ?? 'male')
+      : pose('average', 'south', 0),
     canvas = new PNG({ width: 96, height: 128 });
   const sorted = [...parts].sort((a, b) => Number(a.pass === 'front') - Number(b.pass === 'front'));
   for (const d of sorted) {

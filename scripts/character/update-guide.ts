@@ -1,195 +1,91 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { format } from 'prettier';
-import {
-  ARTIST_TEMPLATES as SOURCE_TEMPLATES,
-  ARTIST_VIEWS as VIEW_MODES,
-  templateFolder,
-  type ArtistMode as ViewMode,
-} from './artist-contract';
-async function table(file: string, key: string, value: string) {
-  const text = await readFile(file, 'utf8'),
-    start = text.indexOf(`<!-- ${key}:start -->`),
-    end = text.indexOf(`<!-- ${key}:end -->`);
-  if (start < 0 || end < 0) throw new Error('Missing guide marker');
-  await writeFile(
-    file,
-    await format(
-      text.slice(0, start) +
-        `<!-- ${key}:start -->\n${value}\n<!-- ${key}:end -->` +
-        text.slice(end + `<!-- ${key}:end -->`.length),
-      { parser: 'markdown' },
-    ),
-  );
-}
-interface Row {
-  id: string;
-  mode: ViewMode;
-  name: string;
-  category: string;
-  logic: string;
-  templateMode?: ViewMode;
-}
-const rows: Row[] = [
-  {
-    id: 'hair-short',
-    mode: 'full',
-    name: 'hair_short_full_01.png',
-    category: 'hair',
-    logic: 'Цельная причёска → перед/зад по цветным зонам',
-  },
-  {
-    id: 'hair-long',
-    mode: 'full',
-    name: 'hair_long_full_01.png',
-    category: 'hair',
-    logic: 'Один лист головы/шеи/груди → перед/зад; pair = 3 вида',
-  },
-  {
-    id: 'eyes',
-    mode: 'front',
-    name: 'eyes_basic_front_01.png',
-    category: 'eyes',
-    logic: 'Два глаза фронтом; для E/W берётся соответствующий глаз, N пусто',
-  },
-  {
-    id: 'mouth',
-    mode: 'front',
-    name: 'mouth_basic_front_01.png',
-    category: 'mouth',
-    logic: 'Один фронтальный рот; профиль из половины рисунка, N пусто',
-  },
-  {
-    id: 'details',
-    mode: 'front',
-    templateMode: 'sym1',
-    name: 'face_detail_front_01.png',
-    category: 'face_features',
-    logic: 'Фронтальная маска → соответствующие половины лица E/W; N пусто',
-  },
-  {
-    id: 'details',
-    mode: 'full',
-    name: 'hat_detail_full_01.png',
-    category: 'hats',
-    logic: 'Четыре настоящих вида шапки; sym1 только для одинаковой плоской детали',
-  },
-  {
-    id: 'details',
-    mode: 'sym2',
-    name: 'accessory_detail_sym2_01.png',
-    category: 'jewelry',
-    logic: 'Фронт + правый бок; W отражается из E, N повторяет фронт',
-  },
-  {
-    id: 'details',
-    mode: 'full',
-    name: 'accessory_detail_full_01.png',
-    category: 'jewelry',
-    logic: 'Все четыре вида художника, без отражения',
-  },
-  ...(['pants', 'skirt', 'shorts'] as const).flatMap((kind) =>
-    (['high', 'low'] as const).map((fit) => ({
-      id: `${kind}-${fit}`,
-      mode: 'full' as const,
-      name: `${kind}_${fit}_full_01.png`,
-      category: 'bottoms',
-      logic:
-        fit === 'high'
-          ? kind === 'skirt'
-            ? 'Цельная юбка → верхний пояс + цельная нижняя часть'
-            : 'Цельная вещь → верхний пояс + нижняя часть; штанины выделяет код'
-          : 'Цельная вещь без верхней полосы → только нижний модуль',
-    })),
-  ),
-  {
-    id: 'shoe',
-    mode: 'pair',
-    name: 'shoes_basic_pair_01.png',
-    category: 'footwear',
-    logic: 'Один ботинок: фронт/бок/спина; W и второй ботинок формируются кодом',
-  },
-  {
-    id: 'top',
-    mode: 'full',
-    name: 'top_body_full_01.png',
-    category: 'tops',
-    logic: 'Корпус верха; рукав необязателен для безрукавки',
-  },
-  {
-    id: 'top-female',
-    mode: 'full',
-    name: 'top_body_female_full_01.png',
-    category: 'tops',
-    logic: 'Необязательная посадка на женские плечи; это альтернатива общему верху',
-  },
-  {
-    id: 'sleeve',
-    mode: 'full',
-    name: 'top_sleeve_full_01.png',
-    category: 'tops',
-    logic: 'Один рукав → две руки; same number as body',
-  },
-  {
-    id: 'glove',
-    mode: 'pair',
-    name: 'top_glove_pair_01.png',
-    category: 'tops',
-    logic: 'Одна цельная перчатка/манжета → две кисти',
-  },
-  {
-    id: 'body',
-    mode: 'full',
-    name: 'body_torso_full_01.png',
-    category: 'body_features',
-    logic: 'Накладка корпуса; тело не рисовать',
-  },
-  {
-    id: 'body-arm',
-    mode: 'full',
-    name: 'body_arm_full_01.png',
-    category: 'body_features',
-    logic: 'Накладка руки; тело не рисовать',
-  },
-  {
-    id: 'body-leg',
-    mode: 'full',
-    name: 'body_leg_full_01.png',
-    category: 'body_features',
-    logic: 'Накладка ноги; тело не рисовать',
-  },
-  {
-    id: 'item',
-    mode: 'full',
-    name: 'item_hand_full_01.png',
-    category: 'specials',
-    logic: 'Предмет на кисти; не верхняя деталь головы',
-  },
-];
-const header = [
-  '| Имя файла / тип | Папка CHARACTER | Рисунков | Готовый PNG | Шаблон | Что делает программа |',
-  '| --- | --- | ---: | --- | --- | --- |',
-];
-const lines = rows.map((row) => {
-  const t = SOURCE_TEMPLATES.find((t) => t.id === row.id)!,
-    mode = row.templateMode ?? row.mode,
-    folder = templateFolder(t),
-    stem = `TEMPLATES/${folder}/${t.id.replaceAll('-', '_')}_${mode}`,
-    count = VIEW_MODES[row.mode].length;
-  return `| \`${row.name}\` | ${row.category} | ${count} | ${t.width}×${t.height * count} | [TEMPLATE](${stem}_TEMPLATE.png) · [EMPTY](${stem}_EMPTY.png) | ${row.logic.replace('same number as body', 'тот же номер, что у корпуса')} |`;
-});
-await table('TECH_DOCS/CHARACTER/README.md', 'character-sizes', [...header, ...lines].join('\n'));
-const rootLines = rows.map((row) => {
-  const t = SOURCE_TEMPLATES.find((t) => t.id === row.id)!,
-    count = VIEW_MODES[row.mode].length,
-    stem = `CHARACTER/TEMPLATES/${templateFolder(t)}/${t.id.replaceAll('-', '_')}_${row.templateMode ?? row.mode}`;
-  return `| \`${row.name}\` | ${count} | ${t.width}×${t.height * count} | [Шаблон](${stem}_TEMPLATE.png) | [${row.category}](../CHARACTER/${row.category}) |`;
-});
-await table(
-  'TECH_DOCS/README.md',
-  'character-categories',
+import { COMPACT_SPECS, COMPACT_TYPES } from './compact-contract';
+const rows = [
+  ['hair_01.png', 'hair', 'Цельная универсальная причёска', 'S/E/N', 'W из E'],
+  ['hair_f_01.png', 'hair', 'Женский вариант, только при отличии дизайна', 'S/E/N', 'W из E'],
+  ['hair_m_01.png', 'hair', 'Мужской вариант, только при отличии дизайна', 'S/E/N', 'W из E'],
   [
-    '| Файл-пример | Рисунков | PNG | Шаблон | Куда загрузить |',
-    '| --- | ---: | --- | --- | --- |',
-    ...rootLines,
-  ].join('\n'),
+    'top_01.png',
+    'top',
+    'Весь верх с обоими рукавами и при необходимости перчатками',
+    'S/E/N',
+    'W из E',
+  ],
+  [
+    'bottom_01.png',
+    'bottom',
+    'Цельные брюки, шорты или капри любой нарисованной длины',
+    'S/E/N',
+    'W из E',
+  ],
+  ['skirt_01.png', 'skirt', 'Цельная юбка, не две штанины', 'S/E/N', 'W из E'],
+  ['shoes_01.png', 'shoes', 'Один ботинок, три рисунка', 'S/E/N', 'W и второй ботинок'],
+  ['hat_01.png', 'hat', 'Шапка', 'S; другие виды по дизайну', 'По таблице HEAD'],
+  [
+    'accessory_01.png',
+    'accessory',
+    'Украшение/аксессуар головы и верхней шеи',
+    'S; другие виды по дизайну',
+    'По таблице HEAD',
+  ],
+  ['eyes_01.png', 'eyes', 'Два глаза только спереди', 'Только S', 'Профильные глаза; N пустой'],
+  ['mouth_01.png', 'mouth', 'Один фронтальный рот', 'Только S', 'Профиль; N пустой'],
+  [
+    'face_01.png',
+    'face',
+    'Фронтальная маска кожи/лица без второй кожи',
+    'Только S',
+    'Профили; N пустой',
+  ],
+] as const;
+const table = rows.map(([name, type, what, required, fill]) => {
+  const d = COMPACT_TYPES[type],
+    t = COMPACT_SPECS[d.template];
+  return `| \`${name}\` | [${d.template}](CHARACTER/TEMPLATES/${d.template}_TEMPLATE.png) | ${t.width}×${t.height * (type === 'shoes' ? 3 : 4)} | ${what} | ${required} | ${fill} | [${d.category}](../CHARACTER/${d.category}) |`;
+});
+const intro = `# Пять макетов для художника Creative Factory
+
+Персонаж **01432c7 утверждён**: тело, пропорции, четыре комплекции и анимация сохранены. [Скачать весь комплект](CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip) · [Эталон тела](CHARACTER/BODY_STANDARD.md) · [Правила макетов и исключения](CHARACTER/ART_RULES.md) · [Проверка и сдача](CHARACTER/DELIVERY.md).
+
+1. Открыть один из **пяти** TEMPLATE: HAIR, HEAD, TOP, BOTTOM или SHOES.
+2. Рисовать цельную вещь **на новом прозрачном слое**. Серая подложка, цветные зоны, сетка и крест — только ориентиры, их скрыть при экспорте.
+3. Сохранить полный PNG в исходном размере, без обрезки полей и сглаживания. Внешняя обводка **2 px**, [пять технических цветов](CHARACTER/COLORS.png); глаза/рот и fixed-детали могут быть цветными. Цветовые и анимационные копии не нужны.
+4. Ячейки идут сверху вниз **S/E/N/W**: спереди, смотрит вправо, сзади, смотрит влево. У SHOES только **S/E/N одного ботинка**. Неиспользуемая ячейка полностью прозрачна; вид определяется по alpha, не по визуальному сходству.
+5. Назвать PNG по таблице, номер **01…06 — существующий слот**. Для обычной вещи других файлов не нужно. Bottom и skirt имеют общие шесть слотов; универсальные волосы и f/m-альтернативы в одном слоте не смешивать.
+6. Положить в CHARACTER, попросить Codex **«Импортируй новые PNG из CHARACTER»**. **npm run character:import** автоматически готовит ракурсы, внутренние модули и подгонку; оригиналы не переписываются. Сначала проверить один комплект, затем рисовать серию.
+
+| Имя PNG | Макет | Весь PNG | Что рисовать | Обязательные виды | Что достраивается | Куда положить |
+| --- | --- | --- | --- | --- | --- | --- |
+${table.join('\n')}
+
+У первых четырёх макетов всегда четыре ячейки, даже если часть пустая. Не делать отдельные холсты по длине волос, фасону/посадке низа, полу, симметрии, корпусу/рукавам/перчаткам. Особенности тела и предметы в руках сейчас не входят в художественное производство; их существующие пункты редактора и сохранения остаются.
+
+## HEAD: что означают заполненные ячейки
+
+| Заполнены | Действие для шапки/аксессуара |
+| --- | --- |
+| S | Один вид повторяется для E/N/W |
+| S/E | N копирует S, W отражает E |
+| S/E/N | W отражает E |
+| S/E/W | E и W самостоятельные; N — горизонтальное отражение S |
+| S/E/N/W | Все виды самостоятельные |
+
+Для S/E/W можно указать **N=copy** в ITEMS.md вместо отражения. Для объёмной шапки с отличающимся затылком нарисовать N: пустая ячейка сознательно разрешает программе достроить её. Другие сочетания — ошибка. Eyes/mouth/face — исключение: только S, программа проецирует профиль, N оставляет пустым.
+
+TOP, BOTTOM и HAIR требуют собственных S/E/N; такой минимум сохраняет настоящий задний вид объёмной вещи. Если W нарисован, он никогда не заменяется отражением. Исходные цвета/пиксели не «распознаются» нейросетью; используются точные зоны и утверждённые опоры.
+
+Простой старт: **4 PNG** — hair, top, bottom/skirt, shoes. Рукава/штанины/слои волос программа выделяет сама, без ручного разрезания и кадров ходьбы. Для сложного перекрытия есть необязательная техническая маска в ITEMS.md; её формат — в ART_RULES.
+`;
+await writeFile('TECH_DOCS/README.md', await format(intro, { parser: 'markdown' }));
+const sizes = Object.entries(COMPACT_SPECS).map(
+  ([id, t]) =>
+    `| [${id}](TEMPLATES/${id}_TEMPLATE.png) | ${t.width}×${t.height} | ${id === 'SHOES' ? 3 : 4} | ${t.width}×${t.height * (id === 'SHOES' ? 3 : 4)} | ${t.anchor.x},${t.anchor.y} |`,
+);
+await writeFile(
+  'TECH_DOCS/CHARACTER/README.md',
+  await format(
+    `# Пять действующих художественных макетов\n\n[Начать с короткой инструкции и имён](../README.md) · [Скачать комплект](CREATIVE_FACTORY_ARTIST_KIT.zip) · [Правила](ART_RULES.md) · [Утверждённое тело](BODY_STANDARD.md) · [Сдача](DELIVERY.md).\n\n| Макет | Клетка | Ячеек | Весь PNG | Опора клетки |\n| --- | --- | ---: | --- | --- |\n${sizes.join('\n')}\n\nПорядок S/E/N/W; у обуви S/E/N. Голова/шея/корпус/руки внутри подложки — ориентир. Экспортировать только новый художественный слой на прозрачности. Отдельные EMPTY, версии по полу/симметрии и отдельные рукава/штанины не нужны. Контур 2 исходных px, художник не рисует анимацию или четыре комплекции.\n`,
+    { parser: 'markdown' },
+  ),
 );

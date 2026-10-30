@@ -49,6 +49,14 @@ export const PartSchema = z
       .optional(),
     hideBase: z.boolean().default(false),
     sync: z.enum(['head', 'limb', 'body', 'static']),
+    approved: z
+      .object({
+        version: z.literal(1),
+        kind: z.enum(['head', 'torso', 'belt', 'pelvis', 'arm', 'hand', 'leg', 'foot']),
+        referenceGender: z.enum(['male', 'female']),
+      })
+      .strict()
+      .optional(),
     overrides: z
       .array(
         z.object({

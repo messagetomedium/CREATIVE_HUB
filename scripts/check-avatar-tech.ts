@@ -36,6 +36,7 @@ for (const row of manifest.geometry) {
   assert.deepEqual(row.femaleFront, editorDimensions(row.build, false, 'female', 'south'));
   assert.deepEqual(row.side, editorDimensions(row.build, true));
 }
+assert.equal(manifest.templates.length, 5);
 assert.equal(
   manifest.templates.length,
   ARTIST_TEMPLATES.reduce((sum, t) => sum + t.modes.length, 0),
@@ -50,20 +51,14 @@ for (const t of ARTIST_TEMPLATES)
     assert.deepEqual(record.anchor, t.anchor);
     assert.deepEqual(record.views, views);
     assert.equal(record.parent, t.parent);
-    for (const field of ['template', 'empty']) {
+    for (const field of ['template']) {
       const png = PNG.sync.read(await readFile(record[field]), { checkCRC: true });
       assert.equal(png.width, t.width);
       assert.equal(png.height, t.height * views.length);
-      if (field === 'empty')
-        assert(
-          png.data.every((v, i) => i % 4 !== 3 || v === 0),
-          record[field],
-        );
-      else
-        assert(
-          png.data.some((v, i) => i % 4 === 3 && v > 0),
-          record[field],
-        );
+      assert(
+        png.data.some((v, i) => i % 4 === 3 && v > 0),
+        record[field],
+      );
     }
   }
 for (const reference of manifest.references) {
@@ -118,10 +113,10 @@ with ZipFile('TECH_DOCS/CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip') as z:
   if n != 'START_HERE.md': assert z.read(n) == Path(n).read_bytes(), n
  expected={p.as_posix() for p in Path('TECH_DOCS').rglob('*') if p.is_file() and p.suffix in ('.md','.png')}
  expected.add('CHARACTER/README.md')
- expected.update(p.as_posix() for p in Path('CHARACTER').glob('*/ITEMS.md'))
+ expected.update(p.as_posix() for p in Path('CHARACTER').glob('*/ITEMS.md') if p.parent.name not in ('body_features','specials'))
  assert set(z.namelist()) == expected | {'START_HERE.md'}
 `,
 ]);
 console.log(
-  `Verified approved source hashes, ${manifest.templates.length} TEMPLATE/EMPTY pairs, four builds, body references, anchors, transparency, links and artist ZIP.`,
+  `Verified approved source hashes, ${manifest.templates.length} artist TEMPLATE canvases, four builds, body references, anchors, transparency, links and artist ZIP.`,
 );
