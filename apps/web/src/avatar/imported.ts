@@ -12,6 +12,7 @@ const fields: Record<string, string> = {
   hat: 'hats',
   jewelry: 'jewelry',
   special: 'specials',
+  socks: 'socks',
 };
 interface ImportedItem {
   category: string;

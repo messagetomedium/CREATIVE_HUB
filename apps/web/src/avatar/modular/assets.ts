@@ -6,6 +6,8 @@ import { contentPath } from '../../game/contentPath';
 import { colorMask, normalizeMask, mix } from './materials';
 import type { PartImage } from './render';
 import { fitApprovedPixels } from './approved-fit';
+import { footUnderlays } from './foot-underlay';
+import { skinLegwear } from '../wardrobe';
 const entries = partsSource.map((entry) => PartEntrySchema.parse(entry));
 const pixelsCache = new Map<string, HTMLCanvasElement>();
 export async function loadParts(
@@ -22,7 +24,7 @@ export async function loadParts(
       s.field === 'base' ? 1 : s.field === 'hair' ? choices.hair[choices.gender] : choices[s.field];
     return Array.isArray(v) ? v.includes(s.slot) : v === s.slot;
   });
-  return Promise.all(
+  const loaded = await Promise.all(
     selected.map(async (d: PartEntry) => {
       signal.throwIfAborted();
       if (!d.source) throw new Error('Не задан источник части');
@@ -55,6 +57,7 @@ export async function loadParts(
       copy.height = original.height;
       const ctx = copy.getContext('2d')!;
       const pixels = original.getContext('2d')!.getImageData(0, 0, original.width, original.height);
+      const accents = d.preserveColors ? new Uint8ClampedArray(pixels.data) : undefined;
       if (d.material !== 'fixed') {
         const skinEffect =
           d.selection.field === 'faceFeatures' || d.selection.field === 'bodyFeatures';
@@ -65,6 +68,7 @@ export async function loadParts(
           top: config.palette.outfit,
           bottom: choices.colors.bottom,
           footwear: config.palette.shoes,
+          socks: choices.colors.socks ?? '#f1e9d8',
           hat: choices.colors.hat,
           jewelry: choices.colors.jewelry,
           special: choices.colors.special,
@@ -75,6 +79,13 @@ export async function loadParts(
           color = mix(config.palette.skin, pigment, 0.5);
         }
         colorMask(pixels, color);
+        if (accents)
+          for (let at = 0; at < accents.length; at += 4)
+            if (
+              accents[at + 3] &&
+              (accents[at] !== accents[at + 1] || accents[at] !== accents[at + 2])
+            )
+              pixels.data.set(accents.subarray(at, at + 4), at);
       }
       if (d.approved) {
         const fitted = fitApprovedPixels(
@@ -88,6 +99,7 @@ export async function loadParts(
         const out = copy.getContext('2d')!,
           data = out.createImageData(copy.width, copy.height);
         data.data.set(fitted.raster.data);
+        if (d.selection.field === 'bottom' && skinLegwear(config)) data.data.fill(0);
         out.putImageData(data, 0, 0);
         return { descriptor: fitted.descriptor, image: copy };
       }
@@ -95,6 +107,16 @@ export async function loadParts(
       return { descriptor: d, image: copy };
     }),
   );
+  const priority = (p: PartImage) =>
+    p.descriptor.selection?.field === 'socks'
+      ? 0
+      : p.descriptor.selection?.field === 'bottom'
+        ? 1
+        : 2;
+  loaded.sort((a, b) => priority(a) - priority(b));
+  return loaded.some((p) => p.descriptor.selection?.field === 'footwear')
+    ? [...footUnderlays(config, geometry), ...loaded]
+    : loaded;
 }
 import atlasUrl from '../../../../../content/avatars/modular/hair-indexed.png?url&no-inline';
 let atlas: HTMLCanvasElement | undefined;

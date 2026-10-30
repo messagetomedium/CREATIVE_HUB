@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { avatarCatalog } from '../../apps/web/src/avatar/catalog';
 import { profilePayload } from '../../apps/web/src/account/service';
 import { updateConstructor } from '../../apps/web/src/avatar/editor';
+import { updateWardrobe } from '../../apps/web/src/avatar/wardrobe';
 import { EMPTY_PROFILE } from '@creative-factory/contracts';
 
 // Runs the ACTUAL migration/constraints/RLS in PostgreSQL WASM, with simulated JWT identity.
@@ -54,6 +55,44 @@ afterAll(async () => {
   await db?.close();
 });
 describe('real migration under authenticated/anon PostgreSQL roles', () => {
+  test('expanded wardrobe round-trips under owner RLS and rejects invalid sock/tone fields', async () => {
+    await as(A);
+    const { revision: _, ...config } = updateWardrobe(avatarCatalog.defaultAvatar, {
+      top: 10,
+      bottom: 9,
+      socks: 3,
+      legwearTone: 'skin',
+      colors: {
+        bottom: '#46584c',
+        hat: '#a294bd',
+        jewelry: '#ccac62',
+        special: '#f1e9d8',
+        socks: '#f1e9d8',
+      },
+    });
+    for (const patch of [
+      { top: 11 },
+      { bottom: 10 },
+      { socks: 4 },
+      { socks: 'knee' },
+      { legwearTone: 'url' },
+      { colors: { ...config.customization!.colors, socks: 'red' } },
+    ])
+      await expect(
+        saveAvatar(0, { ...config, customization: { ...config.customization, ...patch } }),
+      ).rejects.toMatchObject({ code: '23514' });
+    await saveAvatar(0, config);
+    expect(
+      (await db.query<{ config: unknown }>('select config from avatar_configs')).rows[0]!.config,
+    ).toEqual(config);
+    await as(B);
+    await expect(
+      db.query('update avatar_configs set config=$1::jsonb where user_id=$2', [
+        JSON.stringify(config),
+        A,
+      ]),
+    ).resolves.toMatchObject({ affectedRows: 0 });
+  });
   test('two equal names have distinct immutable Auth IDs; email is not in any app table', async () => {
     await as(A);
     expect((await saveProfile()).rows[0]).toMatchObject({ user_id: A, revision: 1 });

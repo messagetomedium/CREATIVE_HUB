@@ -1,5 +1,801 @@
 [
   {
+    "id": "character-bottoms-any-1-compact-skirt-belt-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-d5a621ffafb2da347420.png",
+    "frameWidth": 25,
+    "frameHeight": 8,
+    "anchor": {
+      "x": 12,
+      "y": 12
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "belt",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-bottoms-any-1-compact-skirt-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-126da5c6e500ac8f003d.png",
+    "frameWidth": 48,
+    "frameHeight": 32,
+    "anchor": {
+      "x": 24,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-bottoms-any-2-compact-skirt-belt-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-273a8ceb4a22804c65a1.png",
+    "frameWidth": 25,
+    "frameHeight": 8,
+    "anchor": {
+      "x": 12,
+      "y": 12
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "belt",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-bottoms-any-2-compact-skirt-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-1455eb7caa8829b9ed3e.png",
+    "frameWidth": 48,
+    "frameHeight": 32,
+    "anchor": {
+      "x": 24,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-bottoms-any-3-compact-skirt-belt-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-4cbd065ff74c82a90efd.png",
+    "frameWidth": 20,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 10,
+      "y": 6
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "belt",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-bottoms-any-3-compact-skirt-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-e747599d13823f7d15da.png",
+    "frameWidth": 44,
+    "frameHeight": 16,
+    "anchor": {
+      "x": 22,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-bottoms-any-4-compact-bottom-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-007fe1135c9463f28ebc.png",
+    "frameWidth": 36,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 18,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-bottoms-any-4-compact-bottom-legright-legright-front-bottom",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-ee74e1b5fc2d517b883f.png",
+    "frameWidth": 34,
+    "frameHeight": 10,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-bottoms-any-4-compact-bottom-legleft-legleft-front-bottom",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-d602cf192df96963e176.png",
+    "frameWidth": 34,
+    "frameHeight": 10,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-bottoms-any-5-compact-skirt-belt-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-1a0a4ec3fc578a92eeaa.png",
+    "frameWidth": 21,
+    "frameHeight": 4,
+    "anchor": {
+      "x": 10,
+      "y": 8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "belt",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-bottoms-any-5-compact-skirt-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-9a0abc7fbf5bb4384022.png",
+    "frameWidth": 44,
+    "frameHeight": 25,
+    "anchor": {
+      "x": 22,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-bottoms-any-6-compact-bottom-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-5c3ebd7471481c208f80.png",
+    "frameWidth": 30,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 15,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-bottoms-any-6-compact-bottom-legright-legright-front-bottom",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-67d02f247506dc1c866a.png",
+    "frameWidth": 34,
+    "frameHeight": 22,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-bottoms-any-6-compact-bottom-legleft-legleft-front-bottom",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-bf4294f47ce1b1bf489f.png",
+    "frameWidth": 34,
+    "frameHeight": 22,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-bottoms-any-7-compact-bottom-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-5c3ebd7471481c208f80.png",
+    "frameWidth": 30,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 15,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-bottoms-any-7-compact-bottom-legright-legright-front-bottom",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-bb06617e5c49a503ea2f.png",
+    "frameWidth": 34,
+    "frameHeight": 11,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-bottoms-any-7-compact-bottom-legleft-legleft-front-bottom",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-e521cc002083e1b26fd4.png",
+    "frameWidth": 34,
+    "frameHeight": 11,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-bottoms-any-8-compact-bottom-belt-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-18ff25ef0cb6fd137073.png",
+    "frameWidth": 20,
+    "frameHeight": 2,
+    "anchor": {
+      "x": 10,
+      "y": 6
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "belt",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-bottoms-any-8-compact-bottom-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-14b20f2c4a8fd39aff0e.png",
+    "frameWidth": 34,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 17,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-bottoms-any-8-compact-bottom-legright-legright-front-bottom",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-2d1cc0bff363b8242628.png",
+    "frameWidth": 34,
+    "frameHeight": 24,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-bottoms-any-8-compact-bottom-legleft-legleft-front-bottom",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-bddb27c4beb72ed15989.png",
+    "frameWidth": 34,
+    "frameHeight": 24,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-bottoms-any-9-compact-bottom-main-pelvis-front-bottom",
+    "parent": "pelvis",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-5c3ebd7471481c208f80.png",
+    "frameWidth": 30,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 15,
+      "y": 4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "pelvis",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 9
+    }
+  },
+  {
+    "id": "character-bottoms-any-9-compact-bottom-legright-legright-front-bottom",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-4592b5eae3f323529a27.png",
+    "frameWidth": 34,
+    "frameHeight": 24,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 9
+    }
+  },
+  {
+    "id": "character-bottoms-any-9-compact-bottom-legleft-legleft-front-bottom",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "bottom",
+    "source": "/content/character-a4e46aba03bb00e9f793.png",
+    "frameWidth": 34,
+    "frameHeight": 24,
+    "anchor": {
+      "x": 17,
+      "y": -4
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "bottom",
+      "slot": 9
+    }
+  },
+  {
     "id": "character-eyes-any-1-compact-eyes-source-head-front-fixed",
     "parent": "head",
     "pass": "front",
@@ -426,6 +1222,342 @@
     "selection": {
       "field": "faceFeatures",
       "slot": 7
+    }
+  },
+  {
+    "id": "character-footwear-any-1-compact-shoes-source-footleft-front-footwear",
+    "parent": "footLeft",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-a31ac252a3f31f64eae7.png",
+    "frameWidth": 24,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 12,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-footwear-any-1-compact-shoes-right-shoe-footright-front-footwear",
+    "parent": "footRight",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-e18c946d35bd36082126.png",
+    "frameWidth": 24,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 12,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": true,
+    "hideBase": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-footwear-any-2-compact-shoes-source-footleft-front-footwear",
+    "parent": "footLeft",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-66b9ebff6cf4a08dbd67.png",
+    "frameWidth": 28,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 14,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-footwear-any-2-compact-shoes-right-shoe-footright-front-footwear",
+    "parent": "footRight",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-95892e21556bbb6bf82c.png",
+    "frameWidth": 28,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 14,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": true,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-footwear-any-3-compact-shoes-source-footleft-front-footwear",
+    "parent": "footLeft",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-6a6c4be9e19ddc168271.png",
+    "frameWidth": 26,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 13,
+      "y": 5
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-footwear-any-3-compact-shoes-right-shoe-footright-front-footwear",
+    "parent": "footRight",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-c37c7dc6bb0f03e02c89.png",
+    "frameWidth": 26,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 13,
+      "y": 5
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": true,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-footwear-any-4-compact-shoes-source-footleft-front-footwear",
+    "parent": "footLeft",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-e2a4c154685265536772.png",
+    "frameWidth": 28,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 14,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-footwear-any-4-compact-shoes-right-shoe-footright-front-footwear",
+    "parent": "footRight",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-0819cee1f5388794d8a7.png",
+    "frameWidth": 28,
+    "frameHeight": 9,
+    "anchor": {
+      "x": 14,
+      "y": 2
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": true,
+    "hideBase": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-footwear-any-5-compact-shoes-source-footleft-front-footwear",
+    "parent": "footLeft",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-88326a8a46a0a3576c1e.png",
+    "frameWidth": 28,
+    "frameHeight": 14,
+    "anchor": {
+      "x": 14,
+      "y": 7
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-footwear-any-5-compact-shoes-right-shoe-footright-front-footwear",
+    "parent": "footRight",
+    "pass": "front",
+    "material": "footwear",
+    "source": "/content/character-a707d9cf8b05098820a6.png",
+    "frameWidth": 28,
+    "frameHeight": 14,
+    "anchor": {
+      "x": 14,
+      "y": 7
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": true,
+    "hideBase": true,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "foot",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "footwear",
+      "slot": 5
     }
   },
   {
@@ -1020,6 +2152,1074 @@
     "selection": {
       "field": "mouth",
       "slot": 6
+    }
+  },
+  {
+    "id": "character-socks-any-1-compact-socks-legright-legright-front-socks",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-ce88f5370df55e108a80.png",
+    "frameWidth": 12,
+    "frameHeight": 6,
+    "anchor": {
+      "x": 6,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-socks-any-1-compact-socks-legleft-legleft-front-socks",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-c14bc1c39f16a7f19aaf.png",
+    "frameWidth": 12,
+    "frameHeight": 6,
+    "anchor": {
+      "x": 6,
+      "y": -20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-socks-any-2-compact-socks-legright-legright-front-socks",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-cffc9527770c7c1342d5.png",
+    "frameWidth": 12,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 6,
+      "y": -14
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-socks-any-2-compact-socks-legleft-legleft-front-socks",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-1f24ba160263a37102e9.png",
+    "frameWidth": 12,
+    "frameHeight": 12,
+    "anchor": {
+      "x": 6,
+      "y": -14
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-socks-any-3-compact-socks-legright-legright-front-socks",
+    "parent": "legRight",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-493007b557cff80bc06d.png",
+    "frameWidth": 12,
+    "frameHeight": 18,
+    "anchor": {
+      "x": 6,
+      "y": -8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-socks-any-3-compact-socks-legleft-legleft-front-socks",
+    "parent": "legLeft",
+    "pass": "front",
+    "material": "socks",
+    "source": "/content/character-05797b9a8b595e0ab4e4.png",
+    "frameWidth": 12,
+    "frameHeight": 18,
+    "anchor": {
+      "x": 6,
+      "y": -8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "leg",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "socks",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-tops-any-1-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-62642312611f3fea3bda.png",
+    "frameWidth": 32,
+    "frameHeight": 41,
+    "anchor": {
+      "x": 16,
+      "y": 21
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-tops-any-1-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-48e17853a3099e2e9490.png",
+    "frameWidth": 22,
+    "frameHeight": 39,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-tops-any-1-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-0259a542a3e4f9c30149.png",
+    "frameWidth": 22,
+    "frameHeight": 39,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 1
+    }
+  },
+  {
+    "id": "character-tops-any-10-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-2bb64652943e1f683274.png",
+    "frameWidth": 62,
+    "frameHeight": 45,
+    "anchor": {
+      "x": 31,
+      "y": 18
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 10
+    }
+  },
+  {
+    "id": "character-tops-any-10-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-31388e24746ceae9d20f.png",
+    "frameWidth": 26,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 13,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 10
+    }
+  },
+  {
+    "id": "character-tops-any-10-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-f4d5dcf2c4723f6bbae7.png",
+    "frameWidth": 26,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 13,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 10
+    }
+  },
+  {
+    "id": "character-tops-any-2-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-5830239f6a3d358d523f.png",
+    "frameWidth": 36,
+    "frameHeight": 40,
+    "anchor": {
+      "x": 18,
+      "y": 20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-tops-any-2-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-0a7f002d1ed85b94205a.png",
+    "frameWidth": 24,
+    "frameHeight": 39,
+    "anchor": {
+      "x": 12,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-tops-any-2-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-5196a43aea4a48ae807e.png",
+    "frameWidth": 24,
+    "frameHeight": 39,
+    "anchor": {
+      "x": 12,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 2
+    }
+  },
+  {
+    "id": "character-tops-any-3-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-ab13c5fecb2b0c4407bf.png",
+    "frameWidth": 52,
+    "frameHeight": 50,
+    "anchor": {
+      "x": 26,
+      "y": 16
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 3
+    }
+  },
+  {
+    "id": "character-tops-any-4-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-abcda3714ea1ac11f442.png",
+    "frameWidth": 52,
+    "frameHeight": 50,
+    "anchor": {
+      "x": 26,
+      "y": 16
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 4
+    }
+  },
+  {
+    "id": "character-tops-any-5-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-74fd0b46613d4ecc356c.png",
+    "frameWidth": 60,
+    "frameHeight": 54,
+    "anchor": {
+      "x": 30,
+      "y": 20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-tops-any-5-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-31bb4bdc55514175b1b1.png",
+    "frameWidth": 22,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-tops-any-5-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-0a4885af8929860cda86.png",
+    "frameWidth": 22,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 5
+    }
+  },
+  {
+    "id": "character-tops-any-6-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-20448eb9c5355c8e6a59.png",
+    "frameWidth": 60,
+    "frameHeight": 54,
+    "anchor": {
+      "x": 30,
+      "y": 20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-tops-any-6-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-b3e0984f82cd6aa08c78.png",
+    "frameWidth": 22,
+    "frameHeight": 40,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-tops-any-6-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-6277bfd51facf623b020.png",
+    "frameWidth": 22,
+    "frameHeight": 40,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "preserveColors": true,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 6
+    }
+  },
+  {
+    "id": "character-tops-any-7-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-a93b9d93ceed01edef6f.png",
+    "frameWidth": 56,
+    "frameHeight": 46,
+    "anchor": {
+      "x": 28,
+      "y": 20
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-tops-any-7-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-eed541159f8960804bbc.png",
+    "frameWidth": 22,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-tops-any-7-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-cb73507c99936b8adcdd.png",
+    "frameWidth": 22,
+    "frameHeight": 42,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 7
+    }
+  },
+  {
+    "id": "character-tops-any-8-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-bbefeb27126ae3f991e4.png",
+    "frameWidth": 34,
+    "frameHeight": 39,
+    "anchor": {
+      "x": 17,
+      "y": 19
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-tops-any-8-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-4f2a88f5fb0d71288d67.png",
+    "frameWidth": 22,
+    "frameHeight": 38,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-tops-any-8-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-3925b4fe40b2123d487f.png",
+    "frameWidth": 22,
+    "frameHeight": 38,
+    "anchor": {
+      "x": 11,
+      "y": 10
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 8
+    }
+  },
+  {
+    "id": "character-tops-any-9-compact-top-torso-torso-front-top",
+    "parent": "torso",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-51b434ce67b5fa08a8c4.png",
+    "frameWidth": 41,
+    "frameHeight": 37,
+    "anchor": {
+      "x": 21,
+      "y": 16
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "torso",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 9
+    }
+  },
+  {
+    "id": "character-tops-any-9-compact-top-armright-armright-front-top",
+    "parent": "armRight",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-10b9ba78e336a7a445fa.png",
+    "frameWidth": 22,
+    "frameHeight": 22,
+    "anchor": {
+      "x": 11,
+      "y": 8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 9
+    }
+  },
+  {
+    "id": "character-tops-any-9-compact-top-armleft-armleft-front-top",
+    "parent": "armLeft",
+    "pass": "front",
+    "material": "top",
+    "source": "/content/character-764ca1412dfed3d9cfb1.png",
+    "frameWidth": 22,
+    "frameHeight": 22,
+    "anchor": {
+      "x": 11,
+      "y": 8
+    },
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "fit": "fixed",
+    "mirrorWest": false,
+    "mirrorX": false,
+    "pairMirror": false,
+    "hideBase": false,
+    "sync": "body",
+    "approved": {
+      "version": 1,
+      "kind": "arm",
+      "referenceGender": "male"
+    },
+    "overrides": [],
+    "selection": {
+      "field": "top",
+      "slot": 9
     }
   }
 ]

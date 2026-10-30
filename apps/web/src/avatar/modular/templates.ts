@@ -26,6 +26,7 @@ export const CATEGORIES = [
   'hats',
   'jewelry',
   'specials',
+  'socks',
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 const t = (

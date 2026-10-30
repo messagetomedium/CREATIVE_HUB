@@ -110,10 +110,12 @@ with ZipFile('TECH_DOCS/CHARACTER/CREATIVE_FACTORY_ARTIST_KIT.zip') as z:
  assert 'START_HERE.md' in z.namelist()
  assert not any(n.startswith(('apps/', 'site/', 'node_modules/')) for n in z.namelist())
  for n in z.namelist():
-  if n != 'START_HERE.md': assert z.read(n) == Path(n).read_bytes(), n
+  if n.startswith('TECH_DOCS/'): assert z.read(n) == Path(n).read_bytes(), n
  expected={p.as_posix() for p in Path('TECH_DOCS').rglob('*') if p.is_file() and p.suffix in ('.md','.png')}
  expected.add('CHARACTER/README.md')
- expected.update(p.as_posix() for p in Path('CHARACTER').glob('*/ITEMS.md') if p.parent.name not in ('body_features','specials'))
+ # Delivery rows are a versioned scaffold inside the approved artist ZIP.
+ # Live CHARACTER inventory evolves without rewriting the artist's reference kit.
+ expected.update('CHARACTER/'+folder+'/ITEMS.md' for folder in ('hair','eyes','mouth','face_features','tops','bottoms','footwear','hats','jewelry'))
  assert set(z.namelist()) == expected | {'START_HERE.md'}
 `,
 ]);

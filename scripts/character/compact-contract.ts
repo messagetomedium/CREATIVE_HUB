@@ -14,6 +14,7 @@ export const COMPACT_TYPES = {
   bottom: { template: 'BOTTOM', category: 'bottoms', field: 'bottom', material: 'bottom' },
   skirt: { template: 'BOTTOM', category: 'bottoms', field: 'bottom', material: 'bottom' },
   shoes: { template: 'SHOES', category: 'footwear', field: 'footwear', material: 'footwear' },
+  socks: { template: 'BOTTOM', category: 'socks', field: 'socks', material: 'socks' },
   hat: { template: 'HEAD', category: 'hats', field: 'hat', material: 'hat' },
   accessory: { template: 'HEAD', category: 'jewelry', field: 'jewelry', material: 'jewelry' },
   eyes: { template: 'HEAD', category: 'eyes', field: 'eyes', material: 'fixed' },

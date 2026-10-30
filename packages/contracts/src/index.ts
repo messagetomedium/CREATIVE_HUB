@@ -105,14 +105,22 @@ export const AvatarCustomizationSchema = z
     eyes: avatarSlot,
     faceFeatures: uniqueFeatures(7),
     hair: z.object({ male: avatarSlot, female: avatarSlot }).strict(),
-    top: avatarSlot,
-    bottom: avatarSlot,
+    top: z.number().int().min(1).max(10),
+    bottom: z.number().int().min(1).max(9),
     footwear: avatarSlot,
+    socks: z.number().int().min(0).max(3).optional(),
+    legwearTone: z.enum(['skin', 'color']).optional(),
     hat: avatarSlot.nullable(),
     jewelry: avatarSlot.nullable(),
     special: avatarSlot.nullable(),
     colors: z
-      .object({ bottom: hexColor, hat: hexColor, jewelry: hexColor, special: hexColor })
+      .object({
+        bottom: hexColor,
+        hat: hexColor,
+        jewelry: hexColor,
+        special: hexColor,
+        socks: hexColor.optional(),
+      })
       .strict(),
   })
   .strict();

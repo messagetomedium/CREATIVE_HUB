@@ -11,9 +11,7 @@ import {
   appearanceKey,
   AVATAR_PALETTES,
   FABRIC_PALETTE,
-  randomAvatar,
   constructorChoices,
-  updateConstructor,
   CONSTRUCTOR_TABS,
   TAB_LABELS,
   FACE_FEATURES,
@@ -24,6 +22,7 @@ import { useUnsavedChanges } from '../router';
 import hairAtlasUrl from '../../../../content/avatars/modular/hair-indexed.png?url&no-inline';
 import { Notice } from '../components';
 import { importedChoice, importedThumbnail } from '../avatar/imported';
+import { WARDROBE, updateWardrobe, randomWardrobe, skinLegwear } from '../avatar/wardrobe';
 
 function EditorSection({
   number,
@@ -55,6 +54,7 @@ function ChoiceGrid({
     id: string | number;
     name: string;
     caption?: string;
+    hint?: string;
     selected: boolean;
     preview?: ReactNode;
     disabled?: boolean;
@@ -69,7 +69,7 @@ function ChoiceGrid({
             type="button"
             className="choice-button"
             aria-label={`${label}: ${option.name}`}
-            title={option.name}
+            title={option.hint ?? option.name}
             aria-pressed={option.selected}
             disabled={option.disabled}
             onClick={option.choose}
@@ -138,8 +138,7 @@ export function AvatarPage() {
     setError('');
     setConflict(false);
   };
-  const customize = (patch: Partial<AvatarCustomization>) =>
-    change(updateConstructor(config, patch));
+  const customize = (patch: Partial<AvatarCustomization>) => change(updateWardrobe(config, patch));
   const color = (key: keyof AvatarConfig['palette'], value: string) =>
     change({ ...config, palette: { ...config.palette, [key]: value } });
   const extraColor = (key: keyof AvatarCustomization['colors'], value: string) =>
@@ -177,8 +176,12 @@ export function AvatarPage() {
     <ColorRow
       label={label}
       colors={FABRIC_PALETTE}
-      value={c.colors[key]}
-      choose={(value) => extraColor(key, value)}
+      value={key === 'bottom' && skinLegwear(config) ? '' : (c.colors[key] ?? FABRIC_PALETTE[0]!)}
+      choose={(value) =>
+        key === 'bottom' && [6, 9].includes(c.bottom)
+          ? customize({ colors: { ...c.colors, bottom: value }, legwearTone: 'color' })
+          : extraColor(key, value)
+      }
     />
   );
   const importedPreview = (key: string, id: number) => {
@@ -193,21 +196,37 @@ export function AvatarPage() {
     ) : undefined;
   };
   const slots = (
-    key: 'mouth' | 'eyes' | 'top' | 'bottom' | 'footwear' | 'hat' | 'jewelry' | 'special',
+    key: 'mouth' | 'eyes' | 'top' | 'bottom' | 'footwear' | 'socks' | 'hat' | 'jewelry' | 'special',
     label: string,
     icon: ConstructorIconName,
   ) => (
     <ChoiceGrid
       label={label}
       icon={icon}
-      options={SLOTS.map((id) => ({
+      options={(key === 'socks'
+        ? [0, 1, 2, 3]
+        : key === 'top'
+          ? Array.from({ length: 10 }, (_, i) => i + 1)
+          : key === 'bottom'
+            ? Array.from({ length: 9 }, (_, i) => i + 1)
+            : key === 'footwear' && !importedChoice(key, 6, c.gender) && c.footwear !== 6
+              ? [1, 2, 3, 4, 5]
+              : SLOTS
+      ).map((id) => ({
         id,
-        name: `Вариант ${id}`,
+        name: key === 'socks' ? WARDROBE.socks[id]! : `Вариант ${id}`,
+        hint:
+          key in WARDROBE
+            ? WARDROBE[key as keyof typeof WARDROBE][key === 'socks' ? id : id - 1]
+            : undefined,
         preview: importedPreview(key, id),
-        selected: c[key] === id,
+        selected: (c[key] ?? 0) === id,
         choose: () =>
           customize({
             [key]: ['hat', 'jewelry', 'special'].includes(key) && c[key] === id ? null : id,
+            ...(key === 'bottom' && [6, 9].includes(id)
+              ? { legwearTone: id === 9 ? 'skin' : 'color' }
+              : {}),
           }),
       }))}
     />
@@ -385,11 +404,26 @@ export function AvatarPage() {
                     </EditorSection>
                     <EditorSection number="02" title="Низ">
                       {slots('bottom', 'Низ', 'bottom')}
+                      {[6, 9].includes(c.bottom) && (
+                        <button
+                          type="button"
+                          className="text-link"
+                          aria-label="Низ: Цвет тела"
+                          aria-pressed={skinLegwear(config)}
+                          onClick={() => customize({ legwearTone: 'skin' })}
+                        >
+                          Цвет тела
+                        </button>
+                      )}
                       {detailPalette('bottom', 'Цвет низа')}
                     </EditorSection>
                     <EditorSection number="03" title="Обувь">
                       {slots('footwear', 'Обувь', 'shoes')}
                       {palette('shoes', 'Цвет обуви')}
+                    </EditorSection>
+                    <EditorSection number="04" title="Носки">
+                      {slots('socks', 'Носки', 'shoes')}
+                      {detailPalette('socks', 'Цвет носков')}
                     </EditorSection>
                   </>
                 )}
@@ -497,7 +531,7 @@ export function AvatarPage() {
               type="button"
               className="button secondary random-action"
               disabled={busy}
-              onClick={() => change(randomAvatar(avatarCatalog, config))}
+              onClick={() => change(randomWardrobe(config))}
             >
               Случайный вид
             </button>

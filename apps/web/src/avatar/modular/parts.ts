@@ -26,6 +26,7 @@ export const PartSchema = z
       'top',
       'bottom',
       'footwear',
+      'socks',
       'hat',
       'jewelry',
       'special',
@@ -48,6 +49,7 @@ export const PartSchema = z
       .strict()
       .optional(),
     hideBase: z.boolean().default(false),
+    preserveColors: z.boolean().optional(),
     sync: z.enum(['head', 'limb', 'body', 'static']),
     approved: z
       .object({
@@ -92,6 +94,7 @@ export const PartEntrySchema = PartSchema.extend({
         'top',
         'bottom',
         'footwear',
+        'socks',
         'hat',
         'jewelry',
         'special',

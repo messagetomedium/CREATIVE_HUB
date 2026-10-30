@@ -16,16 +16,26 @@ import {
 import type { CompiledSource } from './compile-source';
 export function parseCompact(name: string, category: Category): ParsedName | undefined {
   const m = name.match(
-    /^(hair|top|bottom|skirt|shoes|hat|accessory|eyes|mouth|face)(?:_([fm]))?_([0-9]{2})\.png$/,
+    /^(hair|top|bottom|skirt|shoes|socks|hat|accessory|eyes|mouth|face)(?:_([fm]))?_([0-9]{2})\.png$/,
   );
   if (!m) return;
   const type = m[1] as CompactType,
     spec = COMPACT_TYPES[type],
     slot = Number(m[3]);
   if (spec.category !== category) throw new Error('Имя PNG не соответствует папке CHARACTER.');
-  if (slot < 1 || slot > (type === 'face' ? 7 : 6))
+  const limit =
+    type === 'top'
+      ? 10
+      : ['bottom', 'skirt'].includes(type)
+        ? 9
+        : type === 'socks'
+          ? 3
+          : type === 'face'
+            ? 7
+            : 6;
+  if (slot < 1 || slot > limit)
     throw new Error(
-      'Номер должен быть 01…06 (для лица 01…07); bottom и skirt используют общие слоты.',
+      `Номер должен быть 01…${String(limit).padStart(2, '0')}; bottom и skirt используют общие слоты.`,
     );
   if (m[2] && type !== 'hair')
     throw new Error(
@@ -193,7 +203,7 @@ export function compileCompact(
   if (!gender) throw new Error('Посадка: male/мужская или female/женская.');
   const referencePose = (direction: (typeof RUNTIME_VIEWS)[number]) => {
     const p = reviewPose('average', direction, 0, gender);
-    if (direction === 'west' && westMirrored && ['top', 'bottom'].includes(n.compact!)) {
+    if (direction === 'west' && westMirrored && ['top', 'bottom', 'socks'].includes(n.compact!)) {
       const east = reviewPose('average', 'east', 0, gender),
         mirror = (pt: { x: number; y: number }) => ({ x: 96 - pt.x, y: pt.y });
       p.arms = [...east.arms].reverse().map((arm) => ({
@@ -370,7 +380,7 @@ export function compileCompact(
               keys.add('torso');
           }
           for (const key of keys) put(key, key as PartEntry['parent'], row, x, y);
-        } else if (n.compact === 'bottom' || n.compact === 'skirt') {
+        } else if (n.compact === 'bottom' || n.compact === 'skirt' || n.compact === 'socks') {
           if (y < BELT_ZONE.top) throw new Error('BOTTOM: рисунок выше поясной зоны y=8.');
           if (mask)
             throw new Error(
@@ -398,6 +408,10 @@ export function compileCompact(
               x,
               y,
             );
+            // The approved torso extends four pixels below the technical leg
+            // split. Copy the existing hip overlap so its skin cannot cover pants.
+            if (n.compact === 'bottom' && y < BELT_ZONE.legSplit + 4)
+              put('main', 'pelvis', row, x, y);
           }
         } else put('source', d.parent, row, x, y, d.pass);
       }
@@ -405,7 +419,7 @@ export function compileCompact(
   // In a profile the artist draws the visible limb once; supply the hidden partner locally.
   for (const family of n.compact === 'top'
     ? ['arm', 'hand']
-    : n.compact === 'bottom'
+    : n.compact === 'bottom' || n.compact === 'socks'
       ? ['leg']
       : [])
     for (const direction of ['east', 'west'] as const) {

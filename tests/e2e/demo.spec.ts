@@ -202,7 +202,11 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
   expect(colorWidth / buttonWidth).toBeLessThan(0.55);
   const sections = [
     ['Голова', ['Рот', 'Глаза', 'Особенности лица', 'Причёска'], ['Цвет волос']],
-    ['Одежда', ['Верх', 'Низ', 'Обувь'], ['Цвет верха', 'Цвет низа', 'Цвет обуви']],
+    [
+      'Одежда',
+      ['Верх', 'Низ', 'Обувь', 'Носки'],
+      ['Цвет верха', 'Цвет низа', 'Цвет обуви', 'Цвет носков'],
+    ],
     [
       'Детали',
       ['Шапка', 'Украшение', 'Особый предмет'],
@@ -214,7 +218,19 @@ test('compact tabs, six-column slots, fixed palettes and four preview controls',
     for (const group of groups)
       await expect(
         page.getByRole('group', { name: group, exact: true }).getByRole('button'),
-      ).toHaveCount(group === 'Особенности лица' ? 7 : 6);
+      ).toHaveCount(
+        group === 'Особенности лица'
+          ? 7
+          : group === 'Верх'
+            ? 10
+            : group === 'Низ'
+              ? 9
+              : group === 'Обувь'
+                ? 5
+                : group === 'Носки'
+                  ? 4
+                  : 6,
+      );
     for (const color of colors)
       await expect(
         page.getByRole('group', { name: color, exact: true }).getByRole('button'),

@@ -308,6 +308,7 @@ function chooseTemplate(category: Category, n: ParsedName, parent?: string): Sou
       hats: 'hat',
       jewelry: 'jewelry',
       specials: 'special',
+      socks: 'socks',
     };
     const materials: Record<Category, string> = {
       hair: 'hair',
@@ -321,6 +322,7 @@ function chooseTemplate(category: Category, n: ParsedName, parent?: string): Sou
       hats: 'hat',
       jewelry: 'jewelry',
       specials: 'special',
+      socks: 'socks',
     };
     return { ...source, category, field: fields[category], material: materials[category] };
   }
@@ -356,6 +358,7 @@ function chooseTemplate(category: Category, n: ParsedName, parent?: string): Sou
     hats: 'hat',
     jewelry: 'jewelry',
     specials: 'item',
+    socks: 'bottom',
   };
   let id = n.module ? byModule[n.module] : defaults[category];
   if (!n.module && category === 'jewelry' && parent?.startsWith('torso')) id = 'jewelry-body';
@@ -393,6 +396,7 @@ export function validatePixels(
   n: ParsedName,
   material: string,
   skinEffect: boolean,
+  preserveColors = false,
 ) {
   const rows = VIEW_MODES[n.mode];
   if (png.width !== t.width || png.height !== t.height * rows.length)
@@ -423,6 +427,7 @@ export function validatePixels(
         );
       if (
         material !== 'fixed' &&
+        !preserveColors &&
         (png.data[i] !== png.data[i + 1] ||
           png.data[i] !== png.data[i + 2] ||
           !levels.includes(png.data[i]!))
@@ -610,6 +615,7 @@ export async function importCharacters(root = process.cwd()) {
             throw new Error('Наложение в ITEMS.md противоречит суффиксу PNG.');
           descriptor.pass = (explicitPass ?? f.parsed.pass ?? 'front') as PartEntry['pass'];
           const materials: Record<string, string> = {
+            mixed: t.material,
             фиксированный: 'fixed',
             маска: t.material,
             кожа: 'skin',
@@ -631,6 +637,7 @@ export async function importCharacters(root = process.cwd()) {
           if (!['fixed', t.material].includes(material))
             throw new Error('Материал не соответствует категории.');
           descriptor.material = material as PartEntry['material'];
+          if (meta?.material === 'mixed') descriptor.preserveColors = true;
           descriptor.selection.gender = f.parsed.gender;
           const key = [descriptor.parent, descriptor.pass, descriptor.material, t.id].join('/');
           if (occupancy.has(key)) throw new Error('Два PNG занимают один и тот же модуль/слот.');
@@ -648,7 +655,7 @@ export async function importCharacters(root = process.cwd()) {
             );
           const png = PNG.sync.read(bytes, { checkCRC: true }),
             skinEffect = category === 'face_features' || category === 'body_features';
-          validatePixels(png, t, f.parsed, material, skinEffect);
+          validatePixels(png, t, f.parsed, material, skinEffect, descriptor.preserveColors);
           let rawMask: PNG | undefined, maskHash: string | undefined;
           if (meta?.mask) {
             if (!f.parsed.compact || !['hair', 'top'].includes(f.parsed.compact))
@@ -723,6 +730,11 @@ export async function importCharacters(root = process.cwd()) {
           json({
             version: RIG_VERSION,
             compactVersion: prepared.some((v) => v.f.parsed.compact) ? COMPACT_VERSION : undefined,
+            wardrobeVersion:
+              ['tops', 'bottoms', 'footwear', 'socks'].includes(category) &&
+              prepared.some((v) => v.f.parsed.compact)
+                ? 'approved-wardrobe-1'
+                : undefined,
             prepared: prepared.map((v) => ({
               file: v.f.name,
               hash: v.sourceHash,
